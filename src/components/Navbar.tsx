@@ -52,7 +52,7 @@ const Navbar = () => {
                   PS
                 </div>
               </div>
-              <span className="ml-2 text-xl font-bold ">Pnice Shipping</span>
+              <span className="ml-2 text-xl font-bold ">Pnice Shipping Services</span>
             </Link>
           </div>
 
