@@ -1,0 +1,13 @@
+.side-nav{
+    transform: translateX(300px);
+    transition: all .4s ease-out;
+}
+
+.side-nav.active{
+    transform: translateX(0);
+}
+
+.closed{
+    transform: translateX(800px);
+    transition: all .4s ease-out;
+}
