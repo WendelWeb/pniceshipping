@@ -40,7 +40,6 @@ const Navbar = () => {
 
   return (
     <>
-
     <nav className="md:bg-white bg-amber-100 md:shadow-sm  fixed w-full top-0 z-50">
       <div className="max-w-8xl mx-auto lg:mx-10 px-4 sm:px-6 lg:px-5 ">
         <div className="flex justify-between items-center h-20">
@@ -55,7 +54,6 @@ const Navbar = () => {
               <span className="ml-2 text-xl font-bold ">Pnice Shipping Services</span>
             </Link>
           </div>
-
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex text-xl items-center space-x-8 justify-between">
             <Link to="/home" className="text-gray-700 hover:text-blue-600">

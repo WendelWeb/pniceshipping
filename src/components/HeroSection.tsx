@@ -8,6 +8,7 @@ import {
 const HeroSection = () => {
   const { user } = useUser();
   console.log(user?.lastName);
+  console.log(user);
   const userLastName = user?.firstName;
 
   return (

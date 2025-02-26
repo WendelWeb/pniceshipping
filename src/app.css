@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:is(.dark *));
+
 @plugin 'tailwindcss-animate';
 *{
     scroll-behavior: smooth;
 }
+

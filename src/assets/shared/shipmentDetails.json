@@ -1,0 +1,69 @@
+{
+    "shipmentDetails": [
+      {
+        "label": "Full Name",
+        "name": "fullName",
+        "fieldType": "text",
+        "required": true,
+        "column": 2,
+        "icon": "FaUser"
+      },
+      
+      {
+        "label": "Username",
+        "name": "userName",
+        "fieldType": "text",
+        "required": true,
+        "column": 2,
+        "icon": "FaUser"
+      },
+      {
+        "label": "Email Adress",
+        "name": "emailAdress",
+        "fieldType": "text",
+        "required": true,
+        "column": 2,
+        "icon": "MdEmail"
+      },
+      {
+        "label": "Tracking Number",
+        "name": "trackingNumber",
+        "fieldType": "text",
+        "required": true,
+        "column": 2,
+        "icon": "FaBarcode"
+      },
+      {
+        "label": "Category",
+        "name": "category",
+        "fieldType": "dropdown",
+        "options": ["Standard", "Electronics" ],
+        "required": true,
+        "column": 1,
+        "icon": "FaCar"
+      }, 
+     
+     
+      
+      {
+        "label": "Weight",
+        "name": "weight",
+        "fieldType": "number",
+        "required": true,
+        "column": 1,
+        "icon": "GiWeightScale"
+      },
+     
+      {
+        "label": "Status",
+        "name": "status",
+        "fieldType": "dropdown",
+        "required": true,
+        "options": ["Recu", "Transit", "Disponible", "Livre"],
+        "column": 2,
+        "icon": "FaTags"
+      }
+      
+    ]
+  }
+  
