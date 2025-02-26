@@ -8,12 +8,15 @@ import NotFound from "./pages/NotFound"
 import Pricing from './pages/Pricing'
 import AdminPage from './admin'
 import AddShipment from './admin/add-shipment'
+import { Link } from 'react-router-dom'
 function App() {
 
   return (
     <BrowserRouter>
     <div className="min-h-screen bg-gray-100">
       <Navbar />
+      <Link to="/admin-page" className="block text-center bg-blue-500 text-white py-2">
+        Accéder à la page Admin </Link>
       <main className="container  py-8 pt-20">
         <Routes>
           <Route path="/" element={<Home />} />
