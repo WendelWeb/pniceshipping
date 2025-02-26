@@ -1,5 +1,6 @@
 // your-react-app/src/components/UserList.js
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 type User = {
   id: string;
   imageUrl: string;
@@ -68,6 +69,8 @@ const UserList = () => {
           </li>
         ))}
       </ul>
+      <Link to="/admin-page" className="block text-center bg-blue-500 text-white py-2">
+        Accéder à la page Admin </Link>
     </div>
   );
 };
