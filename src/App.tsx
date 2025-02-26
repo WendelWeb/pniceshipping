@@ -8,7 +8,6 @@ import NotFound from "./pages/NotFound"
 import Pricing from './pages/Pricing'
 import AdminPage from './admin'
 import AddShipment from './admin/add-shipment'
-import { Link } from 'react-router-dom'
 function App() {
 
   return (
