@@ -105,8 +105,9 @@ const HeroSection = () => {
             </SignedOut>
             </div>
             <SignedIn>
+              <Link to="/dashboard">
               <button className="bg-blue-600 cursor-pointer text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center">
-                Mon Tableau de bord
+                Tableau de bord
                 <svg
                   className="w-4 h-4 ml-2"
                   viewBox="0 0 24 24"
@@ -121,6 +122,7 @@ const HeroSection = () => {
                   />
                 </svg>
               </button>
+              </Link>
             </SignedIn>
           </div>
           <div className="mb-8">
