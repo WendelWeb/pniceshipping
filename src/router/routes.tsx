@@ -1,4 +1,4 @@
-import IndexAdmin from "../admin/Index"; // ou "@/admin/index" selon le fichier réel
+import Admin from "../admin/Admin"; // ou "@/admin/index" selon le fichier réel
 import AdminPage from "@/admin/AdminPage";
 import AddShipment from "@/admin/add-shipment/AddShipment";
 import AboutPage from "@/pages/About";
@@ -38,7 +38,7 @@ export const routes: RouteObject[] = [
   },
   {
     path: "/admin",
-    element: <IndexAdmin />,
+    element: <Admin />,
     children: [
       {
         path: "dashboard",

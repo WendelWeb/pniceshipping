@@ -3,7 +3,7 @@ import { useUser } from "@clerk/clerk-react";
 import { Navigate, Outlet } from "react-router-dom";
 import { isAdminEmail } from "./adminEmails";
 
-const IndexAdmin = () => {
+const Admin = () => {
   const { isSignedIn } = useUser();
   const { user } = useUser();
 
@@ -26,4 +26,4 @@ const IndexAdmin = () => {
   );
 };
 
-export default IndexAdmin;
+export default Admin;
