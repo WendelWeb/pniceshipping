@@ -49,16 +49,16 @@ const MESSAGES = {
 };
 
 const formatMessage = (userName: string, packageId: string, status: string, messageBody: string): string => {
-  return `🛎 **Pnice Shipping Services** || 📢 Mise à jour de votre colis **${packageId}**
+  return `🛎 📢 Mise à jour de votre colis ${packageId}
 
-👋 Bonjour **${userName}**, 
+👋 Bonjour ${userName}, 
 
 
 ${messageBody.replace('{{package_id}}', packageId)}
 
 🔍 Statut actuel : ${status}
 
-📞 **Besoin d'aide ?** Contactez-nous à 📧 support@pniceshipping.com ou 📱 WhatsApp au **+509 31 97 0548 | +509 48 81 2652** *(Lun-Ven, 9h-17h).* 
+📞 **Besoin d'aide ? Contactez-nous à 📧 support@pniceshipping.com ou 📱 WhatsApp au +509 31 97 0548 | +509 48 81 2652** *(Lun-Ven, 9h-17h).* 
 
 Cordialement,  
 ✨ L’équipe **Pnice Shipping Services**  
