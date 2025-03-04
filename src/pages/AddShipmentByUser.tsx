@@ -89,11 +89,11 @@ const AddShipmentByUser = () => {
       };
 
       const result = await db.insert(shipmentListing).values({ ...insertData, statusDates });
+      await sendPendingEmail(`${insertData.fullName}`, `${insertData.emailAdress}`, `${insertData.trackingNumber}`);
 
       if (result) {
         setShowSuccessModal(true);
         resetForm();
-        await sendPendingEmail(`${insertData.fullName}`, `${insertData.emailAdress}`, `${insertData.trackingNumber}`);
       }
     } catch (error) {
       console.log(error);
