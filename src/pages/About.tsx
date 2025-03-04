@@ -1,63 +1,66 @@
-const About = () => {
+import Button from "@/components/Button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Info,  Users, Bell, Activity } from "lucide-react";
+import { Link } from "react-router-dom";
+
+export default function AboutPage() {
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left Content Section */}
-      <div className="w-full md:w-1/2 flex items-center p-6 md:p-16 bg-gray-50">
-        <div className="max-w-xl">
-          <p className="text-blue-600 font-medium mb-4 flex items-center">
-            <span className="w-6 h-0.5 bg-blue-600 mr-2"></span>
-            SHIPPING A WORLD OF POSSIBILITY
-          </p>
-          
-          <div className="relative mb-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-[url('/api/placeholder/800/200')] bg-cover bg-center bg-no-repeat">
-              Seamless Air
-              <br /> 
-              Transport
-            </h1>
-            {/* Overlay to ensure text remains readable */}
-            <h1 className="absolute inset-0 text-4xl md:text-6xl font-bold text-black/10">
-              Seamless Air
-              <br /> 
-              Transport
-            </h1>
-          </div>
-          
-          <p className="text-gray-600 text-lg mb-8 leading-relaxed">
-            Experience dependable, efficient air freight solutions tailored to your needs. Pnice shipping, we ensure timely, secure global cargo delivery.
-          </p>
-          
-          <button className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors flex items-center group">
-            Track Your Package
-            <svg 
-              className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M17 8l4 4m0 0l-4 4m4-4H3" 
-              />
-            </svg>
-          </button>
+    <>
+    <Link to="/" className="mt-20">
+    <Button text="revenir la sur page d'acceuil" />
+    </Link>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+      <Card className="max-w-3xl w-full bg-white shadow-lg rounded-2xl p-8 text-center">
+    
+        <div className="flex items-center justify-center mb-6">
+          <Info className="w-16 h-16 text-blue-600" />
         </div>
-      </div>
-
-      {/* Right Image Section */}
-      <div className="w-full md:w-1/2 h-[300px] md:h-screen relative">
-        <img 
-          src="./hero-plane.png" 
-          alt="Commercial aircraft with ground support vehicle" 
-          className="w-full h-full object-cover"
-        />
-        {/* Subtle overlay pattern */}
-        <div className="absolute inset-0 bg-black/5"></div>
-      </div>
+        <CardContent>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">À propos de notre application</h1>
+          <p className="text-gray-600 text-lg mb-6">
+            Une solution moderne pour la gestion efficace des colis.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="flex flex-col items-center">
+              <Activity className="w-10 h-10 text-blue-500" />
+              <p className="mt-2 text-gray-700 font-medium">Suivi en Temps Réel</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <Bell className="w-10 h-10 text-yellow-500" />
+              <p className="mt-2 text-gray-700 font-medium">Notifications Automatiques</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <Users className="w-10 h-10 text-green-500" />
+              <p className="mt-2 text-gray-700 font-medium">Gestion Intuitive</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-800 font-bold text-xl mb-6">
+            <div className="flex flex-col items-center">
+              <p className="text-2xl text-blue-600">12K+</p>
+              <p>Colis Livrés</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="text-2xl text-green-600">5K+</p>
+              <p>Utilisateurs</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="text-2xl text-red-600">30+</p>
+              <p>Partenaires</p>
+            </div>
+          </div>
+          <div className="mt-6">
+            <h2 className="text-2xl font-bold text-gray-800">Notre Équipe</h2>
+            <p className="text-gray-600 mt-2">Des experts passionnés par la logistique et la technologie.</p>
+          </div>
+          <div className="mt-6">
+            <h2 className="text-2xl font-bold text-gray-800">Nous Contacter</h2>
+          </div>
+        </CardContent>
+      </Card>
     </div>
+    <Link to="/">
+    <Button text="revenir la sur page d'acceuil" />
+    </Link>
+    </>
   );
-};
-
-export default About;
+}

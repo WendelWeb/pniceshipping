@@ -18,6 +18,14 @@
         "icon": "FaUser"
       },
       {
+        "label": "Owner Id",
+        "name": "ownerId",
+        "fieldType": "text",
+        "required": true,
+        "column": 2,
+        "icon": "FaUser"
+      },
+      {
         "label": "Email Adress",
         "name": "emailAdress",
         "fieldType": "text",
@@ -59,9 +67,18 @@
         "name": "status",
         "fieldType": "dropdown",
         "required": true,
-        "options": ["Recu", "Transit", "Disponible", "Livre"],
+        "options": ["Recu📦", "En Transit✈️", "Disponible🟢", "Livré✅"],
         "column": 2,
         "icon": "FaTags"
+      },
+      {
+        "label": "Destination",
+        "name": "destination",
+        "fieldType": "dropdown",
+        "required": true,
+        "options": ["Port-Au-Prince", "Cap-haitien", "Cap-haitien Vertiere"],
+        "column": 2,
+        "icon": "FaHouse"
       }
       
     ]

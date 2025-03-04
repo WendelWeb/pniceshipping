@@ -4,10 +4,10 @@ import { Mail } from "lucide-react";
 import Button from "../components/Button";
 
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import UserList from "./UserList";
 import ShippingGuide from "@/components/ShippingGuide";
 import Pricing from "./Pricing";
 import GetAQuote from "@/components/GetAQuote";
+import ShippingModel from "@/components/ShippingModel";
 
 const services = [
   {
@@ -92,15 +92,19 @@ const Home = () => {
   return (
     <div className="">
       <HeroSection />
+      <ShippingModel />
       <ParcelTracker />
       <GetAQuote />
-      <section className="py-12 px-4">
+      <section className="py-12 px-4" id="services">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center">
             Nous Sommes Reconnus pour Nos Services
           </h2>
 
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6" id="services">
+          <div
+            className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6"
+            id="services"
+          >
             {services.map((service, i) => (
               <div
                 key={i}
@@ -197,7 +201,7 @@ const Home = () => {
               priorisons les livraisons rapides et sécurisées et offrons un
               suivi en temps réel pour vous tenir informé à chaque étape.
             </p>
-            <a href="#calculator" >
+            <a href="#calculator">
               <button className="mt-6 cursor-pointer bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center space-x-2 hover:bg-blue-700 transition">
                 <span>Obtenir un Devis</span>
                 <ArrowUpRight size={18} />
@@ -282,13 +286,17 @@ const Home = () => {
               transformer votre vision en réalité.
             </p>
             <div className="flex gap-4">
-              <a  className=" text-white px-3 py-3  rounded-md  transition-colors w-full flex items-center justify-center" href="#calculator">
-
-              <Button text="Obtenir un Devis" />
+              <a
+                className=" text-white px-3 py-3  rounded-md  transition-colors w-full flex items-center justify-center"
+                href="#calculator"
+              >
+                <Button text="Obtenir un Devis" />
               </a>
-              <a  className=" text-white px-3 py-3 rounded-md   transition-colors w-full flex items-center justify-center" href="#services">
-
-              <Button text="Nos services" />
+              <a
+                className=" text-white px-3 py-3 rounded-md   transition-colors w-full flex items-center justify-center"
+                href="#services"
+              >
+                <Button text="Nos services" />
               </a>
             </div>
           </div>
@@ -346,8 +354,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      <UserList />
     </div>
   );
 };

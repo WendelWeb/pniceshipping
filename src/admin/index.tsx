@@ -1,19 +1,29 @@
-import Button from "@/components/Button";
-import { Link } from "react-router-dom";
+import LoginPrompt from "@/pages/LoginPrompts";
+import { useUser } from "@clerk/clerk-react";
+import { Navigate, Outlet } from "react-router-dom";
+import { isAdminEmail } from "./adminEmails";
 
-const AdminPage = () => {
+const IndexAdmin = () => {
+  const { isSignedIn } = useUser();
+  const { user } = useUser();
+
+  if (!isSignedIn) {
+    return <LoginPrompt />;
+  }
+
+  // Récupérer l'email principal de l'utilisateur
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress || "";
+
+  // Vérifier si l'utilisateur est un administrateur
+  if (!isAdminEmail(userEmail)) {
+    return <Navigate to="/dashboard" replace />; // Rediriger vers /dashboard si non-admin
+  }
+
   return (
-    <div>
-      <div className="px-10 md:px-20 py-10">
-        <div className="flex justify-between items-center">
-          <h2 className="font-bold text-4xl">Tous Les Colis</h2>
-          <Link to="/admin-page/add-shipment">
-            <Button text="ajouter un colis " />
-          </Link>
-        </div>
-      </div>
-    </div>
+    <>
+      <Outlet />
+    </>
   );
-}
+};
 
-export default AdminPage
+export default IndexAdmin;

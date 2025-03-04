@@ -10,11 +10,13 @@ interface InputFieldProps {
     min?: number;
     max?: number;
   };
+  defaultValue?: string;
 }
-const InputField = ({ handleIputChange, item }: InputFieldProps) => {
+const InputField = ({ handleIputChange, item,defaultValue }: InputFieldProps) => {
   return (
     <div>
       <Input
+      defaultValue={defaultValue? defaultValue : ''}
         type={item?.fieldType}
         name={item?.name}
         required={item?.required}

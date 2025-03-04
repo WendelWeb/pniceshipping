@@ -1,8 +1,34 @@
 import PricingCalculator from "../components/PricingCalculator";
+// import { findByEmail } from "@/utils/shipmentQueries";
+// import { useEffect,useState } from "react";
+// interface Shipment {
+//   id: number;
+//   fullName: string;
+//   userName: string;
+//   category: string;
+//   emailAdress: string;
+//   trackingNumber: string;
+//   weight: string;
+//   status: string;
+// }
 
-const Pricing = () => {
+const Pricing =  () => {
+  // const [shipments, setShipments] = useState<Shipment[]>([]);
+
+  // // const allShipments = await findByEmail('');
+  // console.log(shipments);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const data = await findByEmail("stanleywendeljoseph@gmail.com");
+  //     setShipments(data);
+  //     console.log(data); // Affichera directement les résultats
+  //   };
+
+  //   fetchData();
+  // }, []);
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
+    <div className="max-w-6xl mx-auto px-4 py-12" id="pricings">
     
       <h1 className="text-4xl font-bold text-center mb-10">Nos Tarifs</h1>
       

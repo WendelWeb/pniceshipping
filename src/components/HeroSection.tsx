@@ -1,9 +1,10 @@
-import { useUser } from "@clerk/clerk-react";
+import { SignUpButton, useUser } from "@clerk/clerk-react";
 import {
   SignInButton,
   SignedIn,
   SignedOut,
 } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   const { user } = useUser();
@@ -32,6 +33,7 @@ const HeroSection = () => {
               partenaire de confiance, nous privilégions des solutions d'expédition
               ponctuelles, sécurisées et fluides, vous offrant une tranquillité d'esprit.
             </p>
+            <div className="flex space-x-4">
 
             <SignedOut>
               <SignInButton>
@@ -40,10 +42,20 @@ const HeroSection = () => {
                 </button>
               </SignInButton>
             </SignedOut>
+            <SignedOut>
+              <SignUpButton>
+                <button className="bg-blue-600 cursor-pointer text-white px-6 py-2 border rounded-md hover:bg-white hover:border-blue-600 hover:text-blue-600 transition duration-300">
+                  Creer un compte
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            </div>
             <SignedIn>
+              <Link to="/dashboard">
               <button className="bg-blue-600 cursor-pointer text-white px-6 py-2 border rounded-md hover:bg-white hover:border-blue-600 hover:text-blue-600 transition duration-300">
                 Tableau de bord
               </button>
+              </Link>
             </SignedIn>
 
             
@@ -75,26 +87,23 @@ const HeroSection = () => {
               partenaire de confiance, nous privilégions des solutions d'expédition
               ponctuelles, sécurisées et fluides, vous offrant une tranquillité d'esprit.
             </p>
+            <div className="flex space-x-4 items-center justify-center">
+
             <SignedOut>
               <SignInButton>
-                <button className="bg-blue-600 cursor-pointer text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center">
+                <button className="bg-blue-600 text-sm cursor-pointer text-white px-6 py-2 border rounded-md hover:bg-white hover:border-blue-600 hover:text-blue-600 transition duration-300">
                   Se connecter
-                  <svg
-                    className="w-4 h-4 ml-2 translate-y-[2px]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    />
-                  </svg>
                 </button>
               </SignInButton>
             </SignedOut>
+            <SignedOut>
+              <SignUpButton>
+                <button className="bg-blue-600  cursor-pointer text-white px-6 py-2 border rounded-md hover:bg-white hover:border-blue-600 hover:text-blue-600 transition duration-300">
+                  Creer un compte
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            </div>
             <SignedIn>
               <button className="bg-blue-600 cursor-pointer text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center">
                 Mon Tableau de bord

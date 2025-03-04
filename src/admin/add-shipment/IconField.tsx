@@ -26,7 +26,8 @@ type IconName =
   | 'FaBarcode'
   | 'FaUser'
   | 'GiWeightScale'
-  | 'MdEmail';
+  | 'MdEmail'
+  | 'FaHouse'
   ;
 
 // Map des icônes avec le bon type
@@ -54,7 +55,8 @@ const iconMap: Record<IconName, ReactElement> = {
   FaBarcode: <Icons.FaBarcode />,
   FaUser: <Icons.FaUser />,
   GiWeightScale: <Icons.GiWeightScale />,
-  MdEmail: <Icons.MdEmail />
+  MdEmail: <Icons.MdEmail />,
+  FaHouse: <Icons.FaHouse />
 };
 
 interface IconFieldProps {

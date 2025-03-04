@@ -1,36 +1,46 @@
-import './app.css'
-import { BrowserRouter } from "react-router-dom"
-import { Routes, Route } from "react-router"
-import Navbar from "./components/Navbar"
-import Home from "./pages/Home"
-import About from "./pages/About"
-import NotFound from "./pages/NotFound"
-import Pricing from './pages/Pricing'
-import AdminPage from './admin'
-import AddShipment from './admin/add-shipment'
-import { Link } from 'react-router-dom'
-function App() {
+import "./app.css";
+import { BrowserRouter, useRoutes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import { getAllShipments } from "./utils/shipmentQueries";
+import { useEffect } from "react";
+import { UserProvider } from "./contexts/UserContext";
+import { routes } from "./router/routes"; // Importation des routes
+
+// Composant pour rendre les routes
+const RouteRenderer = () => {
+  return useRoutes(routes);
+};
+
+const App: React.FC = () => {
+  useEffect(() => {
+    const fetchShipments = async () => {
+      try {
+        const response = await getAllShipments();
+        if (response.length === 0) {
+          console.log("No shipments found");
+        }
+        console.log(response);
+      } catch (err) {
+        console.log(err);
+        alert(err);
+      }
+    };
+
+    fetchShipments();
+  }, []);
 
   return (
     <BrowserRouter>
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
-      <Link to="/admin-page" className="block text-center bg-blue-500 text-white py-2">
-        Accéder à la page Admin </Link>
-      <main className="container  py-8 pt-20">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/admin-page" element={<AdminPage />} />
-          <Route path="/admin-page/add-shipment" element={<AddShipment />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-    </div>
-  </BrowserRouter>
-  )
-}
+      <UserProvider>
+        <div className="min-h-screen bg-gray-100">
+          <Navbar />
+          <main className="container py-8 pt-20">
+            <RouteRenderer /> {/* Utilisation du composant pour rendre les routes */}
+          </main>
+        </div>
+      </UserProvider>
+    </BrowserRouter>
+  );
+};
 
-export default App
+export default App;

@@ -4,7 +4,7 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ text }) => {
   return (
-    <button className="bg-blue-600 cursor-pointer text-white px-3 py-3 rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center">
+    <button className="bg-blue-600 cursor-pointer text-white px-3 py-2 rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center">
       {text}
       <svg
         className="w-4 h-4 ml-2 translate-y-[2px]"
