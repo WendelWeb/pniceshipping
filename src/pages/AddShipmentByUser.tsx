@@ -24,9 +24,12 @@ const ShipmentSuccessModal = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-blue-600 bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-6 w-[350px] shadow-2xl border-l-4 border-green-500 animate-fade-in">
-        <h3 className="text-lg font-semibold text-center">Requête envoyée avec succès !</h3>
+        <h3 className="text-lg font-semibold text-center">
+          Requête envoyée avec succès !
+        </h3>
         <p className="text-sm text-center mt-2">
-          Une fois le colis reçu dans nos locaux, il sera validé. Vous pourrez suivre toutes les mises à jour sur l'application.
+          Une fois le colis reçu dans nos locaux, il sera validé. Vous pourrez
+          suivre toutes les mises à jour sur l'application.
         </p>
         <button
           onClick={onClose}
@@ -39,7 +42,7 @@ const ShipmentSuccessModal = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-const AddShipmentByUser = () => {
+const AddShipmentByUser = ({setRefreshShipments}) => {
   const { user } = useUser();
   const [trackingNumber, setTrackingNumber] = useState("");
   const [destination, setDestination] = useState("");
@@ -58,6 +61,8 @@ const AddShipmentByUser = () => {
     setTrackingNumber("");
     setDestination("");
   };
+  
+  
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,11 +71,13 @@ const AddShipmentByUser = () => {
     const now = new Date();
     const formattedDate = now.toISOString().split("T")[0];
     const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
-    const statusDates = [{
-      date: `${formattedDate} ${formattedTime}`,
-      status: 'request',
-      location: "by user online"
-    }];
+    const statusDates = [
+      {
+        date: `${formattedDate} ${formattedTime}`,
+        status: "request",
+        location: "by user online",
+      },
+    ];
 
     try {
       const insertData = {
@@ -82,16 +89,23 @@ const AddShipmentByUser = () => {
         weight: "",
         status: "En attente⏳",
         ownerId: user?.id ?? "",
-        destination: destination  || "non spécifié",
+        destination: destination || "non spécifié",
         estimatedDelivery: "Sera calculé après confirmation",
-        phone: "inconu"
-        
+        phone: "inconu",
       };
 
-      await sendPendingEmail(`${insertData.fullName}`, `${insertData.emailAdress}`, `${insertData.trackingNumber}`);
-      const result = await db.insert(shipmentListing).values({ ...insertData, statusDates });
+      await sendPendingEmail(
+        `${insertData.fullName}`,
+        `${insertData.emailAdress}`,
+        `${insertData.trackingNumber}`
+      );
+
+      const result = await db
+        .insert(shipmentListing)
+        .values({ ...insertData, statusDates });
 
       if (result) {
+        setRefreshShipments(true)
         setShowSuccessModal(true);
         resetForm();
       }
@@ -112,10 +126,15 @@ const AddShipmentByUser = () => {
       <div className="flex justify-between">
         <h2 className="font-bold text-xl">Ajouter un colis en attente</h2>
       </div>
-      <form onSubmit={onFormSubmit} className="p-10 px-2 border rounded-xl mt-2">
+      <form
+        onSubmit={onFormSubmit}
+        className="p-10 px-2 border rounded-xl mt-2"
+      >
         <h2 className="font-medium text-xl mb-6">Détails du colis</h2>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium">Ajoutez Votre Numéro de tracking</label>
+          <label className="block text-gray-700 font-medium">
+            Ajoutez Votre Numéro de tracking
+          </label>
           <input
             type="text"
             value={trackingNumber}
@@ -126,11 +145,13 @@ const AddShipmentByUser = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium">Choisissez une destination</label>
+          <label className="block text-gray-700 font-medium">
+            Choisissez une destination
+          </label>
           <select
             value={destination}
             onChange={handleDestinationChange}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 border rounded-md  "
             required
             disabled={loading}
           >
@@ -147,7 +168,9 @@ const AddShipmentByUser = () => {
           <button
             type="submit"
             className={`px-6 py-2 text-lg rounded-lg text-white transition cursor-pointer flex items-center gap-2 ${
-              loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
             }`}
             disabled={loading}
           >
@@ -162,7 +185,9 @@ const AddShipmentByUser = () => {
           </button>
         </div>
       </form>
-      {showSuccessModal && <ShipmentSuccessModal onClose={() => setShowSuccessModal(false)} />}
+      {showSuccessModal && (
+        <ShipmentSuccessModal onClose={() => setShowSuccessModal(false)} />
+      )}
     </div>
   );
 };

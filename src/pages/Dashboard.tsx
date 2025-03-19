@@ -31,10 +31,11 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("tous");
   const [selectedColis, setSelectedColis] = useState<Colis | null>(null);
   const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [asToRefreshShipments, setAsToRefreshSipments] = useState(false)
 
   useEffect(() => {
     if (!isSignedIn || !user?.id) return; // Ne rien faire si l'utilisateur n'est pas connecté
-  
+    setAsToRefreshSipments(false)
     const fetchUserShipments = async () => {
       try {
         const response = await findByOwnerId(user.id);
@@ -65,7 +66,7 @@ const Dashboard = () => {
     };
   
     fetchUserShipments();
-  }, [user, isSignedIn]);
+  }, [user, isSignedIn, asToRefreshShipments]);
   const colis = shipments.map((shipment: Shipment) => {
     const dateCreation =
       shipment.statusDates?.find((statusDate) => statusDate.status === "Recu📦")?.date || "Non spécifiée";
@@ -154,7 +155,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <AddShipmentByUser />
+      <AddShipmentByUser  setRefreshShipments={setAsToRefreshSipments} />
       {/* Main content */}
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {!selectedColis ? (

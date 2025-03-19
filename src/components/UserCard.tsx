@@ -125,7 +125,7 @@ const UserCard: React.FC<{ user: UserType }> = ({ user }) => {
           <PackageSearch className="h-4 w-4 mr-2" /> Voir Les Colis
         </button>
         <Link
-          to="/admin-page/add-shipment"
+          to="/admin/add-shipment"
           state={{ user }}
           onClick={() => setUser(user)}
         >

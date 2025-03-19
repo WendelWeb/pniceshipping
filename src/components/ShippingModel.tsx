@@ -19,7 +19,7 @@ const ShippingModel: React.FC = () => {
       <div style={{ background: '#f9f9f9', padding: '15px', borderRadius: '5px' }}>
         <h3 style={{ marginTop: '0', color: '#444' }}>Adresse d'Expédition (Modèle)</h3>
         <div style={{ marginBottom: '10px' }}>
-          <label style={{ fontWeight: 'bold', color: '#333' }}>Votre Prénom *</label>
+          <label style={{ fontWeight: 'bold', color: '#333' }}>Votre Nom *</label>
           <input
             type="text"
             value="Votre Nom"
@@ -29,10 +29,10 @@ const ShippingModel: React.FC = () => {
         </div>
 
         <div style={{ marginBottom: '10px' }}>
-          <label style={{ fontWeight: 'bold', color: '#333' }}>Votre Nom *</label>
+          <label style={{ fontWeight: 'bold', color: '#333' }}>Votre Prénom *</label>
           <input
             type="text"
-            value="Votre Prenom PQ-067054"
+            value="Votre Prénom + PQ-067054"
             readOnly
             style={{ width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#e6f3ff' }} // Highlight pour montrer l'importance
           />
@@ -92,7 +92,7 @@ const ShippingModel: React.FC = () => {
       </div>
 
       <p style={{ fontSize: '14px', color: '#666', marginTop: '20px' }}>
-        <strong>Remarque importante :</strong> Le code <code>PQ-067054</code> doit apparaître dans votre nom ou dans l'adresse optionnelle pour garantir un traitement rapide et précis de votre colis. Si vous avez des questions, contactez notre service client.
+        <strong>Remarque importante :</strong> Le code <code>PQ-067054</code> doit apparaître dans votre nom ou dans l'adresse optionnelle pour garantir le traitement de votre colis. Si vous avez des questions, contactez notre service client.
       </p>
     </div>
   );

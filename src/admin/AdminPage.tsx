@@ -40,7 +40,7 @@ const AdminPage = () => {
         <div className="px-10 md:px-20 py-10">
           <div className="flex justify-between items-center">
             <h2 className="font-bold text-4xl">Admin Dashboard</h2>
-            <Link to="add-shipment" onClick={() => setUser(resetUserToBlank)}>
+            <Link to="/admin/add-shipment" onClick={() => setUser(resetUserToBlank)}>
               <Button text="ajouter un colis" />
             </Link>
           </div>

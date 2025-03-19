@@ -84,7 +84,7 @@ const ShipmentSuccessModal = ({
             <span className="font-semibold">Statut:</span> {shipmentData.status}
           </p>
         </div>
-        <Link to="/admin-page/all-users">
+        <Link to="/admin/all-users">
           <button
             onClick={onClose}
             className="mt-4 w-full cursor-pointer bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
@@ -204,7 +204,7 @@ const AddShipment = () => {
       <div className="px-10 md:px-20 py-10">
         <div className="flex justify-between">
           <h2 className="font-bold text-4xl">Ajouter un nouveau colis</h2>
-          <Link to="/admin-page/all-users">
+          <Link to="/admin/all-users">
             <Button text="Liste Utilisateurs" />
           </Link>
         </div>

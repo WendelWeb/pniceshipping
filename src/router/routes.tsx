@@ -43,6 +43,12 @@ export const routes: RouteObject[] = [
       {
         path: "dashboard",
         element: <AdminPage />,
+        children:[
+          {
+            path:'add-shipment',
+            element: <AddShipment />
+          }
+        ]
       },
       {
         path: "all-users",
@@ -72,6 +78,7 @@ export const routes: RouteObject[] = [
         path: "add-shipment",
         element: <AddShipment />,
       },
+      
     ],
   },
 

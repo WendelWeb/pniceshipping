@@ -45,7 +45,7 @@
         "label": "Category",
         "name": "category",
         "fieldType": "dropdown",
-        "options": ["Standard", "Electronics" ],
+        "options": ["Standard", "Electronics", "Telephone", "Ordinateur Portbable", "Ordinateur De Bureau", "Starlink"],
         "required": true,
         "column": 1,
         "icon": "FaCar"
@@ -76,7 +76,7 @@
         "name": "destination",
         "fieldType": "dropdown",
         "required": true,
-        "options": ["Port-Au-Prince", "Cap-haitien", "Cap-haitien Vertiere"],
+        "options": ["Cap-haitien, Rue 6 j-k", "Cap-Haitien, Vertiere Village Christophe", "Port-Au-Prince (Local Le Grand Nord) Delmas 33 a coté parc midoré" ],
         "column": 2,
         "icon": "FaHouse"
       }

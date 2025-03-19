@@ -4,13 +4,12 @@ export default function PricingCalculator() {
   const [weight, setWeight] = useState(1);
   const [itemType, setItemType] = useState("standard");
   const [destination, setDestination] = useState("cap-haitien");
-
   // Tarifs spéciaux pour les appareils électroniques
   const specialRates: Record<string, { price: number; description: string }>= {
-    ordinateurs: { price: 15, description: "Protection spéciale et emballage sécurisé" },
-    ordinateurs_portables: { price: 12, description: "Emballage sécurisé avec protection contre les chocs" },
-    telephones: { price: 8, description: "Protection spécialisée pour appareils mobiles" },
+    ordinateurs_portables: { price: 30, description: "Emballage sécurisé avec protection contre les chocs" },
+    telephones: { price: 15, description: "Protection spécialisée pour appareils mobiles" },
     televisions: { price: 25, description: "Emballage renforcé et manipulation spéciale" },
+    starlink: {price: 20, description: "Frais Douane Supplementaire pour kit Starlink"}
   };
 
   // Tarifs de base selon la destination
@@ -97,7 +96,7 @@ export default function PricingCalculator() {
             >
               <option value="standard">Standard</option>
               {Object.keys(specialRates).map((key) => (
-                <option key={key} value={key}>
+                <option key={key} value={key} >
                   {key.replace("_", " ").charAt(0).toUpperCase() + key.replace("_", " ").slice(1)}
                 </option>
               ))}
