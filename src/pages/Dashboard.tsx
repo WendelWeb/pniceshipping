@@ -31,7 +31,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("tous");
   const [selectedColis, setSelectedColis] = useState<Colis | null>(null);
   const [shipments, setShipments] = useState<Shipment[]>([]);
-  const [asToRefreshShipments, setAsToRefreshSipments] = useState(false)
+  const [asToRefreshShipments, setAsToRefreshSipments] = useState<boolean>(false)
 
   useEffect(() => {
     if (!isSignedIn || !user?.id) return; // Ne rien faire si l'utilisateur n'est pas connecté

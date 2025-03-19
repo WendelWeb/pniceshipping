@@ -4,7 +4,9 @@ import { useUser } from "@clerk/clerk-react";
 import { shipmentListing } from "../../configs/schema";
 import shipmentDetails from "../assets/shared/shipmentDetails.json";
 import { sendPendingEmail } from "@/services/emailServices";
-
+type AddShipmentByUserProps = {
+  setRefreshShipments: (value: boolean) => void;
+};
 const Loader = () => (
   <div className="flex items-center justify-center space-x-2">
     <div className="h-4 w-4 bg-blue-500 rounded-full animate-bounce"></div>
@@ -42,7 +44,7 @@ const ShipmentSuccessModal = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-const AddShipmentByUser = ({setRefreshShipments}) => {
+const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipments }) => {
   const { user } = useUser();
   const [trackingNumber, setTrackingNumber] = useState("");
   const [destination, setDestination] = useState("");
