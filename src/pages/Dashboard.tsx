@@ -68,7 +68,7 @@ const Dashboard = () => {
 
     const poids = shipment.weight ? parseFloat(shipment.weight) : 0;
     const rate = getShippingRate(shipment.destination);
-    const frais = poids * rate + SERVICE_FEE; // Ajout des frais de service
+    const frais = poids * rate ; // Ajout des frais de service
 
     return {
       tracking: shipment.trackingNumber ?? "Inconnu",
