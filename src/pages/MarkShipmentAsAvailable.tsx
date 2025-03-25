@@ -199,7 +199,7 @@ const MarkShipmentAsAvailable = () => {
                           d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2M6 7H3m15 0h3M6 7H3m15 0h3"
                         />
                       </svg>
-                      <p className="text-gray-700">{shipment.weight} kg</p>
+                      <p className="text-gray-700">{shipment.weight} lbs</p>
                     </div>
                   </div>
                   <div className="mt-6">

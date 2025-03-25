@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
-import { getAllShipments } from "@/utils/shipmentQueries";
+import { getAllShipments, deleteShipmentById } from "@/utils/shipmentQueries";
 import { Package, MapPin, Barcode, User, Mail, Calendar, Clock, Search } from "lucide-react";
 import { Shipment, StatusDates } from "@/types/shipment";
-
-
-
-
 
 const statusColors: Record<string, { bg: string; badge: string }> = {
   "Recu📦": { bg: "bg-blue-100", badge: "bg-blue-500" },
@@ -23,14 +19,14 @@ const AllShipments = () => {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
+  const [shipmentToDelete, setShipmentToDelete] = useState<Shipment | null>(null);
 
   useEffect(() => {
     const fetchShipments = async () => {
       try {
         const data = await getAllShipments();
         console.log(data);
-  
-        // Transformation des données pour correspondre au type Shipment
+
         const formattedData: Shipment[] = data.map((item) => ({
           id: item.id,
           ownerId: item.ownerId,
@@ -43,24 +39,38 @@ const AllShipments = () => {
           status: item.status,
           destination: item.destination,
           estimatedDelivery: item.estimatedDelivery,
-          statusDates: item.statusDates as StatusDates[] || null, // Assertion ou valeur par défaut
-          phone: item.phone || "Non disponible", // Valeur par défaut si phone est absent
+          statusDates: item.statusDates as StatusDates[] || null,
+          phone: item.phone || "Non disponible",
         }));
-  
+
         setShipments(formattedData);
       } catch (err) {
         console.error("Erreur lors du chargement des colis", err);
       }
     };
-  
+
     fetchShipments();
   }, []);
+
+  // Mise à jour de la logique de filtrage
   const filteredShipments = shipments.filter(
     (shipment) =>
       (shipment.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        shipment.emailAdress.toLowerCase().includes(searchTerm.toLowerCase()) || // Ajout de la recherche par email
         shipment.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (filterStatus ? shipment.status === filterStatus : true)
   );
+
+  // Fonction pour gérer la suppression
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteShipmentById(id);
+      setShipments(shipments.filter((shipment) => shipment.id !== id));
+      setShipmentToDelete(null);
+    } catch (err) {
+      console.error("Erreur lors de la suppression", err);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -75,7 +85,7 @@ const AllShipments = () => {
           <input
             type="text"
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Rechercher par nom ou numéro de suivi..."
+            placeholder="Rechercher par nom, email ou numéro de suivi..." // Mise à jour du placeholder
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -107,7 +117,7 @@ const AllShipments = () => {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">{shipment.fullName}</h2>
                 <div
-                  className={`text-white px-3 py-1 rounded-full text-xs font-semibold ${statusColors[shipment.status]?.badge}`}
+                  className={`text-red-500 px-3 py-1 rounded-full text-xs font-semibold ${statusColors[shipment.status]?.badge}`}
                 >
                   {shipment.status}
                 </div>
@@ -123,10 +133,6 @@ const AllShipments = () => {
                   <Mail className="h-5 w-5 text-blue-600 mr-2" />
                   <span>{shipment.emailAdress}</span>
                 </div>
-                {/* <div className="flex items-center mb-2">
-                  <Phone className="h-5 w-5 text-blue-600 mr-2" />
-                  <span>{shipment.phone}</span>
-                </div> */}
               </div>
 
               {/* Infos Colis */}
@@ -149,7 +155,7 @@ const AllShipments = () => {
                 </div>
                 <div className="flex items-center mb-2">
                   <Package className="h-5 w-5 text-blue-600 mr-2" />
-                  <span>Poids: {shipment.weight}</span>
+                  <span>Poids: {shipment.weight} lbs</span>
                 </div>
               </div>
 
@@ -157,19 +163,60 @@ const AllShipments = () => {
               <div className="mt-4">
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Historique des statuts :</h3>
                 <ul className="text-xs text-gray-600 space-y-1">
-                 {shipment.statusDates?.map((entry, index) => (
+                  {shipment.statusDates?.map((entry, index) => (
                     <li key={index} className="flex justify-between border-b py-1">
                       <span>{entry.date} - {entry.status}</span>
                       <span className="italic">{entry.location}</span>
-                    </li> 
+                    </li>
                   ))}
                 </ul>
+              </div>
+
+              {/* Bouton Supprimer */}
+              <div className="mt-4">
+                <button
+                  onClick={() => setShipmentToDelete(shipment)}
+                  className="bg-red-500 text-white px-4 py-2 cursor-pointer rounded-lg hover:bg-red-600 transition"
+                >
+                  Supprimer
+                </button>
               </div>
             </div>
           ))}
         </div>
       ) : (
         <p>Aucun colis trouvé.</p>
+      )}
+
+      {/* Modale de confirmation */}
+      {shipmentToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">Confirmer la suppression</h2>
+            <p className="mb-4">Voulez-vous vraiment supprimer ce colis ?</p>
+            <div className="text-sm text-gray-700 mb-4">
+              <p><strong>Id :</strong> {shipmentToDelete.id}</p>
+              <p><strong>Nom :</strong> {shipmentToDelete.fullName}</p>
+              <p><strong>Numéro de suivi :</strong> {shipmentToDelete.trackingNumber}</p>
+              <p><strong>Statut :</strong> {shipmentToDelete.status}</p>
+              <p><strong>Destination :</strong> {shipmentToDelete.destination}</p>
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShipmentToDelete(null)}
+                className="bg-gray-300 cursor-pointer text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => handleDelete(shipmentToDelete.id)}
+                className="bg-red-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -282,7 +282,7 @@ const MarkShipmentAsConfirmed = () => {
                         />
                       </svg>
                       {shipment.weight ? (
-                        <p className="text-gray-700">{shipment.weight} kg</p>
+                        <p className="text-gray-700">{shipment.weight} lbs</p>
                       ) : (
                         <p className="text-red-500 font-medium text-sm">
                           Poids requis avant confirmation
@@ -378,7 +378,7 @@ const MarkShipmentAsConfirmed = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-gray-700 mb-2" htmlFor="weight">
-                    Poids (kg) <span className="text-red-500">*</span>
+                    Poids (lbs) <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="weight"

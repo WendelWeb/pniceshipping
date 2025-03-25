@@ -147,28 +147,19 @@ const Navbar = () => {
               <SignedIn>
                 <UserButton />
               </SignedIn>
-              <Link
-                to="/"
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-              >
+              
+              {/* gvu */}
+              <Link to="/home" className="text-gray-700 block px-3 py-2 hover:text-blue-600" onClick={()=> setIsOpen(false)}>
                 Accueil
               </Link>
-              <Link
-                to="/services"
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-              >
+
+              <a href="#services" className="text-gray-700 block px-3 py-2 hover:text-blue-600" onClick={()=> setIsOpen(false)}>
                 Nos services
-              </Link>
-              <Link
-                to="/pricing"
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-              >
+              </a>
+              <a href="#pricings" className="text-gray-700 block px-3 py-2 hover:text-blue-600" onClick={()=> setIsOpen(false)}>
                 Nos prix
-              </Link>
-              <Link
-                to="/about"
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-              >
+              </a>
+              <Link to="/about" className="text-gray-700 block px-3 py-2 hover:text-blue-600" onClick={()=> setIsOpen(false)}>
                 A propos
               </Link>
             </div>

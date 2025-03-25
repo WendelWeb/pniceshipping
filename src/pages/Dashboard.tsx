@@ -1,9 +1,10 @@
 import { Shipment, StatusDates } from "@/types/shipment";
 import { findByOwnerId } from "@/utils/shipmentQueries";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AddShipmentByUser from "./AddShipmentByUser.tsx";
 import { useUser } from "@clerk/clerk-react";
 import LoginPrompt from "./LoginPrompts.tsx";
+import { getShippingRate, SERVICE_FEE } from "@/constants/shippingRates";
 
 interface Colis {
   tracking: string;
@@ -19,29 +20,22 @@ interface Colis {
   id?: string;
 }
 
-
-
-// Composant LoginPrompt intégré directement ici pour simplicité
-
-
 const Dashboard = () => {
   const { user, isSignedIn } = useUser();
 
-  // États pour le tableau de bord
   const [activeTab, setActiveTab] = useState("tous");
   const [selectedColis, setSelectedColis] = useState<Colis | null>(null);
   const [shipments, setShipments] = useState<Shipment[]>([]);
-  const [asToRefreshShipments, setAsToRefreshSipments] = useState<boolean>(false)
+  const [asToRefreshShipments, setAsToRefreshSipments] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!isSignedIn || !user?.id) return; // Ne rien faire si l'utilisateur n'est pas connecté
-    setAsToRefreshSipments(false)
+    if (!isSignedIn || !user?.id) return;
+    setAsToRefreshSipments(false);
     const fetchUserShipments = async () => {
       try {
         const response = await findByOwnerId(user.id);
         console.log(response);
-  
-        // Transformation des données pour correspondre au type Shipment
+
         const formattedShipments: Shipment[] = response.map((item) => ({
           id: item.id,
           ownerId: item.ownerId,
@@ -54,30 +48,32 @@ const Dashboard = () => {
           status: item.status,
           destination: item.destination,
           estimatedDelivery: item.estimatedDelivery,
-          statusDates: item.statusDates as StatusDates[] || null, // Assertion ou valeur par défaut
-          phone: item.phone || "Non disponible", // Valeur par défaut pour phone
+          statusDates: (item.statusDates as StatusDates[]) || null,
+          phone: item.phone || "Non disponible",
         }));
-  
+
         setShipments(formattedShipments);
       } catch (err) {
-        console.error('Erreur lors de la récupération des colis:', err);
-        alert('Erreur lors du chargement des colis. Rafraîchissez votre page.');
+        console.error("Erreur lors de la récupération des colis:", err);
+        alert("Erreur lors du chargement des colis. Rafraîchissez votre page.");
       }
     };
-  
+
     fetchUserShipments();
   }, [user, isSignedIn, asToRefreshShipments]);
+
   const colis = shipments.map((shipment: Shipment) => {
     const dateCreation =
       shipment.statusDates?.find((statusDate) => statusDate.status === "Recu📦")?.date || "Non spécifiée";
 
+    const poids = shipment.weight ? parseFloat(shipment.weight) : 0;
+    const rate = getShippingRate(shipment.destination);
+    const frais = poids * rate + SERVICE_FEE; // Ajout des frais de service
+
     return {
       tracking: shipment.trackingNumber ?? "Inconnu",
-      poids: shipment.weight ? parseFloat(shipment.weight) : 0,
-      frais: shipment.weight
-        ? parseFloat(shipment.weight) *
-          (shipment.destination === "Cap-haitien" || shipment.destination === "cap-haitien 2" ? 4.5 : 5)
-        : 0,
+      poids,
+      frais,
       destination: shipment.destination ?? "Non spécifiée",
       statut: shipment.status ?? "Statut inconnu",
       dateCreation,
@@ -86,16 +82,15 @@ const Dashboard = () => {
       description: shipment.category ?? "Non spécifiée",
       historique: Array.isArray(shipment.statusDates)
         ? shipment.statusDates.map((stage: StatusDates) => ({
-          statut: stage.status ?? "Inconnu",
+            statut: stage.status ?? "Inconnu",
             date: stage.date ?? "Non spécifiée",
             lieu: stage.location ?? "Non spécifié",
           }))
         : [],
-      id: shipment.trackingNumber, // Utilisation du trackingNumber comme ID
+      id: shipment.trackingNumber,
     };
   });
 
-  // Filtrer les colis selon l'onglet actif
   const getFilteredColis = () => {
     switch (activeTab) {
       case "recu":
@@ -103,15 +98,14 @@ const Dashboard = () => {
       case "transit":
         return colis.filter((c) => c.statut === "En Transit✈️");
       case "disponible":
-        return colis.filter((c) => c.statut === "Disponible🟢"); // Corrigé pour correspondre aux statuts utilisés
+        return colis.filter((c) => c.statut === "Disponible🟢");
       case "livré":
-        return colis.filter((c) => c.statut === "Livré✅"); // Corrigé pour correspondre aux statuts utilisés
+        return colis.filter((c) => c.statut === "Livré✅");
       default:
         return colis;
     }
   };
 
-  // Calcul des statistiques
   const stats = {
     total: colis.length,
     recu: colis.filter((c) => c.statut === "Recu📦").length,
@@ -120,7 +114,6 @@ const Dashboard = () => {
     livré: colis.filter((c) => c.statut === "Livré✅").length,
   };
 
-  // Fonction pour obtenir la couleur selon le statut
   const getStatusColor = (statut: string) => {
     switch (statut) {
       case "En attente⏳":
@@ -138,25 +131,21 @@ const Dashboard = () => {
     }
   };
 
-  // Fonction pour afficher les détails d'un colis
   const handleColisClick = (colis: Colis) => {
     setSelectedColis(colis);
   };
 
-  // Fonction pour fermer la vue détaillée
   const closeColisDetails = () => {
     setSelectedColis(null);
   };
 
-  // Si l'utilisateur n'est pas connecté, afficher la page de connexion
   if (!isSignedIn) {
     return <LoginPrompt />;
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <AddShipmentByUser  setRefreshShipments={setAsToRefreshSipments} />
-      {/* Main content */}
+      <AddShipmentByUser setRefreshShipments={setAsToRefreshSipments} />
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {!selectedColis ? (
           <>
@@ -429,6 +418,9 @@ const Dashboard = () => {
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
                         Frais ($)
+                        <p className="text-[10px] font-normal text-gray-400">
+                          *Un seul frais de service de ${SERVICE_FEE} est appliqué si plusieurs colis sont récupérés ensemble
+                        </p>
                       </th>
                       <th
                         scope="col"
@@ -464,7 +456,7 @@ const Dashboard = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {colis.frais} $
+                          ${colis.frais.toFixed(2)} +10$ services
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
@@ -525,7 +517,10 @@ const Dashboard = () => {
                       </div>
                       <div>
                         <p className="text-gray-500">Frais</p>
-                        <p className="font-medium">{colis.frais} $</p>
+                        <p className="font-medium">${colis.frais.toFixed(2)} +10$ services</p>
+                        <p className="text-xs text-gray-400">
+                          *Un seul frais de service de ${SERVICE_FEE} si plusieurs colis
+                        </p>
                       </div>
                     </div>
                     <div className="mt-4 flex justify-end">
@@ -630,7 +625,10 @@ const Dashboard = () => {
                       <div>
                         <p className="text-xs text-gray-500">Frais</p>
                         <p className="text-sm font-medium">
-                          {selectedColis.frais} $
+                          ${selectedColis.frais.toFixed(2)} +10$ services
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          *Un seul frais de service de ${SERVICE_FEE} si plusieurs colis
                         </p>
                       </div>
                       <div className="col-span-2">
