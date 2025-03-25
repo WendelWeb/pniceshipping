@@ -1,7 +1,7 @@
 import { db } from '../../configs/index.ts'; // Ajustez l'import selon votre structure
 import { shipmentListing,deliveryBatch,shipmentToDelivery } from '../../configs/schema.ts'; // Ajustez l'import selon votre structure
 import { eq, or, like, inArray } from 'drizzle-orm';
-import { StatusDates } from '@/types/shipment';
+import { Shipment, StatusDates } from '@/types/shipment';
 import { getShippingRate, SERVICE_FEE } from '@/constants/shippingRates.ts';
 // Dans "@/utils/shipmentQueries.ts"
 /**
@@ -306,9 +306,8 @@ export const deleteShipmentById = async (shipmentId: number) => {
 export const markMultipleShipmentsAsDelivered = async (
   shipmentIds: number[],
   ownerId: string
-) => {
+): Promise<{ batchId: number; shippingCost: number; totalCost: number; deliveredShipments: Shipment[] }> => {
   try {
-    // Étape 1 : Récupérer les colis concernés par leurs IDs
     const shipments = await db
       .select()
       .from(shipmentListing)
@@ -318,26 +317,43 @@ export const markMultipleShipmentsAsDelivered = async (
       throw new Error("Certains colis n'ont pas été trouvés.");
     }
 
-    // Étape 2 : Calculer le poids total et le coût en fonction des destinations
     let totalWeight = 0;
     let shippingCost = 0;
 
-    const deliveredShipments = shipments.map((shipment) => {
-      const weight = parseFloat(shipment.weight);
+    // Typage explicite avec cost inclus
+    const deliveredShipments: (Shipment & { cost: number })[] = shipments.map((shipment) => {
+      const weight = parseFloat(shipment.weight || "0");
       totalWeight += weight;
 
-      // Obtenir le tarif par livre selon la destination
-      const rate = getShippingRate(shipment.destination);
-      const cost = weight * rate;
+      const rate = getShippingRate(shipment.destination || "");
+      const cost = weight * rate; // cost est toujours un number ici
 
       shippingCost += cost;
 
-      return { ...shipment, cost }; // Ajouter le coût au colis
+      const statusDates: StatusDates[] = Array.isArray(shipment.statusDates)
+        ? (shipment.statusDates as StatusDates[])
+        : [];
+
+      return {
+        id: shipment.id,
+        ownerId: shipment.ownerId,
+        fullName: shipment.fullName,
+        userName: shipment.userName,
+        category: shipment.category,
+        emailAdress: shipment.emailAdress,
+        trackingNumber: shipment.trackingNumber,
+        weight: shipment.weight,
+        status: shipment.status,
+        destination: shipment.destination,
+        estimatedDelivery: shipment.estimatedDelivery,
+        phone: shipment.phone,
+        statusDates,
+        cost, // cost est garanti comme number
+      };
     });
 
     const totalCost = shippingCost + SERVICE_FEE;
 
-    // Étape 3 : Créer un nouveau lot de livraison
     const [newBatch] = await db
       .insert(deliveryBatch)
       .values({
@@ -349,15 +365,12 @@ export const markMultipleShipmentsAsDelivered = async (
       })
       .returning();
 
-    // Étape 4 : Mettre à jour le statut des colis et les lier au lot
     const now = new Date();
     const formattedDate = `${now.toISOString().split("T")[0]} ${now.toLocaleTimeString("fr-FR", { hour12: false })}`;
 
     for (const shipment of deliveredShipments) {
-      const currentStatusDates = Array.isArray(shipment.statusDates)
-        ? shipment.statusDates
-        : [];
-      const newStatusDates = [
+      const currentStatusDates: StatusDates[] = shipment.statusDates || [];
+      const newStatusDates: StatusDates[] = [
         ...currentStatusDates,
         {
           date: formattedDate,
@@ -366,7 +379,6 @@ export const markMultipleShipmentsAsDelivered = async (
         },
       ];
 
-      // Mettre à jour le colis dans shipmentListing
       await db
         .update(shipmentListing)
         .set({
@@ -375,22 +387,12 @@ export const markMultipleShipmentsAsDelivered = async (
         })
         .where(eq(shipmentListing.id, shipment.id));
 
-      // Ajouter les détails complets du colis dans shipmentToDelivery, y compris le coût
-      const shipmentDetails = {
-        id: shipment.id,
-        ownerId: shipment.ownerId,
-        fullName: shipment.fullName,
-        userName: shipment.userName,
-        category: shipment.category,
-        emailAdress: shipment.emailAdress,
-        trackingNumber: shipment.trackingNumber,
-        weight: shipment.weight,
+      // shipmentDetails avec cost garanti
+      const shipmentDetails: Shipment & { cost: number } = {
+        ...shipment,
         status: "Livré✅",
-        destination: shipment.destination,
-        estimatedDelivery: shipment.estimatedDelivery,
-        phone: shipment.phone,
         statusDates: newStatusDates,
-        cost: shipment.cost,
+        cost: shipment.cost, // cost est toujours défini ici
       };
 
       await db.insert(shipmentToDelivery).values({
@@ -400,12 +402,17 @@ export const markMultipleShipmentsAsDelivered = async (
       });
     }
 
-    // Étape 5 : Retourner les détails complets
+    // Convertir en Shipment[] pour le retour (cost est optionnel dans Shipment)
+    const finalDeliveredShipments: Shipment[] = deliveredShipments.map((shipment) => ({
+      ...shipment,
+      cost: shipment.cost, // Toujours défini, mais compatible avec cost?: number
+    }));
+
     return {
       batchId: newBatch.id,
       shippingCost: Math.round(shippingCost),
       totalCost: Math.round(totalCost),
-      deliveredShipments,
+      deliveredShipments: finalDeliveredShipments,
     };
   } catch (error) {
     console.error("Erreur lors de la livraison multiple :", error);

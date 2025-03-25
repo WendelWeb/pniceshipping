@@ -3,22 +3,37 @@ export interface StatusDates {
   status: string;
   location?: string;
 }
-
 export interface Shipment {
   id: number;
   ownerId: string;
   fullName: string;
   userName: string;
   category: string;
-  emailAdress: string; // Note: Consider renaming to `emailAddress` for consistency
+  emailAdress: string;
   trackingNumber: string;
   weight: string;
   status: string;
   destination: string;
   estimatedDelivery: string;
-  statusDates: StatusDates[] ;
-  phone: string; // Add missing property
+  statusDates: StatusDates[];
+  phone: string | null;
+  cost?: number; // Ajouté pour compatibilité
 }
+// export interface Shipment {
+//   id: number;
+//   ownerId: string;
+//   fullName: string;
+//   userName: string;
+//   category: string;
+//   emailAdress: string; // Note: Consider renaming to `emailAddress` for consistency
+//   trackingNumber: string;
+//   weight: string;
+//   status: string;
+//   destination: string;
+//   estimatedDelivery: string;
+//   statusDates: StatusDates[] ;
+//   phone: string; // Add missing property
+// }
 
 export interface ShipmentFormData {
     fullName?: string;

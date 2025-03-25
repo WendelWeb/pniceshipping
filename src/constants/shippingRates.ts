@@ -2,8 +2,8 @@
 export const SERVICE_FEE = 10; // Frais de service fixes en $
 
 export const SHIPPING_RATES: Record<string, number> = {
-  "cap-haitien": 4, // 4$/lbs
-  "port-au-prince": 4.5, // 4.5$/lbs
+  "cap-haitien": 4.5, // 4.5$/lbs
+  "port-au-prince": 5, // 5$/lbs
   // Exemple d'extension future : "gonaives": 5
 } as const;
 
@@ -17,5 +17,5 @@ export const getShippingRate = (destination: string): number => {
   }
   
   // Tarif par défaut si aucune ville ne correspond
-  return 4.5; // Port-au-Prince comme défaut
+  return 5; // Port-au-Prince comme défaut
 };
