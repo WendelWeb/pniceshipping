@@ -1,7 +1,7 @@
 import { db } from '../../configs/index.ts'; // Ajustez l'import selon votre structure
 import { shipmentListing,deliveryBatch,shipmentToDelivery } from '../../configs/schema.ts'; // Ajustez l'import selon votre structure
 import { eq, or, like, inArray } from 'drizzle-orm';
-import { Shipment, StatusDates } from '@/types/shipment';
+import { Shipment } from '@/types/shipment';
 import { getShippingRate, SERVICE_FEE } from '@/constants/shippingRates.ts';
 // Dans "@/utils/shipmentQueries.ts"
 /**
@@ -169,58 +169,88 @@ export const getAllShipments = async () => {
 // UPDATE SHIPMENT
 
 
+// Type definition for StatusDates
+interface StatusDates {
+  date: string;
+  status: string;
+  location: string;
+}
 
-
-
-export const updateShipmentStatus = async (trackingNumber: string, newStatus:string, location: string) => {
+export const updateShipmentStatus = async (
+  shipmentId: number, // Changed to number to match typical database ID type
+  newStatus: string, 
+  location: string
+) => {
   try {
     // Étape 1 : Récupérer l'enregistrement actuel du colis
     const shipments = await db
       .select()
       .from(shipmentListing)
-      .where(eq(shipmentListing.trackingNumber, trackingNumber))
+      .where(eq(shipmentListing.id, shipmentId)); // Now uses correct type
 
     // Vérifier si le colis existe
-    if (shipments.length ===0) {
-      console.log("Colis non trouvé");
-      return;
+    if (shipments.length === 0) {
+      console.error("Colis non trouvé");
+      throw new Error("Shipment not found");
     }
+
     const shipment = shipments[0];
 
-    // Étape 2 : Récupérer les statusDates actuels ou un objet vide s'il n'existe pas
-    const currentStatusDates: StatusDates[] = (shipment.statusDates as StatusDates[] | undefined) || [];
-const now = new Date();
-const formattedDate = now.toISOString().split("T")[0];
-const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
-const newStatusDates: StatusDates[] = [
-  ...currentStatusDates, // Conserver toutes les entrées existantes
-  {
-    date: `${formattedDate} ${formattedTime}`,
-    status: newStatus,
-    location: location
-  }
-];
+    // Fonction utilitaire pour ajouter des jours
+    const addDays = (date: Date, days: number): string => {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result.toISOString().split("T")[0];
+    };
 
-    // Étape 4 : Mettre à jour l'enregistrement dans la base de données
+    // Étape 2 : Récupérer les statusDates actuels ou un tableau vide
+    const currentStatusDates: StatusDates[] = Array.isArray(shipment.statusDates) 
+      ? shipment.statusDates 
+      : [];
+
+    // Étape 3 : Créer une nouvelle entrée de statut
+    const now = new Date();
+    const formattedDate = now.toISOString().split("T")[0];
+    const formattedTime = now.toLocaleTimeString("fr-FR", { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit', 
+      hour12: false 
+    });
+
+    const newStatusEntry: StatusDates = {
+      date: `${formattedDate} ${formattedTime}`,
+      status: newStatus,
+      location: location
+    };
+
+    // Étape 4 : Créer le nouveau tableau de status
+    const newStatusDates: StatusDates[] = [
+      ...currentStatusDates, 
+      newStatusEntry
+    ];
+
+    // Étape 5 : Mettre à jour l'enregistrement dans la base de données
     await db
       .update(shipmentListing)
       .set({
-        status: newStatus, // Nouveau statut
+        status: newStatus,
         statusDates: newStatusDates,
-        estimatedDelivery: addDays(new Date(), 7) // Nouvel objet statusDates mis à jour
+        estimatedDelivery: addDays(new Date(), 7)
       })
-      .where(eq(shipmentListing.trackingNumber, trackingNumber));
-      function addDays(date: Date, days: number): string {
-        const result = new Date(date);
-        result.setDate(result.getDate() + days);
-        return result.toISOString().split("T")[0];
-      }
+      .where(eq(shipmentListing.id, shipmentId));
       
     console.log("Statut du colis mis à jour avec succès");
+    return newStatusEntry;
+
   } catch (error) {
-    console.log("Erreur lors de la mise à jour du statut :", error);
+    console.error("Erreur lors de la mise à jour du statut :", error);
+    throw error; // Re-throw to allow caller to handle
   }
 };
+
+
+
 
 export const getPendingShipments = async () => {
   try {

@@ -1,8 +1,10 @@
 import Admin from "../admin/Admin.tsx"; // ou "@/admin/index" selon le fichier réel
 import AdminPage from "@/admin/AdminPage";
 import AddShipment from "@/admin/add-shipment/AddShipment";
+import ShipmentView from "@/components/ShipmentView.tsx";
 import AboutPage from "@/pages/About";
 import AllShipments from "@/pages/AllShipments";
+import ConfirmDeliveryPage from "@/pages/ConfirmDeliveryPage.tsx";
 import Dashboard from "@/pages/Dashboard";
 import Home from "@/pages/Home";
 import MarkShipmentAsAvailable from "@/pages/MarkShipmentAsAvailable";
@@ -33,6 +35,11 @@ export const routes: RouteObject[] = [
     element: <Dashboard />,
   },
   {
+    path: "/shipment/:id",
+    element: <ShipmentView />, // Nouvelle route pour la vue du colis
+  },
+  
+  {
     path: "/pricing",
     element: <Pricing />,
   },
@@ -49,6 +56,10 @@ export const routes: RouteObject[] = [
             element: <AddShipment />
           }
         ]
+      },
+      {
+        path: "add-shipment",
+        element: <AddShipment />,
       },
       {
         path: "all-users",
@@ -75,9 +86,11 @@ export const routes: RouteObject[] = [
         element: <MarkShipmentAsDelivered />,
       },
       {
-        path: "add-shipment",
-        element: <AddShipment />,
+        path: "confirm-delivery",
+        element: <ConfirmDeliveryPage />,
       },
+      
+     
       
     ],
   },

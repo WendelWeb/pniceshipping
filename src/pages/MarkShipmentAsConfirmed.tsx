@@ -53,17 +53,20 @@ const MarkShipmentAsConfirmed = () => {
   };
 
   const confirmShipment = async (trackingNumber: string) => {
-    // Typage explicite
     const shipment = shipments.find((s) => s.trackingNumber === trackingNumber);
     if (!shipment?.weight) {
       setWeightErrors((prev) => ({ ...prev, [trackingNumber]: true }));
       if (shipment) handleEditShipment(shipment);
       return;
     }
-
+  
     try {
       setUpdatingShipments((prev) => ({ ...prev, [trackingNumber]: true }));
-      await updateShipmentStatus(trackingNumber, "Recu📦", "Confirmation de reception du colis dans notre entrepot a Pnice Miami, FL Warehouse");
+      await updateShipmentStatus(
+        shipment.id, // Utiliser l'id (number) au lieu de trackingNumber (string)
+        "Recu📦",
+        "Confirmation de reception du colis dans notre entrepot a Pnice Miami, FL Warehouse"
+      );
       setShipments((prev) =>
         prev.filter((s) => s.trackingNumber !== trackingNumber)
       );

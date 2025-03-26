@@ -7,9 +7,8 @@ const MarkShipmentAsAvailable = () => {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [updatingShipments, setUpdatingShipments] = useState<Record<string, boolean>>({}); // Typage explicite
+  const [updatingShipments, setUpdatingShipments] = useState<Record<string, boolean>>({});
 
-  // Reste du code inchangé...
   useEffect(() => {
     fetchTransitShipments();
   }, []);
@@ -19,7 +18,7 @@ const MarkShipmentAsAvailable = () => {
       setLoading(true);
       const results = await getAllShipments();
       const transitShipments = results.filter((shipment) => shipment.status === 'En Transit✈️');
-  
+
       const formattedShipments: Shipment[] = transitShipments.map((item) => ({
         id: item.id,
         ownerId: item.ownerId,
@@ -32,16 +31,17 @@ const MarkShipmentAsAvailable = () => {
         status: item.status,
         destination: item.destination,
         estimatedDelivery: item.estimatedDelivery,
-        statusDates: item.statusDates as StatusDates[] || [], // Utilisation correcte avec valeur par défaut []
+        statusDates: (item.statusDates as StatusDates[]) || [],
         phone: item.phone || "Non disponible",
       }));
-  
+
+      // Utiliser l'ID au lieu du trackingNumber pour l'état de mise à jour
       const updatingState = formattedShipments.reduce<Record<string, boolean>>((acc, shipment) => {
-        acc[shipment.trackingNumber] = false;
+        acc[shipment.id] = false; // Changement ici : utilisation de l'ID
         return acc;
       }, {});
       setUpdatingShipments(updatingState);
-  
+
       setShipments(formattedShipments);
     } catch (error) {
       console.error('Erreur lors de la récupération des colis en transit:', error);
@@ -50,26 +50,34 @@ const MarkShipmentAsAvailable = () => {
     }
   };
 
-  const makeAvailable = async (trackingNumber: string) => {
+  const makeAvailable = async (shipmentId: string) => {
     try {
-      setUpdatingShipments((prev) => ({ ...prev, [trackingNumber]: true }));
-      
-      // Mise à jour du statut à "Disponible🟢"
-      await updateShipmentStatus(trackingNumber, 'Disponible🟢', 'Le colis est disponible dans notre entrepôt et prêt pour la récupération.');
-      
-      // Envoi de l'email de notification
-      const shipment = shipments.find((s) => s.trackingNumber === trackingNumber);
-      
-      // Mise à jour de l'interface utilisateur
-      setShipments((prev) => prev.filter((s) => s.trackingNumber !== trackingNumber));
-      await sendAvailableEmail(`${shipment?.fullName}`, `${shipment?.emailAdress}`, `${shipment?.trackingNumber}`);
+      setUpdatingShipments((prev) => ({ ...prev, [shipmentId]: true }));
+
+      // Mise à jour du statut avec l'ID au lieu du trackingNumber
+      await updateShipmentStatus(
+        parseInt(shipmentId), // Conversion de string à number
+        'Disponible🟢',
+        'Le colis est disponible dans notre entrepôt et prêt pour la récupération.'
+      );
+
+      // Recherche du shipment par ID
+      const shipment = shipments.find((s) => s.id === parseInt(shipmentId));
+      if (!shipment) throw new Error(`Colis avec l'ID ${shipmentId} non trouvé`);
+
+      // Mise à jour de l'interface utilisateur en filtrant par ID
+      setShipments((prev) => prev.filter((s) => s.id !== parseInt(shipmentId)));
+
+      // Envoi de l'email avec les informations du shipment (on garde trackingNumber pour l'email)
+      await sendAvailableEmail(shipment.fullName, shipment.emailAdress, shipment.trackingNumber);
     } catch (error) {
       console.error('Erreur lors du passage à disponible:', error);
     } finally {
-      setUpdatingShipments((prev) => ({ ...prev, [trackingNumber]: false }));
+      setUpdatingShipments((prev) => ({ ...prev, [shipmentId]: false }));
     }
   };
 
+  // Le filtrage reste basé sur trackingNumber, userName et emailAdress pour la recherche
   const filteredShipments = shipments.filter((shipment) =>
     shipment.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     shipment.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -139,7 +147,7 @@ const MarkShipmentAsAvailable = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredShipments.map((shipment) => (
               <div
-                key={shipment.trackingNumber}
+                key={shipment.id} // Changement ici : utilisation de l'ID comme clé
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
               >
                 <div className="bg-blue-500 px-4 py-2 text-white flex justify-between items-center">
@@ -204,15 +212,15 @@ const MarkShipmentAsAvailable = () => {
                   </div>
                   <div className="mt-6">
                     <button
-                      onClick={() => makeAvailable(shipment.trackingNumber)}
-                      disabled={updatingShipments[shipment.trackingNumber]}
+                      onClick={() => makeAvailable(shipment.id.toString())} // Conversion de number à string
+                      disabled={updatingShipments[shipment.id]} // Changement ici : utilisation de l'ID
                       className={`w-full px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
-                        !updatingShipments[shipment.trackingNumber]
+                        !updatingShipments[shipment.id]
                           ? 'bg-green-600 text-white hover:bg-green-700'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
                     >
-                      {updatingShipments[shipment.trackingNumber] ? (
+                      {updatingShipments[shipment.id] ? (
                         <div className="animate-spin h-4 w-4 border-t-2 border-b-2 border-white rounded-full"></div>
                       ) : (
                         <svg

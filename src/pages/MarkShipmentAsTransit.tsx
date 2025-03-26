@@ -7,7 +7,7 @@ const MarkShipmentAsTransit = () => {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [updatingShipments, setUpdatingShipments] = useState<Record<string, boolean>>({}); // État pour suivre les colis en cours de mise à jour
+  const [updatingShipments, setUpdatingShipments] = useState<Record<number, boolean>>({}); // Changement : clé = number (id)
 
   useEffect(() => {
     fetchReceivedShipments();
@@ -22,14 +22,14 @@ const MarkShipmentAsTransit = () => {
         .map((shipment) => ({
           ...shipment,
           statusDates: Array.isArray(shipment.statusDates)
-            ? shipment.statusDates // Si c'est un tableau, on le garde
-            : [], // Sinon, tableau vide par défaut
+            ? shipment.statusDates
+            : [],
         })) as Shipment[];
-  
-      // Initialiser updatingShipments pour chaque colis à false
-      const initialUpdatingState = receivedShipments.reduce<Record<string, boolean>>(
+
+      // Initialiser updatingShipments avec id comme clé
+      const initialUpdatingState = receivedShipments.reduce<Record<number, boolean>>(
         (acc, shipment) => {
-          acc[shipment.trackingNumber] = false;
+          acc[shipment.id] = false; // Utiliser id au lieu de trackingNumber
           return acc;
         },
         {}
@@ -43,30 +43,34 @@ const MarkShipmentAsTransit = () => {
     }
   };
 
-  const transitShipment = async (trackingNumber:string) => {
+  const transitShipment = async (id: number) => { // Changement : paramètre id (number)
     try {
-      setUpdatingShipments((prev) => ({ ...prev, [trackingNumber]: true }));
-      await updateShipmentStatus(trackingNumber, 'En Transit✈️', 'Colis En cours de transit vers sa destination finale');
-      const shipment = shipments.find((s) => s.trackingNumber === trackingNumber);
-      
-      if (shipment) {
-        // Appeler l'email avant de retirer l'élément de shipments
-        await sendTransitEmail(`${shipment.fullName}`, `${shipment.emailAdress}`, `${shipment.trackingNumber}`);
-        // Mise à jour de l'interface utilisateur après l'envoi de l'email
-        setShipments((prev) => prev.filter((s) => s.trackingNumber !== trackingNumber));
-      } else {
-        console.warn(`Colis avec trackingNumber ${trackingNumber} non trouvé`);
+      setUpdatingShipments((prev) => ({ ...prev, [id]: true })); // Utiliser id comme clé
+      const shipment = shipments.find((s) => s.id === id); // Chercher par id
+      if (!shipment) {
+        console.warn(`Colis avec id ${id} non trouvé`);
+        return;
       }
-      
-      setUpdatingShipments((prev) => ({ ...prev, [trackingNumber]: false }));
+      await updateShipmentStatus(
+        shipment.id,
+        'En Transit✈️',
+        'Colis En cours de transit vers sa destination finale'
+      );
+
+      // Appeler l'email avec trackingNumber (inchangé)
+      await sendTransitEmail(`${shipment.fullName}`, `${shipment.emailAdress}`, `${shipment.trackingNumber}`);
+      // Filtrer par id pour mise à jour UI
+      setShipments((prev) => prev.filter((s) => s.id !== id));
     } catch (error) {
       console.error('Erreur lors du passage en transit:', error);
-      setUpdatingShipments((prev) => ({ ...prev, [trackingNumber]: false }));
+    } finally {
+      setUpdatingShipments((prev) => ({ ...prev, [id]: false }));
     }
   };
 
+  // Recherche par id (converti en string pour correspondre à searchTerm)
   const filteredShipments = shipments.filter((shipment) =>
-    shipment.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.id.toString().includes(searchTerm.toLowerCase()) || // Chercher par id
     shipment.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     shipment.emailAdress.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -83,7 +87,7 @@ const MarkShipmentAsTransit = () => {
           <div className="relative w-full md:w-64">
             <input
               type="text"
-              placeholder="Rechercher..."
+              placeholder="Rechercher par ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
@@ -136,7 +140,7 @@ const MarkShipmentAsTransit = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredShipments.map((shipment) => (
               <div
-                key={shipment.trackingNumber}
+                key={shipment.id} // Changement : key = id
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
               >
                 <div className="bg-blue-500 px-4 py-2 text-white flex justify-between items-center">
@@ -201,15 +205,15 @@ const MarkShipmentAsTransit = () => {
                   </div>
                   <div className="mt-6">
                     <button
-                      onClick={() => transitShipment(shipment.trackingNumber)}
-                      disabled={updatingShipments[shipment.trackingNumber]}
+                      onClick={() => transitShipment(shipment.id)} // Changement : passer id
+                      disabled={updatingShipments[shipment.id]} // Changement : vérifier avec id
                       className={`w-full px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
-                        !updatingShipments[shipment.trackingNumber]
+                        !updatingShipments[shipment.id]
                           ? "bg-blue-600 text-white hover:bg-blue-700"
                           : "bg-gray-300 text-gray-500 cursor-not-allowed"
                       }`}
                     >
-                      {updatingShipments[shipment?.trackingNumber] ? (
+                      {updatingShipments[shipment.id] ? ( // Changement : vérifier avec id
                         <div className="animate-spin h-4 w-4 border-t-2 border-b-2 border-white rounded-full"></div>
                       ) : (
                         <svg

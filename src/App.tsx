@@ -1,8 +1,8 @@
 import "./app.css";
 import { BrowserRouter, useRoutes } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import { getAllShipments } from "./utils/shipmentQueries";
-import { useEffect } from "react";
+// import { getAllShipments } from "./utils/shipmentQueries";
+// import { useEffect } from "react";
 import { UserProvider } from "./contexts/UserContext";
 import { routes } from "./router/routes"; // Importation des routes
 
@@ -12,22 +12,22 @@ const RouteRenderer = () => {
 };
 
 const App: React.FC = () => {
-  useEffect(() => {
-    const fetchShipments = async () => {
-      try {
-        const response = await getAllShipments();
-        if (response.length === 0) {
-          console.log("No shipments found");
-        }
-        console.log(response);
-      } catch (err) {
-        console.log(err);
-        alert(err);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchShipments = async () => {
+  //     try {
+  //       const response = await getAllShipments();
+  //       if (response.length === 0) {
+  //         console.log("No shipments found");
+  //       }
+  //       console.log(response);
+  //     } catch (err) {
+  //       console.log(err);
+  //       alert(err);
+  //     }
+  //   };
 
-    fetchShipments();
-  }, []);
+  //   fetchShipments();
+  // }, []);
 
   return (
     <BrowserRouter>

@@ -1,3 +1,4 @@
+// src/components/Dashboard.tsx
 import { Shipment, StatusDates } from "@/types/shipment";
 import { findByOwnerId } from "@/utils/shipmentQueries";
 import { useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import AddShipmentByUser from "./AddShipmentByUser.tsx";
 import { useUser } from "@clerk/clerk-react";
 import LoginPrompt from "./LoginPrompts.tsx";
 import { getShippingRate, SERVICE_FEE } from "@/constants/shippingRates";
+import { useNavigate } from "react-router-dom";
 
 interface Colis {
   tracking: string;
@@ -22,7 +24,7 @@ interface Colis {
 
 const Dashboard = () => {
   const { user, isSignedIn } = useUser();
-
+  const navigate = useNavigate(); // Ajout pour la redirection
   const [activeTab, setActiveTab] = useState("tous");
   const [selectedColis, setSelectedColis] = useState<Colis | null>(null);
   const [shipments, setShipments] = useState<Shipment[]>([]);
@@ -68,7 +70,7 @@ const Dashboard = () => {
 
     const poids = shipment.weight ? parseFloat(shipment.weight) : 0;
     const rate = getShippingRate(shipment.destination);
-    const frais = poids * rate ; // Ajout des frais de service
+    const frais = poids * rate;
 
     return {
       tracking: shipment.trackingNumber ?? "Inconnu",
@@ -87,7 +89,7 @@ const Dashboard = () => {
             lieu: stage.location ?? "Non spécifié",
           }))
         : [],
-      id: shipment.trackingNumber,
+      id: shipment.id.toString(), // Utilisation de l'ID pour la redirection
     };
   });
 
@@ -132,7 +134,7 @@ const Dashboard = () => {
   };
 
   const handleColisClick = (colis: Colis) => {
-    setSelectedColis(colis);
+    navigate(`/shipment/${colis.id}`); // Redirection vers ShipmentView avec l'ID
   };
 
   const closeColisDetails = () => {
@@ -435,7 +437,7 @@ const Dashboard = () => {
                       <tr
                         key={colis.id}
                         className="hover:bg-gray-50 cursor-pointer"
-                        onClick={() => handleColisClick(colis)}
+                        onClick={() => handleColisClick(colis)} // Redirection ici
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {colis.tracking}
@@ -463,7 +465,7 @@ const Dashboard = () => {
                             className="text-blue-600 hover:text-blue-900"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleColisClick(colis);
+                              handleColisClick(colis); // Redirection ici aussi
                             }}
                           >
                             Détails
@@ -482,7 +484,7 @@ const Dashboard = () => {
                 <div
                   key={colis.id}
                   className="bg-white rounded-lg shadow overflow-hidden cursor-pointer"
-                  onClick={() => handleColisClick(colis)}
+                  onClick={() => handleColisClick(colis)} // Redirection ici
                 >
                   <div className="px-4 py-5 sm:p-6">
                     <div className="flex justify-between items-start">
@@ -528,7 +530,7 @@ const Dashboard = () => {
                         className="text-blue-600 text-sm font-medium"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleColisClick(colis);
+                          handleColisClick(colis); // Redirection ici aussi
                         }}
                       >
                         Voir les détails →
@@ -540,7 +542,7 @@ const Dashboard = () => {
             </div>
           </>
         ) : (
-          // Vue détaillée d'un colis
+          // Vue détaillée d'un colis (inchangée sauf redirection supprimée)
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
               <div className="flex justify-between items-center">

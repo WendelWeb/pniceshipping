@@ -1,7 +1,7 @@
 export interface StatusDates {
   date: string;
   status: string;
-  location?: string;
+  location: string;
 }
 export interface Shipment {
   id: number;

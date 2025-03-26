@@ -34,9 +34,15 @@ const UserList = () => {
         if (!response.ok) {
           throw new Error("Échec de la récupération des utilisateurs");
         }
+        
         const data = await response.json();
+        console.log(data.data);
+        
         setUsers(data.data);
       } catch (err) {
+        console.log('nonnnn');
+        console.log(err);
+        
         setError((err as Error).message);
       } finally {
         setLoading(false);
