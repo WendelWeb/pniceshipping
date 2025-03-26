@@ -219,7 +219,7 @@ const ShipmentView = () => {
     Informations sur ton colis
   </h2>
   <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-    Salut ! Ce colis appartient à {shipment.userName || "quelqu’un"}.  
+    Salut ! Ce colis appartient à {shipment.fullName || "quelqu’un"}.  
     Son numéro de suivi est {shipment.trackingNumber}, c’est comme sa carte d’identité pour qu’on puisse le retrouver facilement.  
 
     📌 Statut actuel : {shipment.status} –  
