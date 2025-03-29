@@ -5,7 +5,6 @@ import { useUserContext } from "@/contexts/UserContext";
 import { UserType } from "@/types/user";
 
 const UserCard: React.FC<{ user: UserType }> = ({ user }) => {
-  console.log(user);
   
   const { setUser } = useUserContext();
   const navigate = useNavigate();

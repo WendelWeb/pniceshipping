@@ -36,11 +36,9 @@ const UserList = () => {
         }
         
         const data = await response.json();
-        console.log(data.data);
         
         setUsers(data.data);
       } catch (err) {
-        console.log('nonnnn');
         console.log(err);
         
         setError((err as Error).message);

@@ -45,7 +45,6 @@ const AllShipments = () => {
       try {
         setIsLoading(true);
         const data = await getAllShipments();
-        console.log(data);
 
         const formattedData: Shipment[] = data.map((item) => ({
           id: item.id,

@@ -36,7 +36,6 @@ const Dashboard = () => {
     const fetchUserShipments = async () => {
       try {
         const response = await findByOwnerId(user.id);
-        console.log(response);
 
         const formattedShipments: Shipment[] = response.map((item) => ({
           id: item.id,
