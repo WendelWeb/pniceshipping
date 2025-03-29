@@ -1,8 +1,7 @@
 // Liste des emails des administrateurs
 export const adminEmails: string[] = [
     "stanleywendeljoseph@gmail.com",
-    // "wendelgraph1515@gmail.com",
-    "pniceshippingservices@gmail.om",
+    "pniceshippingservices@gmail.com",
     "dadlyndaceus481@gmail.com"
 
     // Ajoutez d'autres emails d'administrateurs ici
