@@ -79,7 +79,7 @@ const ConfirmDeliveryPage = () => {
             <button
               onClick={handleConfirmDelivery}
               disabled={isDelivering}
-              className={`flex-1 px-6 py-3 rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+              className={`flex-1 cursor-pointer px-6 py-3 rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all duration-300 ${
                 isDelivering
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:from-indigo-700 hover:to-blue-700 hover:shadow-xl"
@@ -96,7 +96,7 @@ const ConfirmDeliveryPage = () => {
             </button>
             <button
               onClick={() => navigate("/mark-delivered")}
-              className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-all duration-300"
+              className="px-6 py-3 cursor-pointer rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-all duration-300"
             >
               Annuler
             </button>

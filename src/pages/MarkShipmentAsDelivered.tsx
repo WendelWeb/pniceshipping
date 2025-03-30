@@ -179,15 +179,15 @@ const MarkShipmentAsDelivered = () => {
 
           {/* Liste déroulante */}
           <div className="relative">
-            <label className="block text-gray-700 font-medium mb-2">Sélectionner un utilisateur :</label>
+            <label className="block  text-gray-700 font-medium mb-2">Sélectionner un utilisateur :</label>
             <select
               value={selectedUserId || ""}
               onChange={(e) => setSelectedUserId(e.target.value || null)}
-              className="w-full pl-12 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-300"
+              className="w-full cursor-pointer pl-12 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-300"
             >
               <option value="">-- Choisir un utilisateur --</option>
               {users.map((user) => (
-                <option key={user.id} value={user.id}>
+                <option className="cursor-pointer" key={user.id} value={user.id}>
                   {user.firstName} {user.lastName} (@{user.username})
                 </option>
               ))}
@@ -235,9 +235,9 @@ const MarkShipmentAsDelivered = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full pl-12 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-300"
+                className="w-full pl-12 pr-10 py-3 cursor-pointer border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-300"
               >
-                <option value="">Toutes les catégories</option>
+                <option value="" className="cursor-pointer">Toutes les catégories</option>
                 {CATEGORIES.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -256,7 +256,7 @@ const MarkShipmentAsDelivered = () => {
             <button
               onClick={handleDeliver}
               disabled={selectedShipmentIds.length === 0}
-              className={`px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transition-all duration-300 ${
+              className={`px-6 cursor-pointer py-3 rounded-lg shadow-lg flex items-center gap-2 transition-all duration-300 ${
                 selectedShipmentIds.length === 0
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:from-indigo-700 hover:to-blue-700 hover:shadow-xl"
@@ -277,7 +277,7 @@ const MarkShipmentAsDelivered = () => {
           </div>
         ) : !selectedUserId ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-lg text-gray-500 animate-pulse">Sélectionnez un utilisateur...</p>
+            <p className="text-lg text-gray-500 animate-pulse ">Sélectionnez un utilisateur...</p>
           </div>
         ) : filteredShipments.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -305,7 +305,7 @@ const MarkShipmentAsDelivered = () => {
                         type="checkbox"
                         checked={selectedShipmentIds.includes(shipment.id)}
                         onChange={() => handleSelectShipment(shipment.id)}
-                        className="mr-2 h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        className="mr-2 h-5 w-5 cursor-pointer text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                       />
                       <p className="text-gray-800 font-semibold">{shipment.fullName}</p>
                     </div>

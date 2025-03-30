@@ -173,18 +173,18 @@ const AllShipments = () => {
           />
         </div>
 
-        <div className="relative">
+        <div className="relative cursor-pointer">
           <select
-            className="block w-full py-2 pl-3 pr-8 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="block w-full py-2 cursor-pointer pl-3 pr-8 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
             disabled={isLoading}
           >
-            <option value="">📋 Tous les statuts</option>
-            <option value="Recu📦">📦 Reçu</option>
-            <option value="En Transit✈️">✈️ En Transit</option>
-            <option value="Disponible🟢">🟢 Disponible</option>
-            <option value="Livré✅">✅ Livré</option>
+            <option  value="">📋 Tous les statuts</option>
+            <option  value="Recu📦">📦 Reçu</option>
+            <option  value="En Transit✈️">✈️ En Transit</option>
+            <option  value="Disponible🟢">🟢 Disponible</option>
+            <option  value="Livré✅">✅ Livré</option>
           </select>
         </div>
       </div>

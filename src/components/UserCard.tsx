@@ -118,17 +118,17 @@ const UserCard: React.FC<{ user: UserType }> = ({ user }) => {
 
       <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between px-4 pb-4">
         <button
-          className="text-blue-500 hover:text-blue-700 text-sm font-medium flex items-center"
+          className="text-blue-500 hover:text-blue-700 cursor-pointer text-sm font-medium flex items-center"
           onClick={() => navigate(`/user-shipments/${user.id}`)}
         >
-          <PackageSearch className="h-4 w-4 mr-2" /> Voir Les Colis
+          <PackageSearch className="h-4 w-4 mr-2 cursor-pointer" /> Voir Les Colis
         </button>
         <Link
           to="/admin/add-shipment"
           state={{ user }}
           onClick={() => setUser(user)}
         >
-          <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm">
+          <button className="bg-blue-500 cursor-pointer hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm">
             Ajouter Un Coli
           </button>
         </Link>

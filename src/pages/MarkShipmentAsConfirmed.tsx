@@ -300,7 +300,7 @@ const MarkShipmentAsConfirmed = () => {
                         !shipment.weight ||
                         updatingShipments[shipment.trackingNumber]
                       }
-                      className={`flex-1 px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
+                      className={`flex-1 px-4 py-2 cursor-pointer rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
                         shipment.weight &&
                         !updatingShipments[shipment.trackingNumber]
                           ? "bg-green-600 text-white hover:bg-green-700"
@@ -330,7 +330,7 @@ const MarkShipmentAsConfirmed = () => {
                     <button
                       onClick={() => handleEditShipment(shipment)}
                       disabled={updatingShipments[shipment.trackingNumber]}
-                      className={`flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 ${
+                      className={`flex-1 bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 ${
                         !shipment.weight ? "animate-pulse" : ""
                       } ${
                         updatingShipments[shipment.trackingNumber]

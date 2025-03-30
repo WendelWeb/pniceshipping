@@ -7,13 +7,13 @@ import {
   SignedIn,
   SignInButton,
   UserButton,
-  useUser,
+  // useUser,
 } from "@clerk/clerk-react";
 import AdminButton from "@/admin/components/AdminButton";
 
 const Navbar = () => {
-  const isSignedIn = useUser();
-  console.log(isSignedIn);
+  // const isSignedIn = useUser();
+  // console.log(isSignedIn);
 
   const [isOpen, setIsOpen] = useState(false);
   const [activateAnimation, setActivateAnimation] = useState("closed");

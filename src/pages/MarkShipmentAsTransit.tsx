@@ -207,7 +207,7 @@ const MarkShipmentAsTransit = () => {
                     <button
                       onClick={() => transitShipment(shipment.id)} // Changement : passer id
                       disabled={updatingShipments[shipment.id]} // Changement : vérifier avec id
-                      className={`w-full px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
+                      className={`w-full px-4 py-2 rounded-md cursor-pointer transition-colors duration-200 flex items-center justify-center gap-2 ${
                         !updatingShipments[shipment.id]
                           ? "bg-blue-600 text-white hover:bg-blue-700"
                           : "bg-gray-300 text-gray-500 cursor-not-allowed"

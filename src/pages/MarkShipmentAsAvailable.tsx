@@ -214,7 +214,7 @@ const MarkShipmentAsAvailable = () => {
                     <button
                       onClick={() => makeAvailable(shipment.id.toString())} // Conversion de number à string
                       disabled={updatingShipments[shipment.id]} // Changement ici : utilisation de l'ID
-                      className={`w-full px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
+                      className={`w-full cursor-pointer px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
                         !updatingShipments[shipment.id]
                           ? 'bg-green-600 text-white hover:bg-green-700'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'

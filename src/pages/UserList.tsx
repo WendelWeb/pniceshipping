@@ -107,9 +107,9 @@ const UserList = () => {
         </div>
 
         {/* Sort Dropdown */}
-        <div className="relative w-full md:w-1/3">
+        <div className="relative w-full md:w-1/3 cursor-pointer">
           <select
-            className="block w-full py-2 pl-3 pr-10 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+            className="block w-full py-2 pl-3 pr-10 cursor-pointer text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
           >
