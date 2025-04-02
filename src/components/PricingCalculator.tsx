@@ -7,8 +7,8 @@ export default function PricingCalculator() {
   // Tarifs spéciaux pour les appareils électroniques
   const specialRates: Record<string, { price: number; description: string }>= {
     ordinateurs_portables: { price: 30, description: "Emballage sécurisé avec protection contre les chocs" },
-    telephones: { price: 15, description: "Protection spécialisée pour appareils mobiles" },
-    televisions: { price: 25, description: "Emballage renforcé et manipulation spéciale" },
+    telephones: { price: 20, description: "Protection spécialisée pour appareils mobiles" },
+    televisions: { price: 40, description: "Emballage renforcé et manipulation spéciale" },
     starlink: {price: 20, description: "Frais Douane Supplementaire pour kit Starlink"}
   };
 
