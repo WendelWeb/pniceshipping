@@ -449,76 +449,70 @@ export const markMultipleShipmentsAsDelivered = async (
     throw error;
   }
 };
-// export const confirmAndUpdateUserShipment = async (
-//   trackingNumber: string,
-//   newStatus: string,
-//   newWeight: string
-// ) => {
-//   try {
-//     // Vérifier si le numéro de suivi est valide
-//     if (!trackingNumber.trim()) {
-//       throw new Error("Le numéro de suivi est requis.");
-//     }
 
-//     // Vérifier si le poids est valide
-//     // if (newWeight <= 0) {
-//     //   throw new Error("Le poids doit être un nombre positif.");
-//     // }
 
-//     // Étape 1 : Récupérer l'enregistrement actuel du colis
-//     const shipments = await db
-//       .select()
-//       .from(shipmentListing)
-//       .where(eq(shipmentListing.trackingNumber, trackingNumber));
 
-//     // Vérifier si le colis existe
-//     if (shipments.length === 0) {
-//       console.log("Colis non trouvé.");
-//       return;
-//     }
-//     const shipment = shipments[0];
 
-//     // Étape 2 : Récupérer les statusDates actuels ou un tableau vide
-//     const currentStatusDates = shipment.statusDates || [];
-    
-//     // Étape 3 : Ajouter le nouveau statut avec la date et l'heure actuelles
-//     const now = new Date();
-//     const formattedDate = now.toISOString().split("T")[0]; // Format YYYY-MM-DD
-//     const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false }); // Format HH:mm:ss
-    
-//     const newStatusDates = [
-//       {
-//         date: currentStatusDates[0].date,
-//         status: currentStatusDates[0].status,
-//         location: currentStatusDates[0].location
-//        },
-//       {
-//         date: `${formattedDate} ${formattedTime}`,
-//         status: newStatus,
-//         location: "Pnice Miami, FL Warehouse",
-//       },
-//     ];
+/**
+ * Récupère tous les lots de livraisons avec leurs colis associés
+ * @returns Liste des lots de livraisons avec détails
+ */
+export const getDeliveredShipments = async () => {
+  try {
+    const results = await db
+      .select({
+        deliveryBatchId: deliveryBatch.id,
+        ownerId: deliveryBatch.ownerId,
+        deliveryDate: deliveryBatch.deliveryDate,
+        totalWeight: deliveryBatch.totalWeight,
+        serviceFee: deliveryBatch.serviceFee,
+        shippingCost: deliveryBatch.shippingCost,
+        totalCost: deliveryBatch.totalCost,
+        shipmentId: shipmentToDelivery.shipmentId,
+        shipmentDetails: shipmentToDelivery.shipmentDetails,
+        shipmentTrackingNumber: shipmentListing.trackingNumber,
+        shipmentFullName: shipmentListing.fullName,
+        shipmentUserName: shipmentListing.userName,
+        shipmentEmailAdress: shipmentListing.emailAdress,
+        shipmentDestination: shipmentListing.destination,
+        shipmentCategory: shipmentListing.category,
+      })
+      .from(deliveryBatch)
+      .leftJoin(shipmentToDelivery, eq(deliveryBatch.id, shipmentToDelivery.deliveryBatchId))
+      .leftJoin(shipmentListing, eq(shipmentToDelivery.shipmentId, shipmentListing.id));
 
-//     // Étape 4 : Mettre à jour l'enregistrement dans la base de données
-//     await db
-//       .update(shipmentListing)
-//       .set({
-//         status: newStatus,
-//         statusDates: newStatusDates,
-//         weight: newWeight ,
-//         estimatedDelivery: addDays(new Date(), 7),
-//       })
-//       .where(eq(shipmentListing.trackingNumber, trackingNumber));
+    // Regrouper les résultats par lot
+    const batchesMap = new Map<number, any>();
+    results.forEach((row) => {
+      if (!batchesMap.has(row.deliveryBatchId)) {
+        batchesMap.set(row.deliveryBatchId, {
+          id: row.deliveryBatchId,
+          ownerId: row.ownerId,
+          deliveryDate: row.deliveryDate,
+          totalWeight: parseFloat(row.totalWeight),
+          serviceFee: row.serviceFee,
+          shippingCost: row.shippingCost,
+          totalCost: row.totalCost,
+          shipments: [],
+        });
+      }
+      if (row.shipmentId) {
+        batchesMap.get(row.deliveryBatchId).shipments.push({
+          id: row.shipmentId,
+          trackingNumber: row.shipmentTrackingNumber,
+          fullName: row.shipmentFullName,
+          userName: row.shipmentUserName,
+          emailAdress: row.shipmentEmailAdress,
+          destination: row.shipmentDestination,
+          category: row.shipmentCategory,
+          details: row.shipmentDetails, // JSON contenant poids, coût, etc.
+        });
+      }
+    });
 
-//     console.log("Statut et poids du colis mis à jour avec succès.");
-//   } catch (error) {
-//     console.error("Erreur lors de la mise à jour du colis :", error);
-//     throw error;
-//   }
-// };
-
-// function addDays(date: Date, days: number): string {
-//   const result = new Date(date);
-//   result.setDate(result.getDate() + days);
-//   return result.toISOString().split("T")[0];
-// }
+    return Array.from(batchesMap.values());
+  } catch (error) {
+    console.error("Erreur lors de la récupération des lots de livraisons :", error);
+    throw error;
+  }
+};

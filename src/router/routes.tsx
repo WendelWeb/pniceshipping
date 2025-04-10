@@ -6,6 +6,7 @@ import AboutPage from "@/pages/About";
 import AllShipments from "@/pages/AllShipments";
 import ConfirmDeliveryPage from "@/pages/ConfirmDeliveryPage.tsx";
 import Dashboard from "@/pages/Dashboard";
+import DeliveredShipments from "@/pages/DeliveredShipment.tsx";
 import Home from "@/pages/Home";
 import MarkShipmentAsAvailable from "@/pages/MarkShipmentAsAvailable";
 import MarkShipmentAsConfirmed from "@/pages/MarkShipmentAsConfirmed";
@@ -88,6 +89,10 @@ export const routes: RouteObject[] = [
       {
         path: "confirm-delivery",
         element: <ConfirmDeliveryPage />,
+      },
+      {
+        path: "delivered-shipments",
+        element: <DeliveredShipments />
       },
       
      

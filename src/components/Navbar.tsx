@@ -47,14 +47,12 @@ const Navbar = () => {
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center">
-                <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center">
-                  <div className="transform -rotate-45 text-white font-bold">
-                    PS
+                <div className="h-8 w-45  rounded-md flex items-center justify-center">
+                  <div className="">
+                    <img src="./pnicelogo.png" alt="pnice-logo" /> 
                   </div>
                 </div>
-                <span className="ml-2 text-xl font-bold ">
-                  Pnice Shipping Services
-                </span>
+                
               </Link>
             </div>
             <AdminButton />
@@ -83,7 +81,7 @@ const Navbar = () => {
             </Link> */}
               <SignedOut>
                 <SignInButton>
-                  <button className="bg-blue-600 text-white px-6 py-2 border rounded-md hover:bg-white hover:border-blue-600 hover:text-blue-600 transition duration-300">
+                  <button className="bg-blue-600 text-white px-6 cursor-pointer py-2 border rounded-md hover:bg-white hover:border-blue-600 hover:text-blue-600 transition duration-300">
                     Se connecter
                   </button>
                 </SignInButton>
