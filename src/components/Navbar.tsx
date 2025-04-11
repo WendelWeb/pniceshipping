@@ -10,6 +10,7 @@ import {
   // useUser,
 } from "@clerk/clerk-react";
 import AdminButton from "@/admin/components/AdminButton";
+import pniceLogo from "../assets/pnicelogo.png";
 
 const Navbar = () => {
   // const isSignedIn = useUser();
@@ -49,7 +50,7 @@ const Navbar = () => {
               <Link to="/" className="flex items-center">
                 <div className="h-8 w-45  rounded-md flex items-center justify-center">
                   <div className="">
-                    <img src="./pnicelogo.png" alt="pnice-logo" /> 
+                    <img src={pniceLogo} alt="pnice-logo" /> 
                   </div>
                 </div>
                 
