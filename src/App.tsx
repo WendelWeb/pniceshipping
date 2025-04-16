@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 // import { useEffect } from "react";
 import { UserProvider } from "./contexts/UserContext";
 import { routes } from "./router/routes"; // Importation des routes
+import Footer from "./components/Footer";
 
 // Composant pour rendre les routes
 const RouteRenderer = () => {
@@ -37,6 +38,7 @@ const App: React.FC = () => {
           <main className="container py-8 pt-20">
             <RouteRenderer /> {/* Utilisation du composant pour rendre les routes */}
           </main>
+          <Footer />
         </div>
       </UserProvider>
     </BrowserRouter>
