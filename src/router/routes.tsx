@@ -4,6 +4,7 @@ import AddShipment from "@/admin/add-shipment/AddShipment";
 import ShipmentView from "@/components/ShipmentView.tsx";
 import AboutPage from "@/pages/About";
 import AllShipments from "@/pages/AllShipments";
+import ClientShipments from "@/pages/ClientShipments.tsx";
 import ConfirmDeliveryPage from "@/pages/ConfirmDeliveryPage.tsx";
 import Dashboard from "@/pages/Dashboard";
 import DeliveredShipments from "@/pages/DeliveredShipment.tsx";
@@ -38,6 +39,11 @@ export const routes: RouteObject[] = [
   {
     path: "/shipment/:id",
     element: <ShipmentView />, // Nouvelle route pour la vue du colis
+  },
+  
+  {
+    path: "/client-shipments/:id",
+    element: <ClientShipments />, // Nouvelle route pour la vue des colis du user depuis admin
   },
   
   {

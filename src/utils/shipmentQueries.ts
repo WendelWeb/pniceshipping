@@ -54,9 +54,9 @@ export const findByEmail = async (email: string) => {
     throw error;
   }
 };
-export const findByOwnerId = async (ownerId: string) => {
+export const findByOwnerId = async (ownerId: string): Promise<Shipment[]> => {
   try {
-    if (!ownerId || ownerId.trim() === '') {
+    if (!ownerId || ownerId.trim() === "") {
       return [];
     }
 
@@ -65,9 +65,17 @@ export const findByOwnerId = async (ownerId: string) => {
       .from(shipmentListing)
       .where(eq(shipmentListing.ownerId, ownerId));
 
-    return results;
+    // Map results to ensure statusDates is StatusDates[]
+    return results.map((item) => ({
+      ...item,
+      statusDates: Array.isArray(item.statusDates)
+        ? item.statusDates
+        : typeof item.statusDates === "string"
+        ? JSON.parse(item.statusDates)
+        : [],
+    })) as Shipment[];
   } catch (error) {
-    console.error('Erreur lors de la recherche par email:', error);
+    console.error("Erreur lors de la recherche par ownerId:", error);
     throw error;
   }
 };
