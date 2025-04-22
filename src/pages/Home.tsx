@@ -328,10 +328,10 @@ const Home = () => {
               Informations de Contact
             </h2>
             <p className="text-gray-600 mt-2">
-              3517 W. Gary St, Utica, Pennsylvania 57867
+            8298 Northwest 68th Street Miami Fl, 33166
             </p>
             <p className="text-gray-600 mt-1">pniceshipping@gmail.com</p>
-            <p className="text-gray-600 mt-1">(225) 555-0119</p>
+            <p className="text-gray-600 mt-1">+509 4881 26-52</p>
           </div>
 
           <div>
