@@ -58,7 +58,7 @@ const STATUS_ICONS: Record<string, React.ReactElement> = {
 };
 
 const ClientShipments: React.FC = () => {
-  const { id: userId } = useParams<{ userId: string }>(); 
+  const { id: userId } = useParams<{ id: string }>(); 
   const navigate = useNavigate();
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [userName, setUserName] = useState<string>("");
