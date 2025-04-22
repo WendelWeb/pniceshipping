@@ -20,7 +20,7 @@ const Footer = () => {
             </a>
           </div>
           <div className="text-xs text-gray-400 ml-3">
-            © {currentYear}
+            © {currentYear-12}
           </div>
         </div>
       </div>
