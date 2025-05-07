@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Shipment } from "@/types/shipment";
 import { markMultipleShipmentsAsDelivered } from "../utils/shipmentQueries";
-import { SERVICE_FEE, getShippingRate } from "@/constants/shippingRates";
+import { SERVICE_FEE, getShippingRate, FIXED_ITEM_RATES } from "@/constants/shippingRates";
 import { sendDeliveredEmail } from "@/services/emailServices";
 
 const ConfirmDeliveryPage = () => {
@@ -11,13 +11,61 @@ const ConfirmDeliveryPage = () => {
   const navigate = useNavigate();
   const [isDelivering, setIsDelivering] = useState(false);
 
+  // Mappage des catégories normalisées aux clés de FIXED_ITEM_RATES
+  const categoryMapping: Record<string, string> = {
+    telephone: "telephones",
+    telephones: "telephones",
+    téléphone: "telephones",
+    téléphones: "telephones",
+    ordinateurportbable: "ordinateurs_portables",
+    ordinateurportable: "ordinateurs_portables",
+    ordinateursportables: "ordinateurs_portables",
+    ordinateurportables: "ordinateurs_portables",
+    starlink: "starlink",
+  };
+
   if (!selectedShipments || !selectedUserId) {
     return <div className="p-6 text-center text-red-600">Erreur : Aucune donnée de livraison trouvée.</div>;
   }
 
-  const totalWeight = selectedShipments.reduce((sum, s) => sum + parseFloat(s.weight), 0);
-  const shippingCost = selectedShipments.reduce((sum, s) => sum + parseFloat(s.weight) * getShippingRate(s.destination), 0);
-  const totalCost = shippingCost + SERVICE_FEE;
+  // Calcul des totaux
+  const totalWeight = selectedShipments.reduce((sum, s) => sum + parseFloat(s.weight || "0"), 0);
+  const shipmentCosts = selectedShipments.map((shipment) => {
+    const shippingRate = getShippingRate(shipment.destination);
+    const poids = parseFloat(shipment.weight || "0");
+    const normalizedCategory = shipment.category
+      ?.toLowerCase()
+      .replace(/[\s-]/g, "")
+      .replace("portbable", "portables")
+      .replace(/[éèê]/g, "e");
+    let cost = 0;
+    let isFixedRate = false;
+    let fixedRateCategory: string | undefined;
+
+    if (normalizedCategory) {
+      const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
+      if (mappedCategory in FIXED_ITEM_RATES) {
+        cost = FIXED_ITEM_RATES[mappedCategory];
+        isFixedRate = true;
+        fixedRateCategory = mappedCategory
+          .charAt(0)
+          .toUpperCase()
+          + mappedCategory.slice(1).replace("_", " ");
+      } else {
+        cost = poids * shippingRate;
+        isFixedRate = false;
+      }
+    } else {
+      cost = poids * shippingRate;
+      isFixedRate = false;
+    }
+
+    return { cost, isFixedRate, fixedRateCategory };
+  });
+
+  const shippingCost = shipmentCosts.reduce((sum, { cost }) => sum + cost, 0);
+  const totalServiceFees = SERVICE_FEE * selectedShipments.length;
+  const totalCost = shippingCost + totalServiceFees;
 
   const handleConfirmDelivery = async () => {
     setIsDelivering(true);
@@ -50,9 +98,11 @@ const ConfirmDeliveryPage = () => {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">Colis à livrer ({selectedShipments.length})</h3>
           <div className="space-y-4 max-h-96 overflow-y-auto">
-            {selectedShipments.map((shipment) => {
+            {selectedShipments.map((shipment, index) => {
+              const { cost, isFixedRate, fixedRateCategory } = shipmentCosts[index];
               const shippingRate = getShippingRate(shipment.destination);
-              const cost = parseFloat(shipment.weight) * shippingRate;
+              const totalShipmentCost = cost + SERVICE_FEE;
+
               return (
                 <div key={shipment.id} className="bg-gray-50 p-4 rounded-lg shadow-sm">
                   <p className="text-lg font-semibold text-gray-800">#{shipment.trackingNumber}</p>
@@ -62,7 +112,12 @@ const ConfirmDeliveryPage = () => {
                   <p><strong>Destination :</strong> {shipment.destination}</p>
                   <p><strong>Catégorie :</strong> {shipment.category}</p>
                   <p><strong>Poids :</strong> {shipment.weight} lbs</p>
-                  <p><strong>Coût :</strong> ${cost.toFixed(2)} (${shippingRate}/lbs)</p>
+                  <p>
+                    <strong>Coût :</strong> ${totalShipmentCost.toFixed(2)} 
+                    {isFixedRate
+                      ? ` (Tarif fixe pour ${fixedRateCategory} + $${SERVICE_FEE} service)`
+                      : ` ($${shippingRate}/lb + $${SERVICE_FEE} service)`}
+                  </p>
                 </div>
               );
             })}
@@ -73,7 +128,7 @@ const ConfirmDeliveryPage = () => {
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Résumé</h3>
           <p><strong>Poids total :</strong> {totalWeight.toFixed(2)} lbs</p>
           <p><strong>Coût d'expédition :</strong> ${shippingCost.toFixed(2)}</p>
-          <p><strong>Frais de service :</strong> ${SERVICE_FEE.toFixed(2)}</p>
+          <p><strong>Frais de service :</strong> ${totalServiceFees.toFixed(2)} ({selectedShipments.length} colis)</p>
           <p className="text-lg font-bold text-indigo-600 mt-2"><strong>Total :</strong> ${totalCost.toFixed(2)}</p>
           <div className="mt-6 flex gap-4">
             <button

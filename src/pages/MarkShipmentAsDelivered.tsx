@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { getAllShipments,  } from "../utils/shipmentQueries";
+import { getAllShipments } from "../utils/shipmentQueries";
 import { Shipment } from "@/types/shipment";
-import { getShippingRate } from "@/constants/shippingRates";
+import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
 import { useNavigate } from "react-router-dom";
 
 interface User {
@@ -18,7 +18,7 @@ interface User {
   twoFactorEnabled: boolean;
 }
 
-const CATEGORIES = ["Electronics", "Clothing", "Books", "Furniture", "Other"];
+const CATEGORIES = ["Telephone", "Ordinateur Portbable", "Starlink", "Standard", "Other"];
 
 const MarkShipmentAsDelivered = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -33,6 +33,19 @@ const MarkShipmentAsDelivered = () => {
   const [isUserListOpen, setIsUserListOpen] = useState(false);
   const userSearchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  // Mappage des catégories normalisées aux clés de FIXED_ITEM_RATES
+  const categoryMapping: Record<string, string> = {
+    telephone: "telephones",
+    telephones: "telephones",
+    téléphone: "telephones",
+    téléphones: "telephones",
+    ordinateurportbable: "ordinateurs_portables", // Gère la typo
+    ordinateurportable: "ordinateurs_portables",
+    ordinateursportables: "ordinateurs_portables",
+    ordinateurportables: "ordinateurs_portables",
+    starlink: "starlink",
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -179,7 +192,7 @@ const MarkShipmentAsDelivered = () => {
 
           {/* Liste déroulante */}
           <div className="relative">
-            <label className="block  text-gray-700 font-medium mb-2">Sélectionner un utilisateur :</label>
+            <label className="block text-gray-700 font-medium mb-2">Sélectionner un utilisateur :</label>
             <select
               value={selectedUserId || ""}
               onChange={(e) => setSelectedUserId(e.target.value || null)}
@@ -277,7 +290,7 @@ const MarkShipmentAsDelivered = () => {
           </div>
         ) : !selectedUserId ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-lg text-gray-500 animate-pulse ">Sélectionnez un utilisateur...</p>
+            <p className="text-lg text-gray-500 animate-pulse">Sélectionnez un utilisateur...</p>
           </div>
         ) : filteredShipments.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -287,7 +300,37 @@ const MarkShipmentAsDelivered = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredShipments.map((shipment) => {
               const shippingRate = getShippingRate(shipment.destination);
-              const cost = parseFloat(shipment.weight) * shippingRate;
+              const poids = parseFloat(shipment.weight || "0");
+              let cost = 0;
+              let isFixedRate = false;
+              let fixedRateCategory: string | undefined;
+
+              // Normalisation de la catégorie
+              const normalizedCategory = shipment.category
+                ?.toLowerCase()
+                .replace(/[\s-]/g, "")
+                .replace("portbable", "portables")
+                .replace(/[éèê]/g, "e");
+
+              // Calcul des frais
+              if (normalizedCategory) {
+                const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
+                if (mappedCategory in FIXED_ITEM_RATES) {
+                  cost = FIXED_ITEM_RATES[mappedCategory] + SERVICE_FEE;
+                  isFixedRate = true;
+                  fixedRateCategory = mappedCategory
+                    .charAt(0)
+                    .toUpperCase()
+                    + mappedCategory.slice(1).replace("_", " ");
+                } else {
+                  cost = poids * shippingRate + SERVICE_FEE;
+                  isFixedRate = false;
+                }
+              } else {
+                cost = poids * shippingRate + SERVICE_FEE;
+                isFixedRate = false;
+              }
+
               return (
                 <div
                   key={shipment.id}
@@ -343,7 +386,10 @@ const MarkShipmentAsDelivered = () => {
                       <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zm0 8c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" />
                       </svg>
-                      Coût : ${cost.toFixed(2)} (${shippingRate}/lbs)
+                      Coût : ${cost.toFixed(2)} 
+                      {isFixedRate
+                        ? ` (Tarif fixe pour ${fixedRateCategory})`
+                        : ` ($${shippingRate}/lb + $${SERVICE_FEE} service)`}
                     </p>
                   </div>
                 </div>
@@ -352,7 +398,7 @@ const MarkShipmentAsDelivered = () => {
           </div>
         )}
 
-        <style >{`
+        <style>{`
           @keyframes slideDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }

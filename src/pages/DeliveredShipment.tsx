@@ -16,7 +16,6 @@ import {
   AlertTriangle,
   ArrowUpRight,
   BarChart3,
-  RefreshCw,
   X,
   SlidersHorizontal,
   FileBarChart,
@@ -26,6 +25,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Loader from "@/components/Loader";
+import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
 
 // Chart.js
 import {
@@ -87,6 +87,8 @@ interface ShipmentInBatch {
     fragile?: boolean;
     priority?: "standard" | "express" | "priority";
     notes?: string;
+    isFixedRate?: boolean;
+    fixedRateCategory?: string;
   };
 }
 
@@ -144,27 +146,27 @@ interface DisplayOptions {
 }
 
 // Constantes
-const CATEGORIES = [
-  "Electronics",
-  "Clothing",
-  "Books",
-  "Furniture",
-  "Food",
-  "Cosmetics",
-  "Toys",
-  "Art",
-  "Documents",
-  "Other",
-];
-const PROFIT_PER_POUND = 1.15;
+const CATEGORIES = ["Telephone", "Ordinateur Portbable", "Starlink", "Standard", "Other"];
 
 const formatCurrency = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
 const formatWeight = (weight: number | undefined) => {
-  console.log('weight:', weight, typeof weight);
   return `${Number(weight ?? 0).toFixed(2)} lbs`;
+};
+
+// Mappage des catégories normalisées aux clés de FIXED_ITEM_RATES
+const categoryMapping: Record<string, string> = {
+  telephone: "telephones",
+  telephones: "telephones",
+  téléphone: "telephones",
+  téléphones: "telephones",
+  ordinateurportbable: "ordinateurs_portables",
+  ordinateurportable: "ordinateurs_portables",
+  ordinateursportables: "ordinateurs_portables",
+  ordinateurportables: "ordinateurs_portables",
+  starlink: "starlink",
 };
 
 // Composant BatchCard séparé
@@ -222,7 +224,10 @@ const BatchCard = ({ batch }: { batch: DeliveryBatch }) => {
                 <div className="flex items-center gap-4">
                   <span>{formatWeight(shipment.details.weight)}</span>
                   <span>
-                    {formatCurrency.format(shipment.details.shippingCost)}
+                    {formatCurrency.format(shipment.details.shippingCost + SERVICE_FEE)}
+                    {shipment.details.isFixedRate
+                      ? ` (Tarif fixe pour ${shipment.details.fixedRateCategory})`
+                      : ` ($/lb + $${SERVICE_FEE} service)`}
                   </span>
                 </div>
               </div>
@@ -241,12 +246,7 @@ const DeliveryDashboard = () => {
   const [batches, setBatches] = useState<DeliveryBatch[]>([]);
   const [filteredBatches, setFilteredBatches] = useState<DeliveryBatch[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  if(refreshing){
-    console.log('Refreshing...');
-    
-  }
   const [currentMonthStats, setCurrentMonthStats] = useState<MonthlyStats>({
     totalBatches: 0,
     totalShipments: 0,
@@ -284,9 +284,7 @@ const DeliveryDashboard = () => {
     showOnlyProfit: false,
   });
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
-  const [selectedBatch, setSelectedBatch] = useState<DeliveryBatch | null>(
-    null
-  );
+  const [selectedBatch, setSelectedBatch] = useState<DeliveryBatch | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const uniqueDestinations = useMemo(() => {
@@ -305,40 +303,78 @@ const DeliveryDashboard = () => {
       setLoading(true);
       setError(null);
       const results = await getDeliveredShipments();
-      const formattedBatches: DeliveryBatch[] = results.map((batch) => ({
-        ...batch,
-        deliveryDate: batch.deliveryDate
-          ? batch.deliveryDate.toISOString().slice(0, 10)
-          : "N/A",
-        totalWeight: batch.totalWeight || 0,
-        shippingCost: batch.shippingCost || 0,
-        serviceFee: batch.serviceFee || 15,
-        totalCost: batch.totalCost || 0,
-        netProfit:
-          (batch.totalWeight || 0) * PROFIT_PER_POUND +
-          (batch.serviceFee || 15),
-        carrier: batch.carrier || "PNS",
-        status: batch.status || "Delivered",
-        notes: batch.notes || "",
-        createdAt: batch.createdAt || new Date().toISOString(),
-        shipments: batch.shipments.map((s: any) => ({
-          ...s,
-          status: s.status || "Delivered",
-          createdAt: s.createdAt || new Date().toISOString(),
-          updatedAt: s.updatedAt || new Date().toISOString(),
-          details: {
-            ...(s.details || { weight: 0, shippingCost: 0 }),
-            dimensions: s.details?.dimensions || {
-              length: 30,
-              width: 20,
-              height: 15,
+      const formattedBatches: DeliveryBatch[] = results.map((batch: any) => {
+        const shipments = batch.shipments.map((s: any) => {
+          const shippingRate = getShippingRate(s.destination);
+          const weight = parseFloat(s.details?.weight || "0");
+          const normalizedCategory = s.category
+            ?.toLowerCase()
+            .replace(/[\s-]/g, "")
+            .replace("portbable", "portables")
+            .replace(/[éèê]/g, "e");
+          let shippingCost = 0;
+          let isFixedRate = false;
+          let fixedRateCategory: string | undefined;
+
+          if (normalizedCategory) {
+            const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
+            if (mappedCategory in FIXED_ITEM_RATES) {
+              shippingCost = FIXED_ITEM_RATES[mappedCategory];
+              isFixedRate = true;
+              fixedRateCategory = mappedCategory
+                .charAt(0)
+                .toUpperCase()
+                + mappedCategory.slice(1).replace("_", " ");
+            } else {
+              shippingCost = weight * shippingRate;
+              isFixedRate = false;
+            }
+          } else {
+            shippingCost = weight * shippingRate;
+            isFixedRate = false;
+          }
+
+          return {
+            ...s,
+            status: s.status || "Delivered",
+            createdAt: s.createdAt || new Date().toISOString(),
+            updatedAt: s.updatedAt || new Date().toISOString(),
+            details: {
+              weight: weight || 0,
+              shippingCost,
+              dimensions: s.details?.dimensions || { length: 30, width: 20, height: 15 },
+              fragile: s.details?.fragile || false,
+              priority: s.details?.priority || "standard",
+              notes: s.details?.notes || "",
+              isFixedRate,
+              fixedRateCategory,
             },
-            fragile: s.details?.fragile || false,
-            priority: s.details?.priority || "standard",
-            notes: s.details?.notes || "",
-          },
-        })),
-      }));
+          };
+        });
+
+        const totalWeight = shipments.reduce((sum: number, s: ShipmentInBatch) => sum + s.details.weight, 0);
+        const shippingCost = shipments.reduce((sum: number, s: ShipmentInBatch) => sum + s.details.shippingCost, 0);
+        const serviceFee = SERVICE_FEE * shipments.length;
+        const totalCost = shippingCost + serviceFee;
+        const netProfit = totalCost - shippingCost; // Profit = SERVICE_FEE par colis
+
+        return {
+          ...batch,
+          deliveryDate: batch.deliveryDate
+            ? batch.deliveryDate.toISOString().slice(0, 10)
+            : "N/A",
+          totalWeight,
+          shippingCost,
+          serviceFee,
+          totalCost,
+          netProfit,
+          carrier: batch.carrier || "PNS",
+          status: batch.status || "Delivered",
+          notes: batch.notes || "",
+          createdAt: batch.createdAt || new Date().toISOString(),
+          shipments,
+        };
+      });
       setBatches(formattedBatches);
       toast.success("Données chargées avec succès");
     } catch (error) {
@@ -348,12 +384,6 @@ const DeliveryDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchBatches();
-    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -469,6 +499,18 @@ const DeliveryDashboard = () => {
       (sum, b) => sum + b.totalWeight,
       0
     );
+    const totalShippingCost = batchesToAnalyze.reduce(
+      (sum, b) => sum + b.shippingCost,
+      0
+    );
+    const totalServiceFees = batchesToAnalyze.reduce(
+      (sum, b) => sum + b.serviceFee,
+      0
+    );
+    const totalRevenue = batchesToAnalyze.reduce(
+      (sum, b) => sum + b.totalCost,
+      0
+    );
     const totalNetProfit = batchesToAnalyze.reduce(
       (sum, b) => sum + b.netProfit,
       0
@@ -497,15 +539,9 @@ const DeliveryDashboard = () => {
       totalBatches: batchesToAnalyze.length,
       totalShipments,
       totalWeight,
-      totalShippingCost: batchesToAnalyze.reduce(
-        (sum, b) => sum + b.shippingCost,
-        0
-      ),
-      totalServiceFees: batchesToAnalyze.reduce(
-        (sum, b) => sum + b.serviceFee,
-        0
-      ),
-      totalRevenue: batchesToAnalyze.reduce((sum, b) => sum + b.totalCost, 0),
+      totalShippingCost,
+      totalServiceFees,
+      totalRevenue,
       totalNetProfit,
       avgShipmentWeight: totalShipments > 0 ? totalWeight / totalShipments : 0,
       avgProfitPerShipment:
@@ -567,6 +603,7 @@ const DeliveryDashboard = () => {
         "Category",
         "Shipment Weight (lbs)",
         "Shipment Cost ($)",
+        "Cost Type",
       ];
       const rows = filteredBatches.flatMap((b) =>
         b.shipments.map((s) => [
@@ -587,7 +624,8 @@ const DeliveryDashboard = () => {
           s.destination,
           s.category,
           s.details.weight.toFixed(2),
-          s.details.shippingCost.toFixed(2),
+          (s.details.shippingCost + SERVICE_FEE).toFixed(2),
+          s.details.isFixedRate ? `Fixed (${s.details.fixedRateCategory})` : "Per Pound",
         ])
       );
       const csvContent = [headers, ...rows].map((e) => e.join(",")).join("\n");
@@ -691,7 +729,7 @@ const DeliveryDashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
-        <Loader  />
+        <Loader />
         <p className="mt-4 text-lg text-gray-600">Chargement des données...</p>
       </div>
     );
@@ -706,10 +744,9 @@ const DeliveryDashboard = () => {
         </h2>
         <p className="mt-2 text-lg text-gray-600">{error}</p>
         <button
-          onClick={handleRefresh}
+          onClick={fetchBatches}
           className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-all duration-300 flex items-center gap-2"
         >
-          <RefreshCw size={18} />
           Réessayer
         </button>
       </div>
@@ -1019,7 +1056,7 @@ const DeliveryDashboard = () => {
           </div>
         )}
 
-        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols vanno a quattro gap-6">
           <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
             <div className="p-5">
               <div className="flex items-center">
@@ -1290,11 +1327,6 @@ const DeliveryDashboard = () => {
                           "rgba(217, 119, 6, 0.6)",
                           "rgba(220, 38, 38, 0.6)",
                           "rgba(139, 92, 246, 0.6)",
-                          "rgba(236, 72, 153, 0.6)",
-                          "rgba(75, 85, 99, 0.6)",
-                          "rgba(245, 158, 11, 0.6)",
-                          "rgba(6, 182, 212, 0.6)",
-                          "rgba(249, 115, 22, 0.6)",
                         ],
                         borderWidth: 1,
                       },
@@ -1572,8 +1604,11 @@ const DeliveryDashboard = () => {
                                 </td>
                                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                   {formatCurrency.format(
-                                    shipment.details.shippingCost
+                                    shipment.details.shippingCost + SERVICE_FEE
                                   )}
+                                  {shipment.details.isFixedRate
+                                    ? ` (Tarif fixe pour ${shipment.details.fixedRateCategory})`
+                                    : ` ($/lb + $${SERVICE_FEE} service)`}
                                 </td>
                               </tr>
                             ))}
