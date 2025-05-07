@@ -6,7 +6,12 @@ export const SHIPPING_RATES: Record<string, number> = {
   "port-au-prince": 5, // 5$/lbs
   // Exemple d'extension future : "gonaives": 5
 } as const;
-
+// Nouveaux tarifs fixes pour certains types d'articles
+export const FIXED_ITEM_RATES: Record<string, number> = {
+  "telephones": 60,
+  "ordinateurs_portables": 90,
+  "starlink": 120
+};
 export const getShippingRate = (destination: string): number => {
   const normalizedDestination = destination.toLowerCase().replace(/[\s-]/g, "");
   

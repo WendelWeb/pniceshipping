@@ -1,17 +1,18 @@
-// src/components/Dashboard.tsx
 import { Shipment, StatusDates } from "@/types/shipment";
 import { findByOwnerId } from "@/utils/shipmentQueries";
 import { useEffect, useState } from "react";
 import AddShipmentByUser from "./AddShipmentByUser.tsx";
 import { useUser } from "@clerk/clerk-react";
 import LoginPrompt from "./LoginPrompts.tsx";
-import { getShippingRate, SERVICE_FEE } from "@/constants/shippingRates";
+import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
 import { useNavigate } from "react-router-dom";
 
 interface Colis {
   tracking: string;
   poids: number;
   frais: number;
+  isFixedRate: boolean;
+  fixedRateCategory?: string;
   destination: string;
   statut: string;
   dateCreation: string;
@@ -24,11 +25,24 @@ interface Colis {
 
 const Dashboard = () => {
   const { user, isSignedIn } = useUser();
-  const navigate = useNavigate(); // Ajout pour la redirection
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tous");
   const [selectedColis, setSelectedColis] = useState<Colis | null>(null);
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [asToRefreshShipments, setAsToRefreshSipments] = useState<boolean>(false);
+
+  // Mappage des catégories normalisées aux clés de FIXED_ITEM_RATES
+  const categoryMapping: Record<string, string> = {
+    telephone: "telephones",
+    telephones: "telephones",
+    téléphone: "telephones",
+    téléphones: "telephones",
+    ordinateurportbable: "ordinateurs_portables", // Gère la typo
+    ordinateurportable: "ordinateurs_portables",
+    ordinateursportables: "ordinateurs_portables",
+    ordinateurportables: "ordinateurs_portables",
+    starlink: "starlink",
+  };
 
   useEffect(() => {
     if (!isSignedIn || !user?.id) return;
@@ -69,12 +83,49 @@ const Dashboard = () => {
 
     const poids = shipment.weight ? parseFloat(shipment.weight) : 0;
     const rate = getShippingRate(shipment.destination);
-    const frais = poids * rate;
+    let frais = 0;
+    let isFixedRate = false;
+    let fixedRateCategory: string | undefined;
+
+    // Normalisation de la catégorie
+    const normalizedCategory = shipment.category
+      ?.toLowerCase()
+      .replace(/[\s-]/g, "")
+      .replace("portbable", "portables")
+      .replace(/[éèê]/g, "e"); // Gère les accents
+
+    // Calcul des frais
+    if (normalizedCategory) {
+      const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
+      if (mappedCategory in FIXED_ITEM_RATES) {
+        // Item spécial : tarif fixe + frais de service
+        frais = FIXED_ITEM_RATES[mappedCategory] + SERVICE_FEE;
+        isFixedRate = true;
+        fixedRateCategory = mappedCategory
+          .charAt(0)
+          .toUpperCase()
+          + mappedCategory.slice(1).replace("_", " ");
+      } else if (normalizedCategory === "standard") {
+        // Standard : tarif par livre + frais de service
+        frais = poids * rate + SERVICE_FEE;
+        isFixedRate = false;
+      } else {
+        // Catégorie inconnue : tarif par livre + frais de service
+        frais = poids * rate + SERVICE_FEE;
+        isFixedRate = false;
+      }
+    } else {
+      // Pas de catégorie : tarif par livre + frais de service
+      frais = poids * rate + SERVICE_FEE;
+      isFixedRate = false;
+    }
 
     return {
       tracking: shipment.trackingNumber ?? "Inconnu",
       poids,
       frais,
+      isFixedRate,
+      fixedRateCategory,
       destination: shipment.destination ?? "Non spécifiée",
       statut: shipment.status ?? "Statut inconnu",
       dateCreation,
@@ -88,7 +139,7 @@ const Dashboard = () => {
             lieu: stage.location ?? "Non spécifié",
           }))
         : [],
-      id: shipment.id.toString(), // Utilisation de l'ID pour la redirection
+      id: shipment.id.toString(),
     };
   });
 
@@ -133,11 +184,38 @@ const Dashboard = () => {
   };
 
   const handleColisClick = (colis: Colis) => {
-    navigate(`/shipment/${colis.id}`); // Redirection vers ShipmentView avec l'ID
+    navigate(`/shipment/${colis.id}`);
   };
 
   const closeColisDetails = () => {
     setSelectedColis(null);
+  };
+
+  const getFraisExplanation = (colis: Colis) => {
+    if (colis.isFixedRate) {
+      // Tarif fixe : soustraire SERVICE_FEE pour afficher le tarif de base
+      const baseFrais = colis.frais - SERVICE_FEE;
+      return (
+        <>
+          <p className="font-medium">
+            ${colis.frais.toFixed(2)} (Tarif fixe pour {colis.fixedRateCategory})
+          </p>
+          <p className="text-xs text-gray-400">
+            *Tarif fixe de ${baseFrais.toFixed(2)} + ${SERVICE_FEE.toFixed(2)} de frais de service. Un seul frais de service si plusieurs colis sont récupérés ensemble.
+          </p>
+        </>
+      );
+    }
+    // Tarif par livre
+    const baseFrais = colis.frais - SERVICE_FEE;
+    return (
+      <>
+        <p className="font-medium">${colis.frais.toFixed(2)}</p>
+        <p className="text-xs text-gray-400">
+          *Frais calculés à ${getShippingRate(colis.destination).toFixed(2)}/lbs pour {colis.poids} lbs = ${baseFrais.toFixed(2)} + ${SERVICE_FEE.toFixed(2)} de frais de service. Un seul frais de service si plusieurs colis.
+        </p>
+      </>
+    );
   };
 
   if (!isSignedIn) {
@@ -419,9 +497,6 @@ const Dashboard = () => {
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
                         Frais ($)
-                        <p className="text-[10px] font-normal text-gray-400">
-                          *Un seul frais de service de ${SERVICE_FEE} est appliqué si plusieurs colis sont récupérés ensemble
-                        </p>
                       </th>
                       <th
                         scope="col"
@@ -436,7 +511,7 @@ const Dashboard = () => {
                       <tr
                         key={colis.id}
                         className="hover:bg-gray-50 cursor-pointer"
-                        onClick={() => handleColisClick(colis)} // Redirection ici
+                        onClick={() => handleColisClick(colis)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {colis.tracking}
@@ -457,14 +532,14 @@ const Dashboard = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${colis.frais.toFixed(2)} +10$ services
+                          {getFraisExplanation(colis)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
                             className="text-blue-600 hover:text-blue-900"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleColisClick(colis); // Redirection ici aussi
+                              handleColisClick(colis);
                             }}
                           >
                             Détails
@@ -483,7 +558,7 @@ const Dashboard = () => {
                 <div
                   key={colis.id}
                   className="bg-white rounded-lg shadow overflow-hidden cursor-pointer"
-                  onClick={() => handleColisClick(colis)} // Redirection ici
+                  onClick={() => handleColisClick(colis)}
                 >
                   <div className="px-4 py-5 sm:p-6">
                     <div className="flex justify-between items-start">
@@ -518,10 +593,7 @@ const Dashboard = () => {
                       </div>
                       <div>
                         <p className="text-gray-500">Frais</p>
-                        <p className="font-medium">${colis.frais.toFixed(2)} +10$ services</p>
-                        <p className="text-xs text-gray-400">
-                          *Un seul frais de service de ${SERVICE_FEE} si plusieurs colis
-                        </p>
+                        {getFraisExplanation(colis)}
                       </div>
                     </div>
                     <div className="mt-4 flex justify-end">
@@ -529,7 +601,7 @@ const Dashboard = () => {
                         className="text-blue-600 text-sm font-medium"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleColisClick(colis); // Redirection ici aussi
+                          handleColisClick(colis);
                         }}
                       >
                         Voir les détails →
@@ -541,7 +613,6 @@ const Dashboard = () => {
             </div>
           </>
         ) : (
-          // Vue détaillée d'un colis (inchangée sauf redirection supprimée)
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
@@ -625,12 +696,7 @@ const Dashboard = () => {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Frais</p>
-                        <p className="text-sm font-medium">
-                          ${selectedColis.frais.toFixed(2)} +10$ services
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          *Un seul frais de service de ${SERVICE_FEE} si plusieurs colis
-                        </p>
+                        {getFraisExplanation(selectedColis)}
                       </div>
                       <div className="col-span-2">
                         <p className="text-xs text-gray-500">Description</p>
@@ -651,7 +717,7 @@ const Dashboard = () => {
                           <div className="flex items-center h-full mr-4">
                             <div className="flex-shrink-0 h-4 w-4 rounded-full bg-blue-500"></div>
                             {index < selectedColis.historique.length - 1 && (
-                              <div className="ml-2 w-0.5 bg-blue-200 h-full absolute top-4 bottom-0"></div>
+                              <div className="ml-2 w-0.5 bg-blue-200 h-full absolute top-4"></div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">

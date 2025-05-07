@@ -6,10 +6,9 @@ export default function PricingCalculator() {
   const [destination, setDestination] = useState("cap-haitien");
   // Tarifs spéciaux pour les appareils électroniques
   const specialRates: Record<string, { price: number; description: string }>= {
-    ordinateurs_portables: { price: 30, description: "Emballage sécurisé avec protection contre les chocs" },
-    telephones: { price: 20, description: "Protection spécialisée pour appareils mobiles" },
-    televisions: { price: 40, description: "Emballage renforcé et manipulation spéciale" },
-    starlink: {price: 20, description: "Frais Douane Supplementaire pour kit Starlink"}
+    ordinateurs_portables: { price: 90, description: "Emballage sécurisé avec protection contre les chocs" },
+    telephones: { price: 60, description: "Protection spécialisée pour appareils mobiles" },
+    starlink: {price: 120, description: "Frais Douane Supplementaire pour kit Starlink"}
   };
 
   // Tarifs de base selon la destination
@@ -29,15 +28,16 @@ export default function PricingCalculator() {
 
   const { serviceFee, perLbsRate } = getBaseRates();
   
+  // Vérifier si c'est un article à tarif spécial
+  const isSpecialItem = itemType !== "standard";
+  
   // Frais supplémentaires pour le type d'article sélectionné
-  const specialFee = itemType !== "standard" ? specialRates[itemType]?.price || 0 : 0;
+  const specialFee = isSpecialItem ? specialRates[itemType]?.price || 0 : 0;
   
   // Calcul du coût total
-  const weightCost = weight * perLbsRate;
+  // Pour les articles spéciaux, on ne calcule pas le coût par poids
+  const weightCost = isSpecialItem ? 0 : weight * perLbsRate;
   const totalCost = serviceFee + weightCost + specialFee;
-
-  // Obtenir un devis
- 
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow" id="calculator">
@@ -52,7 +52,7 @@ export default function PricingCalculator() {
       </div>
 
       {/* Calculateur de tarif */}
-      <div className="  rounded-lg  mb-8">
+      <div className="rounded-lg mb-8">
         <h2 className="text-2xl font-bold text-center mb-4">Calculez Votre Tarif</h2>
         <p className="text-center mb-8">Utilisez notre calculateur de tarif pour obtenir une estimation précise de vos frais d'expédition</p>
 
@@ -61,8 +61,7 @@ export default function PricingCalculator() {
           <select
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            className="w-full p-3 rounded  text-gray-800 border border-2 border-blue-600"
-            
+            className="w-full p-3 rounded text-gray-800 border border-2 border-blue-600"
           >
             <option value="cap-haitien">Cap-Haïtien</option>
             <option value="port-au-prince">Port-au-Prince</option>
@@ -81,11 +80,17 @@ export default function PricingCalculator() {
               type="number"
               value={weight}
               onChange={(e) => setWeight(Number(e.target.value))}
-              className="w-full p-3 rounded text-gray-800 border border-2 border-blue-600"
+              className={`w-full p-3 rounded text-gray-800 border border-2 ${isSpecialItem ? 'border-gray-300 bg-gray-100' : 'border-blue-600'}`}
               placeholder="Poids en livres"
               min="1"
               step="0.1"
+              disabled={isSpecialItem}
             />
+            {isSpecialItem && (
+              <div className="mt-2 text-sm text-gray-500">
+                Le poids n'est pas pris en compte pour les articles à prix fixe
+              </div>
+            )}
           </div>
           <div>
             <label className="block mb-2">Type d'objet</label>
@@ -101,6 +106,11 @@ export default function PricingCalculator() {
                 </option>
               ))}
             </select>
+            {isSpecialItem && (
+              <div className="mt-2 text-sm text-blue-600">
+                Prix fixe: ${specialRates[itemType].price} + frais de service
+              </div>
+            )}
           </div>
         </div>
 
@@ -109,23 +119,26 @@ export default function PricingCalculator() {
           <div className="grid grid-cols-2 gap-2">
             <div>Frais de service:</div>
             <div className="text-right">${serviceFee.toFixed(2)}</div>
-            <div>Frais par poids ({weight} lbs):</div>
-            <div className="text-right">${weightCost.toFixed(2)}</div>
-            {specialFee > 0 && (
+            
+            {!isSpecialItem && (
               <>
-                <div>Frais spéciaux ({itemType.replace("_", " ")}):</div>
+                <div>Frais par poids ({weight} lbs):</div>
+                <div className="text-right">${weightCost.toFixed(2)}</div>
+              </>
+            )}
+            
+            {isSpecialItem && (
+              <>
+                <div>Prix fixe ({itemType.replace("_", " ")}):</div>
                 <div className="text-right">${specialFee.toFixed(2)}</div>
               </>
             )}
+            
             <div className="font-bold text-blue-600">Total:</div>
             <div className="text-right font-bold text-blue-600">${totalCost.toFixed(2)}</div>
           </div>
         </div>
-
-        
       </div>
-
-      
     </div>
   );
 }

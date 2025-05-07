@@ -1,9 +1,8 @@
-// src/components/ShipmentView.tsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Shipment, StatusDates } from "@/types/shipment";
 import { findById } from "@/utils/shipmentQueries";
-import { getShippingRate, SERVICE_FEE } from "@/constants/shippingRates";
+import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
 import {
   ArrowLeftIcon,
   TruckIcon,
@@ -15,7 +14,6 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/solid";
 import { MapPinIcon, MessageSquare } from "lucide-react";
-// ou
 
 const ShipmentView = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +21,19 @@ const ShipmentView = () => {
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Mappage des catégories normalisées aux clés de FIXED_ITEM_RATES
+  const categoryMapping: Record<string, string> = {
+    telephone: "telephones",
+    telephones: "telephones",
+    téléphone: "telephones",
+    téléphones: "telephones",
+    ordinateurportbable: "ordinateurs_portables", // Gère la typo
+    ordinateurportable: "ordinateurs_portables",
+    ordinateursportables: "ordinateurs_portables",
+    ordinateurportables: "ordinateurs_portables",
+    starlink: "starlink",
+  };
 
   useEffect(() => {
     const fetchShipment = async () => {
@@ -69,10 +80,51 @@ const ShipmentView = () => {
     );
   }
 
+  // Calcul des frais
   const poids = parseFloat(shipment.weight || "0");
   const rate = getShippingRate(shipment.destination || "");
-  const shippingCost = poids * rate;
-  const totalCost = shippingCost + SERVICE_FEE;
+  let shippingCost = 0;
+  let totalCost = 0;
+  let isFixedRate = false;
+  let fixedRateCategory: string | undefined;
+
+  // Normalisation de la catégorie
+  const normalizedCategory = shipment.category
+    ?.toLowerCase()
+    .replace(/[\s-]/g, "")
+    .replace("portbable", "portables")
+    .replace(/[éèê]/g, "e");
+
+  if (normalizedCategory) {
+    const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
+    if (mappedCategory in FIXED_ITEM_RATES) {
+      // Item spécial : tarif fixe + frais de service
+      shippingCost = FIXED_ITEM_RATES[mappedCategory];
+      totalCost = shippingCost + SERVICE_FEE;
+      isFixedRate = true;
+      fixedRateCategory = mappedCategory
+        .charAt(0)
+        .toUpperCase()
+        + mappedCategory.slice(1).replace("_", " ");
+    } else {
+      // Standard ou inconnu : tarif par livre + frais de service
+      shippingCost = poids * rate;
+      totalCost = shippingCost + SERVICE_FEE;
+      isFixedRate = false;
+    }
+  } else {
+    // Pas de catégorie : tarif par livre + frais de service
+    shippingCost = poids * rate;
+    totalCost = shippingCost + SERVICE_FEE;
+    isFixedRate = false;
+  }
+
+  const getFraisExplanation = () => {
+    if (isFixedRate) {
+      return `Tarif fixe de $${shippingCost.toFixed(2)} pour ${fixedRateCategory} + $${SERVICE_FEE.toFixed(2)} de frais de service.`;
+    }
+    return `Frais calculés à $${rate.toFixed(2)}/lb pour ${poids} lbs = $${shippingCost.toFixed(2)} + $${SERVICE_FEE.toFixed(2)} de frais de service.`;
+  };
 
   const statusSteps = ["En attente⏳", "Recu📦", "En Transit✈️", "Disponible🟢", "Livré✅"];
   const currentStepIndex = statusSteps.indexOf(shipment.status);
@@ -99,7 +151,6 @@ const ShipmentView = () => {
               >
                 <MessageSquare className="h-5 w-5" />
                 Aide WhatsApp
-                
               </a>
               <button
                 onClick={() => navigate("/dashboard")}
@@ -214,40 +265,42 @@ const ShipmentView = () => {
 
             {/* Explication simple pour un enfant */}
             <div className="bg-yellow-50 p-4 sm:p-6 rounded-xl shadow-sm">
-  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-    <InformationCircleIcon className="h-6 w-6 text-yellow-500" />
-    Informations sur ton colis
-  </h2>
-  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-    Salut ! Ce colis appartient à {shipment.fullName || "quelqu’un"}.  
-    Son numéro de suivi est {shipment.trackingNumber}, c’est comme sa carte d’identité pour qu’on puisse le retrouver facilement.  
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <InformationCircleIcon className="h-6 w-6 text-yellow-500" />
+                Informations sur ton colis
+              </h2>
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                Salut ! Ce colis appartient à {shipment.fullName || "quelqu’un"}.  
+                Son numéro de suivi est {shipment.trackingNumber}, c’est comme sa carte d’identité pour qu’on puisse le retrouver facilement.  
 
-    📌 Statut actuel : {shipment.status} –  
-    {shipment.status === "En attente⏳"
-      ? "Le client a demandé l’expédition et on attend de le recevoir."
-      : shipment.status === "Reçu📦"
-      ? "On l’a bien reçu dans notre entrepôt de Miami, FL 31166. On va le peser bientôt pour calculer les frais d’envoi."
-      : shipment.status === "En Transit✈️"
-      ? "Il est en route, soit dans un camion, soit dans un avion."
-      : shipment.status === "Disponible🟢"
-      ? "Il est prêt à être récupéré."
-      : "Il est arrivé à sa destination !"}
-📦 Poids : {shipment.weight ? `${shipment.weight} lb (${Math.round(poids)} livres environ)` : "On va le peser bientôt"}.
-    🎯 Destination : {shipment.destination || "Non spécifiée"}.  
-    ⏳ Pris en charge le : {shipment.statusDates[0]?.date || "Date inconnue"}.  
-    🚚 Arrivée prévue : {shipment.estimatedDelivery || "Bientôt"}.  
+                📌 Statut actuel : {shipment.status} –  
+                {shipment.status === "En attente⏳"
+                  ? "Le client a demandé l’expédition et on attend de le recevoir."
+                  : shipment.status === "Recu📦"
+                  ? "On l’a bien reçu dans notre entrepôt de Miami, FL 31166. On va le peser bientôt pour calculer les frais d’envoi."
+                  : shipment.status === "En Transit✈️"
+                  ? "Il est en route, soit dans un camion, soit dans un avion."
+                  : shipment.status === "Disponible🟢"
+                  ? "Il est prêt à être récupéré."
+                  : "Il est arrivé à sa destination !"}  
+                📦 Poids : {shipment.weight ? `${shipment.weight} lb (${Math.round(poids)} livres environ)` : "On va le peser bientôt"}.  
+                🎯 Destination : {shipment.destination || "Non spécifiée"}.  
+                ⏳ Pris en charge le : {shipment.statusDates[0]?.date || "Date inconnue"}.  
+                🚚 Arrivée prévue : {shipment.estimatedDelivery || "Bientôt"}.  
 
-    💰 Frais d’expédition : {shippingCost ? `$${shippingCost.toFixed(2)}` : "On te dira après la pesée"}  
-    🔧 Frais de service : ${SERVICE_FEE}  
-    💵 Total : {shippingCost ? `$${totalCost.toFixed(2)}` : "On calculera après la pesée"}  
+                💰 Frais d’expédition : ${shippingCost.toFixed(2)}  
+                {isFixedRate
+                  ? `(Tarif fixe pour ${fixedRateCategory})`
+                  : `(Calculé à $${rate.toFixed(2)}/lb pour ${poids} lbs)`}  
+                🔧 Frais de service : ${SERVICE_FEE.toFixed(2)}  
+                💵 Total : ${totalCost.toFixed(2)}  
 
-    ❓ Une question ? Envoie-nous un message sur WhatsApp :  
-    <a href="https://wa.me/50931970548" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-      +509 31 97 0548
-    </a>.
-  </p>
-</div>
-
+                ❓ Une question ? Envoie-nous un message sur WhatsApp :  
+                <a href="https://wa.me/50931970548" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                  +509 31 97 0548
+                </a>.
+              </p>
+            </div>
           </div>
 
           {/* Colonne droite : Prix et résumé */}
@@ -260,7 +313,9 @@ const ShipmentView = () => {
               </h3>
               <div className="space-y-3 text-sm sm:text-base">
                 <div className="flex justify-between">
-                  <p className="text-gray-600">Poids ({poids} lbs × ${rate}/lb)</p>
+                  <p className="text-gray-600">
+                    {isFixedRate ? `Tarif fixe (${fixedRateCategory})` : `Poids (${poids} lbs × $${rate}/lb)`}
+                  </p>
                   <p className="font-semibold text-gray-900">${shippingCost.toFixed(2)}</p>
                 </div>
                 <div className="flex justify-between">
@@ -272,7 +327,7 @@ const ShipmentView = () => {
                   <p className="font-bold text-green-600">${totalCost.toFixed(2)}</p>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  *Le frais de service aide à payer les gens qui préparent et envoient ton colis !
+                  *{getFraisExplanation()}
                 </p>
               </div>
             </div>
