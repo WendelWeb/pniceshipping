@@ -1,12 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { db } from "../../configs/index";
 import { useUser } from "@clerk/clerk-react";
 import { shipmentListing } from "../../configs/schema";
+import { eq } from "drizzle-orm";
 import shipmentDetails from "../assets/shared/shipmentDetails.json";
-import { sendPendingEmail } from "@/services/emailServices";
+import { sendStatusEmail } from "../services/emailServices"; // Changé de sendPendingEmail à sendStatusEmail
+import { findByTrackingNumber, updateShipmentStatus } from "@/utils/shipmentQueries.ts";
+
 type AddShipmentByUserProps = {
   setRefreshShipments: (value: boolean) => void;
 };
+
 const Loader = () => (
   <div className="flex items-center justify-center space-x-2">
     <div className="h-4 w-4 bg-blue-500 rounded-full animate-bounce"></div>
@@ -15,7 +20,106 @@ const Loader = () => (
   </div>
 );
 
-const ShipmentSuccessModal = ({ onClose }: { onClose: () => void }) => {
+// Composant pour la carte d'erreur (colis déjà livré)
+const ShipmentErrorCard = ({
+  trackingNumber,
+  onClose,
+}: {
+  trackingNumber: string;
+  onClose: () => void;
+}) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-red-600 bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg p-6 w-[400px] shadow-2xl border-l-4 border-red-500 animate-fade-in">
+        <div className="flex items-center gap-2 mb-4">
+          <svg
+            className="w-6 h-6 text-red-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <h3 className="text-xl font-semibold text-red-600">
+            Colis déjà livré !
+          </h3>
+        </div>
+        <p className="text-sm text-gray-600 mb-4 font-medium">
+          Le colis avec le numéro de suivi{" "}
+          <span className="font-semibold">{trackingNumber}</span>{" "}
+          a déjà été livré et ne peut pas être transféré.
+        </p>
+        <button
+          onClick={onClose}
+          className="mt-4 w-full cursor-pointer bg-red-500 text-white py-2 rounded hover:bg-red-600 transition-colors"
+        >
+          Fermer
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Composant pour la carte d'erreur (colis revendiqué par un autre client)
+const ShipmentClaimedCard = ({
+  trackingNumber,
+  onClose,
+}: {
+  trackingNumber: string;
+  onClose: () => void;
+}) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-orange-600 bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg p-6 w-[400px] border-l-4 border-orange-500 shadow-2xl animate-fade-in">
+        <div className="flex items-center gap-2 mb-4">
+          <svg
+            className="w-6 h-6 text-orange-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <h3 className="text-xl font-semibold text-orange-600">
+            Colis déjà revendiqué !
+          </h3>
+        </div>
+        <p className="text-sm text-gray-600 mb-4 font-medium">
+          Le colis avec le numéro de suivi{" "}
+          <span className="font-semibold">{trackingNumber}</span>{" "}
+          est déjà associé à un autre client et ne peut pas être transféré.
+        </p>
+        <button
+          onClick={onClose}
+          className="mt-4 w-full cursor-pointer bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition-colors"
+        >
+          Fermer
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Composant pour le modal de succès (enregistrement ou transfert)
+const ShipmentSuccessModal = ({
+  isTransfer,
+  trackingNumber,
+  onClose,
+}: {
+  isTransfer: boolean;
+  trackingNumber: string;
+  onClose: () => void;
+}) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -27,11 +131,12 @@ const ShipmentSuccessModal = ({ onClose }: { onClose: () => void }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-blue-600 bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-6 w-[350px] shadow-2xl border-l-4 border-green-500 animate-fade-in">
         <h3 className="text-lg font-semibold text-center">
-          Requête envoyée avec succès !
+          {isTransfer ? "Colis transféré avec succès !" : "Requête envoyée avec succès !"}
         </h3>
         <p className="text-sm text-center mt-2">
-          Une fois le colis reçu dans nos locaux, il sera validé. Vous pourrez
-          suivre toutes les mises à jour sur l'application.
+          {isTransfer
+            ? `Le colis avec le numéro de suivi ${trackingNumber} a été transféré à votre compte.`
+            : "Une fois le colis reçu dans nos locaux, il sera validé. Vous pourrez suivre toutes les mises à jour sur l'application."}
         </p>
         <button
           onClick={onClose}
@@ -49,7 +154,13 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
   const [trackingNumber, setTrackingNumber] = useState("");
   const [destination, setDestination] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isTransfer, setIsTransfer] = useState(false);
+  const [showErrorCard, setShowErrorCard] = useState(false);
+  const [showClaimedCard, setShowClaimedCard] = useState(false);
+  const [existingShipment, setExistingShipment] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+
+  const COMPANY_USER_ID = "user_2v0TyYr3oFSH1ZqHhlas0sPkEyq";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTrackingNumber(e.target.value);
@@ -62,57 +173,137 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
   const resetForm = () => {
     setTrackingNumber("");
     setDestination("");
+    setShowErrorCard(false);
+    setShowClaimedCard(false);
+    setExistingShipment(null);
   };
-  
-  
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    const now = new Date();
-    const formattedDate = now.toISOString().split("T")[0];
-    const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
-    const statusDates = [
-      {
-        date: `${formattedDate} ${formattedTime}`,
-        status: "request",
-        location: "by user online",
-      },
-    ];
-
     try {
-      const insertData = {
-        fullName: `${user?.firstName ?? ""} ${user?.lastName ?? ""}`,
-        userName: user?.username ?? "",
-        emailAdress: user?.emailAddresses?.[0]?.emailAddress ?? "",
-        trackingNumber: trackingNumber,
-        category: "Standard",
-        weight: "",
-        status: "En attente⏳",
-        ownerId: user?.id ?? "",
-        destination: destination || "non spécifié",
-        estimatedDelivery: "Sera calculé après confirmation",
-        phone: "inconu",
-      };
+      // Vérification de la validité des données utilisateur
+      if (!user?.id || !user?.emailAddresses?.[0]?.emailAddress) {
+        console.error("Données utilisateur manquantes :", { userId: user?.id, email: user?.emailAddresses?.[0]?.emailAddress });
+        throw new Error("Informations utilisateur manquantes.");
+      }
 
-      await sendPendingEmail(
-        `${insertData.fullName}`,
-        `${insertData.emailAdress}`,
-        `${insertData.trackingNumber}`
-      );
+      // Étape 1 : Vérifier si le colis existe
+      const existingShipments = await findByTrackingNumber(trackingNumber);
+      console.log("Résultat de findByTrackingNumber :", existingShipments);
 
-      const result = await db
-        .insert(shipmentListing)
-        .values({ ...insertData, statusDates });
+      if (existingShipments.length > 0) {
+        const shipment = existingShipments[0];
 
-      if (result) {
-        setRefreshShipments(true)
+        // Étape 2 : Vérifier si le colis est déjà livré
+        if (shipment.status === "Livré✅") {
+          console.log("Colis déjà livré :", shipment.trackingNumber);
+          setExistingShipment(shipment);
+          setShowErrorCard(true);
+          setLoading(false);
+          return;
+        }
+
+        // Étape 3 : Vérifier si le colis appartient à l'entreprise
+        if (shipment.ownerId !== COMPANY_USER_ID) {
+          console.log("Colis revendiqué par un autre client :", { trackingNumber, ownerId: shipment.ownerId });
+          setExistingShipment(shipment);
+          setShowClaimedCard(true);
+          setLoading(false);
+          return;
+        }
+
+        // Étape 4 : Transférer le colis à l'utilisateur
+        const updatedData = {
+          ownerId: user.id,
+          fullName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+          userName: user.username ?? "",
+          emailAdress: user.emailAddresses[0].emailAddress,
+          phone: user.phoneNumbers?.[0]?.phoneNumber ?? "inconnu",
+          destination: destination || shipment.destination,
+        };
+
+        console.log("Données de mise à jour pour le transfert :", { ...updatedData, status: shipment.status });
+
+        await db
+          .update(shipmentListing)
+          .set(updatedData)
+          .where(eq(shipmentListing.trackingNumber, trackingNumber));
+
+        // Ajouter une entrée dans statusDates pour indiquer le transfert, en conservant le statut actuel
+        await updateShipmentStatus(
+          shipment.id,
+          shipment.status,
+          `Transféré à l'utilisateur ${updatedData.fullName}`
+        );
+
+        // Envoyer un email de confirmation avec statut "En attente⏳"
+        await sendStatusEmail(
+          "En attente⏳",
+          updatedData.fullName,
+          updatedData.emailAdress,
+          trackingNumber
+        );
+
+        console.log("Transfert réussi pour le colis :", { trackingNumber, status: shipment.status });
+
+        setIsTransfer(true);
         setShowSuccessModal(true);
+        setRefreshShipments(true);
         resetForm();
+      } else {
+        // Étape 5 : Si le colis n'existe pas, créer une nouvelle requête
+        const now = new Date();
+        const formattedDate = now.toISOString().split("T")[0];
+        const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
+        const statusDates = [
+          {
+            date: `${formattedDate} ${formattedTime}`,
+            status: "En attente⏳",
+            location: "by user online",
+          },
+        ];
+
+        const insertData = {
+          fullName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+          userName: user.username ?? "",
+          emailAdress: user.emailAddresses[0].emailAddress,
+          trackingNumber: trackingNumber,
+          category: "Standard",
+          weight: "",
+          status: "En attente⏳",
+          ownerId: user.id,
+          destination: destination || "non spécifié",
+          estimatedDelivery: "Sera calculé après confirmation",
+          phone: user.phoneNumbers?.[0]?.phoneNumber ?? "inconnu",
+          statusDates,
+        };
+
+        console.log("Données pour nouvelle requête :", insertData);
+
+        // Envoyer un email avec statut "En attente⏳"
+        await sendStatusEmail(
+          "En attente⏳",
+          insertData.fullName,
+          insertData.emailAdress,
+          trackingNumber
+        );
+
+        const result = await db
+          .insert(shipmentListing)
+          .values(insertData);
+
+        if (result) {
+          console.log("Nouvelle requête enregistrée :", trackingNumber);
+          setIsTransfer(false);
+          setShowSuccessModal(true);
+          setRefreshShipments(true);
+          resetForm();
+        }
       }
     } catch (error) {
-      console.log(error);
+      console.error("Erreur lors de la soumission de la requête :", error);
     } finally {
       setLoading(false);
     }
@@ -153,7 +344,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           <select
             value={destination}
             onChange={handleDestinationChange}
-            className="w-full p-2 border rounded-md  "
+            className="w-full p-2 border rounded-md"
             required
             disabled={loading}
           >
@@ -188,7 +379,23 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
         </div>
       </form>
       {showSuccessModal && (
-        <ShipmentSuccessModal onClose={() => setShowSuccessModal(false)} />
+        <ShipmentSuccessModal
+          isTransfer={isTransfer}
+          trackingNumber={trackingNumber}
+          onClose={() => setShowSuccessModal(false)}
+        />
+      )}
+      {showErrorCard && existingShipment && (
+        <ShipmentErrorCard
+          trackingNumber={trackingNumber}
+          onClose={() => setShowErrorCard(false)}
+        />
+      )}
+      {showClaimedCard && existingShipment && (
+        <ShipmentClaimedCard
+          trackingNumber={trackingNumber}
+          onClose={() => setShowClaimedCard(false)}
+        />
       )}
     </div>
   );

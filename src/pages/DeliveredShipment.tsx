@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo } from "react";
 import { getDeliveredShipments } from "@/utils/shipmentQueries";
 import { useNavigate } from "react-router-dom";
@@ -9,16 +10,13 @@ import {
   Filter,
   FileSpreadsheet,
   PieChart,
-  TrendingUp,
   DollarSign,
   MapPin,
   Weight,
   AlertTriangle,
-  ArrowUpRight,
   BarChart3,
   X,
   SlidersHorizontal,
-  FileBarChart,
   FileText,
   Boxes,
   TableProperties,
@@ -100,7 +98,6 @@ interface DeliveryBatch {
   serviceFee: number;
   shippingCost: number;
   totalCost: number;
-  netProfit: number;
   shipments: ShipmentInBatch[];
   carrier?: string;
   status?: string;
@@ -116,13 +113,9 @@ interface MonthlyStats {
   totalShippingCost: number;
   totalServiceFees: number;
   totalRevenue: number;
-  totalNetProfit: number;
   avgShipmentWeight: number;
-  avgProfitPerShipment: number;
   topDestination: { name: string; count: number };
   topCategory: { name: string; count: number };
-  deliveryTrend: number;
-  profitTrend: number;
 }
 
 interface FilterParams {
@@ -142,7 +135,6 @@ interface DisplayOptions {
   showDetails: boolean;
   viewMode: "list" | "grid" | "table";
   chartType: "bar" | "line" | "pie" | "radar";
-  showOnlyProfit: boolean;
 }
 
 // Constantes
@@ -185,7 +177,7 @@ const BatchCard = ({ batch }: { batch: DeliveryBatch }) => {
             {batch.deliveryDate}
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <p className="text-sm text-gray-600 flex items-center gap-2">
             <Weight className="h-5 w-5 text-gray-400" />
             Poids : {formatWeight(batch.totalWeight)}
@@ -197,10 +189,6 @@ const BatchCard = ({ batch }: { batch: DeliveryBatch }) => {
           <p className="text-sm text-gray-600 flex items-center gap-2">
             <DollarSign className="h-5 w-5 text-gray-400" />
             Frais : {formatCurrency.format(batch.serviceFee)}
-          </p>
-          <p className="text-sm text-green-600 font-semibold flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-            Profit : {formatCurrency.format(batch.netProfit)}
           </p>
         </div>
         <div className="border-t border-gray-200 pt-4">
@@ -254,13 +242,9 @@ const DeliveryDashboard = () => {
     totalShippingCost: 0,
     totalServiceFees: 0,
     totalRevenue: 0,
-    totalNetProfit: 0,
     avgShipmentWeight: 0,
-    avgProfitPerShipment: 0,
     topDestination: { name: "", count: 0 },
     topCategory: { name: "", count: 0 },
-    deliveryTrend: 0,
-    profitTrend: 0,
   });
   const [filters, setFilters] = useState<FilterParams>({
     searchTerm: "",
@@ -281,7 +265,6 @@ const DeliveryDashboard = () => {
     showDetails: false,
     viewMode: "list",
     chartType: "bar",
-    showOnlyProfit: false,
   });
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<DeliveryBatch | null>(null);
@@ -356,7 +339,6 @@ const DeliveryDashboard = () => {
         const shippingCost = shipments.reduce((sum: number, s: ShipmentInBatch) => sum + s.details.shippingCost, 0);
         const serviceFee = SERVICE_FEE * shipments.length;
         const totalCost = shippingCost + serviceFee;
-        const netProfit = totalCost - shippingCost; // Profit = SERVICE_FEE par colis
 
         return {
           ...batch,
@@ -367,7 +349,6 @@ const DeliveryDashboard = () => {
           shippingCost,
           serviceFee,
           totalCost,
-          netProfit,
           carrier: batch.carrier || "PNS",
           status: batch.status || "Delivered",
           notes: batch.notes || "",
@@ -444,10 +425,6 @@ const DeliveryDashboard = () => {
           valueA = a.totalCost;
           valueB = b.totalCost;
           break;
-        case "netProfit":
-          valueA = a.netProfit;
-          valueB = b.netProfit;
-          break;
         case "totalWeight":
           valueA = a.totalWeight;
           valueB = b.totalWeight;
@@ -481,13 +458,9 @@ const DeliveryDashboard = () => {
         totalShippingCost: 0,
         totalServiceFees: 0,
         totalRevenue: 0,
-        totalNetProfit: 0,
         avgShipmentWeight: 0,
-        avgProfitPerShipment: 0,
         topDestination: { name: "N/A", count: 0 },
         topCategory: { name: "N/A", count: 0 },
-        deliveryTrend: 0,
-        profitTrend: 0,
       });
       return;
     }
@@ -511,10 +484,6 @@ const DeliveryDashboard = () => {
       (sum, b) => sum + b.totalCost,
       0
     );
-    const totalNetProfit = batchesToAnalyze.reduce(
-      (sum, b) => sum + b.netProfit,
-      0
-    );
     const destinations: Record<string, number> = {};
     const categories: Record<string, number> = {};
     batchesToAnalyze.forEach((batch) => {
@@ -533,8 +502,6 @@ const DeliveryDashboard = () => {
     Object.entries(categories).forEach(([name, count]) => {
       if (count > topCategory.count) topCategory = { name, count };
     });
-    const deliveryTrend = Math.random() * 20 - 10;
-    const profitTrend = Math.random() * 30 - 5;
     setCurrentMonthStats({
       totalBatches: batchesToAnalyze.length,
       totalShipments,
@@ -542,15 +509,42 @@ const DeliveryDashboard = () => {
       totalShippingCost,
       totalServiceFees,
       totalRevenue,
-      totalNetProfit,
       avgShipmentWeight: totalShipments > 0 ? totalWeight / totalShipments : 0,
-      avgProfitPerShipment:
-        totalShipments > 0 ? totalNetProfit / totalShipments : 0,
       topDestination,
       topCategory,
-      deliveryTrend,
-      profitTrend,
     });
+  };
+
+  const calculateRevenueBreakdown = () => {
+    const serviceFeeRevenue = filteredBatches.reduce(
+      (sum, batch) => sum + batch.serviceFee,
+      0
+    );
+    const bookRevenue = filteredBatches.reduce(
+      (sum, batch) =>
+        sum +
+        batch.shipments.reduce(
+          (acc, shipment) =>
+            !["Telephone", "Ordinateur Portbable", "Starlink"].includes(shipment.category)
+              ? acc + shipment.details.shippingCost
+              : acc,
+          0
+        ),
+      0
+    );
+    const specialItemsRevenue = filteredBatches.reduce(
+      (sum, batch) =>
+        sum +
+        batch.shipments.reduce(
+          (acc, shipment) =>
+            ["Telephone", "Ordinateur Portbable", "Starlink"].includes(shipment.category)
+              ? acc + shipment.details.shippingCost
+              : acc,
+          0
+        ),
+      0
+    );
+    return { serviceFeeRevenue, bookRevenue, specialItemsRevenue };
   };
 
   const prepareChartData = () => {
@@ -581,6 +575,7 @@ const DeliveryDashboard = () => {
   };
 
   const chartData = prepareChartData();
+  const revenueBreakdown = calculateRevenueBreakdown();
 
   const exportToCSV = () => {
     try {
@@ -594,7 +589,6 @@ const DeliveryDashboard = () => {
         "Shipping Cost ($)",
         "Service Fee ($)",
         "Total Cost ($)",
-        "Net Profit ($)",
         "Tracking Number",
         "Owner",
         "Username",
@@ -616,7 +610,6 @@ const DeliveryDashboard = () => {
           b.shippingCost.toFixed(2),
           b.serviceFee.toFixed(2),
           b.totalCost.toFixed(2),
-          b.netProfit.toFixed(2),
           s.trackingNumber,
           s.fullName,
           s.userName,
@@ -753,6 +746,8 @@ const DeliveryDashboard = () => {
     );
   }
 
+  const currentMonth = format(new Date(), "MMMM yyyy", { locale: fr });
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -761,10 +756,10 @@ const DeliveryDashboard = () => {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 flex items-center">
                 <Boxes className="mr-2 h-8 w-8 text-blue-600" />
-                Analyse des Livraisons
+                REVENUS POUR LE MOIS DE {currentMonth.toUpperCase()}
               </h2>
               <p className="mt-1 text-lg text-gray-600">
-                Suivi et analyse de performance des expéditions livrées
+                Suivi et analyse des revenus des expéditions livrées
               </p>
             </div>
             <div className="flex gap-3 mt-4 sm:mt-0">
@@ -815,7 +810,6 @@ const DeliveryDashboard = () => {
               >
                 <option value="deliveryDate">Date</option>
                 <option value="totalCost">Coût total</option>
-                <option value="netProfit">Bénéfice</option>
                 <option value="totalWeight">Poids</option>
                 <option value="shipmentCount">Nb colis</option>
               </select>
@@ -992,7 +986,7 @@ const DeliveryDashboard = () => {
                       : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
                   }`}
                 >
-                  <TrendingUp size={16} />
+                  {/* <Line size={16} /> */}
                   Ligne
                 </button>
                 <button
@@ -1019,24 +1013,6 @@ const DeliveryDashboard = () => {
                   <TableProperties size={16} />
                   Radar
                 </button>
-                <div className="ml-auto">
-                  <button
-                    onClick={() =>
-                      handleDisplayOptionChange(
-                        "showOnlyProfit",
-                        !displayOptions.showOnlyProfit
-                      )
-                    }
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1 ${
-                      displayOptions.showOnlyProfit
-                        ? "bg-green-100 text-green-700 border border-green-300"
-                        : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
-                    }`}
-                  >
-                    <DollarSign size={16} />
-                    Bénéfices uniquement
-                  </button>
-                </div>
               </div>
             </div>
             <div className="mt-6 flex justify-end">
@@ -1056,7 +1032,7 @@ const DeliveryDashboard = () => {
           </div>
         )}
 
-        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols vanno a quattro gap-6">
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
             <div className="p-5">
               <div className="flex items-center">
@@ -1071,23 +1047,6 @@ const DeliveryDashboard = () => {
                     <dd className="flex items-baseline">
                       <div className="text-2xl font-semibold text-gray-900">
                         {currentMonthStats.totalShipments}
-                      </div>
-                      <div
-                        className={`ml-2 flex items-baseline text-sm ${
-                          currentMonthStats.deliveryTrend >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {currentMonthStats.deliveryTrend >= 0 ? (
-                          <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
-                        ) : (
-                          <ArrowUpRight className="h-4 w-4 flex-shrink-0 rotate-180" />
-                        )}
-                        <span className="ml-1">
-                          {Math.abs(currentMonthStats.deliveryTrend).toFixed(1)}
-                          %
-                        </span>
                       </div>
                     </dd>
                   </dl>
@@ -1104,29 +1063,13 @@ const DeliveryDashboard = () => {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">
-                      Bénéfice net
+                      Revenu total
                     </dt>
                     <dd className="flex items-baseline">
                       <div className="text-2xl font-semibold text-gray-900">
                         {formatCurrency.format(
-                          currentMonthStats.totalNetProfit
+                          currentMonthStats.totalRevenue
                         )}
-                      </div>
-                      <div
-                        className={`ml-2 flex items-baseline text-sm ${
-                          currentMonthStats.profitTrend >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {currentMonthStats.profitTrend >= 0 ? (
-                          <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
-                        ) : (
-                          <ArrowUpRight className="h-4 w-4 flex-shrink-0 rotate-180" />
-                        )}
-                        <span className="ml-1">
-                          {Math.abs(currentMonthStats.profitTrend).toFixed(1)}%
-                        </span>
                       </div>
                     </dd>
                   </dl>
@@ -1189,10 +1132,8 @@ const DeliveryDashboard = () => {
         <div className="mb-8">
           <div className="bg-white p-6 shadow rounded-lg border border-gray-200">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <FileBarChart className="mr-2 h-5 w-5 text-blue-600" />
-                Analyse des{" "}
-                {displayOptions.showOnlyProfit ? "bénéfices" : "performances"}
+              <h3 className="text-lg font-medium text-gray-900">
+                REVENUS POUR LE MOIS DE {currentMonth.toUpperCase()}
               </h3>
               <div className="flex items-center">
                 <span className="text-sm text-gray-500 mr-2">
@@ -1200,6 +1141,32 @@ const DeliveryDashboard = () => {
                   {format(parseISO(filters.dateRange.start), "dd/MM/yyyy")} -{" "}
                   {format(parseISO(filters.dateRange.end), "dd/MM/yyyy")}
                 </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-500 mb-2">
+                  Revenus par frais de service
+                </h4>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {formatCurrency.format(revenueBreakdown.serviceFeeRevenue)}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-500 mb-2">
+                  Revenus par livres
+                </h4>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {formatCurrency.format(revenueBreakdown.bookRevenue)}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-500 mb-2">
+                  Revenus pour objets spéciaux [Téléphone, Ordinateur Portable, Starlink]
+                </h4>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {formatCurrency.format(revenueBreakdown.specialItemsRevenue)}
+                </p>
               </div>
             </div>
             <div className="h-64">
@@ -1240,44 +1207,16 @@ const DeliveryDashboard = () => {
                 <Line
                   data={{
                     labels: chartData.labels,
-                    datasets: displayOptions.showOnlyProfit
-                      ? [
-                          {
-                            label: "Profit ($)",
-                            data: chartData.data,
-                            fill: true,
-                            backgroundColor: "rgba(16, 185, 129, 0.2)",
-                            borderColor: "rgb(16, 185, 129)",
-                            tension: 0.3,
-                          },
-                        ]
-                      : [
-                          {
-                            label: "Revenue ($)",
-                            data: chartData.data,
-                            fill: true,
-                            backgroundColor: "rgba(59, 130, 246, 0.2)",
-                            borderColor: "rgb(59, 130, 246)",
-                            tension: 0.3,
-                          },
-                          {
-                            label: "Profit ($)",
-                            data: chartData.data,
-                            fill: true,
-                            backgroundColor: "rgba(16, 185, 129, 0.2)",
-                            borderColor: "rgb(16, 185, 129)",
-                            tension: 0.3,
-                          },
-                          {
-                            label: "Shipment Count",
-                            data: chartData.data,
-                            borderColor: "rgb(217, 119, 6)",
-                            backgroundColor: "rgba(217, 119, 6, 0.2)",
-                            borderDash: [5, 5],
-                            tension: 0.3,
-                            yAxisID: "y1",
-                          },
-                        ],
+                    datasets: [
+                      {
+                        label: "Revenue ($)",
+                        data: chartData.data,
+                        fill: true,
+                        backgroundColor: "rgba(59, 130, 246, 0.2)",
+                        borderColor: "rgb(59, 130, 246)",
+                        tension: 0.3,
+                      },
+                    ],
                   }}
                   options={{
                     responsive: true,
@@ -1288,14 +1227,6 @@ const DeliveryDashboard = () => {
                         beginAtZero: true,
                         title: { display: true, text: "$" },
                       },
-                      y1: displayOptions.showOnlyProfit
-                        ? undefined
-                        : {
-                            position: "right",
-                            beginAtZero: true,
-                            title: { display: true, text: "Count" },
-                            grid: { display: false },
-                          },
                     },
                     plugins: {
                       legend: { position: "top" },
@@ -1343,23 +1274,17 @@ const DeliveryDashboard = () => {
                 <Radar
                   data={{
                     labels: [
-                      "Profit (k$)",
+                      "Revenue (k$)",
                       "Shipment Count",
                       "Total Weight",
-                      "Avg Profit",
-                      "Efficiency",
                     ],
                     datasets: [
                       {
                         label: "Performance",
                         data: [
-                          currentMonthStats.totalNetProfit / 1000,
+                          currentMonthStats.totalRevenue / 1000,
                           currentMonthStats.totalShipments / 10,
                           currentMonthStats.totalWeight / 100,
-                          currentMonthStats.avgProfitPerShipment,
-                          (currentMonthStats.totalNetProfit /
-                            currentMonthStats.totalShippingCost) *
-                            5,
                         ],
                         backgroundColor: "rgba(59, 130, 246, 0.3)",
                         borderColor: "rgb(59, 130, 246)",
@@ -1530,14 +1455,6 @@ const DeliveryDashboard = () => {
                             {formatCurrency.format(selectedBatch.totalCost)}
                           </span>
                         </div>
-                        <div className="flex justify-between font-medium">
-                          <span className="text-sm text-gray-800">
-                            Net Profit:
-                          </span>
-                          <span className="text-sm text-green-600">
-                            +{formatCurrency.format(selectedBatch.netProfit)}
-                          </span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -1638,6 +1555,13 @@ const DeliveryDashboard = () => {
         }
         .animate-slide-in {
           animation: slideIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
         }
       `}</style>
     </div>
