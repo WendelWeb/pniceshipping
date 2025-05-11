@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, json, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, json, integer, timestamp, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Table pour les colis (inchangée)
@@ -55,3 +55,12 @@ export const shipmentToDeliveryRelations = relations(shipmentToDelivery, ({ one 
     references: [deliveryBatch.id],
   }),
 }));
+
+
+export const userWhatsappPhoneNumbers = pgTable('user_whatsapp_phone_numbers', {
+  id: serial('id').primaryKey(),
+  phone: text('phone').notNull(),
+  ownerId: text('owner_id').notNull(), // Changé de integer à text pour supporter les UUID
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
