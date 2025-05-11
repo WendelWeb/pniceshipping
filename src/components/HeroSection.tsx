@@ -51,7 +51,7 @@ const HeroSection = () => {
             <SignedIn>
               <Link to="/dashboard">
               <button className="bg-blue-600 cursor-pointer text-white px-6 py-2 border rounded-md hover:bg-white hover:border-blue-600 hover:text-blue-600 transition duration-300">
-                Tableau de bord
+                Mes Colis
               </button>
               </Link>
             </SignedIn>
