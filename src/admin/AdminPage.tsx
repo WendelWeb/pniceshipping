@@ -2,7 +2,6 @@ import Button from "@/components/Button";
 import { Link } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
 import { Users, Warehouse, Clock, Package, CheckCircle,  Inbox,  Plane } from "lucide-react";
-import TestWhatsAppButton from "@/components/TestWhatsAppButton";
 
 
 const cards = [
