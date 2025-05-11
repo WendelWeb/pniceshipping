@@ -58,7 +58,6 @@ const AdminPage = () => {
           </Link>
         ))}
       </div>
-      <TestWhatsAppButton />
     </>
   );
 };
