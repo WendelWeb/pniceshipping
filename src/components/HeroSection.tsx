@@ -60,7 +60,7 @@ const HeroSection = () => {
           </div>
           <div className="w-1/2">
             <img
-              src="./hero.jpg"
+              src="./hero.png"
               alt="Personnel de livraison souriant"
               className="rounded-lg shadow-xl"
             />
@@ -125,7 +125,7 @@ const HeroSection = () => {
           </div>
           <div className="mb-8">
             <img
-              src="./hero-1.jpg"
+              src="./hero-1.png"
               alt="Personnel de livraison avec presse-papiers"
               className="rounded-lg shadow-lg w-full"
             />

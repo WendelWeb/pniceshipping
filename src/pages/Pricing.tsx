@@ -29,7 +29,24 @@ const Pricing = () => {
   // }, []);
   return (
     <div className="max-w-6xl mx-auto px-4 py-12" id="pricings">
-      <h1 className="text-4xl font-bold text-center mb-10">Nos Tarifs</h1>
+      <h1 className="text-4xl font-bold text-center mb-8">Nos Tarifs</h1>
+
+      {/* Image responsive ajoutée en dessous du titre */}
+      <div className="w-full mb-10 flex justify-center">
+        <div className="relative w-full max-w-3xl overflow-hidden rounded-xl shadow-lg">
+          <img 
+            src="/tarif.jpg" 
+            alt="Pnice Shipping Services" 
+            className="w-full h-auto object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+            <div className="p-6 text-white">
+              <h2 className="text-2xl font-bold mb-2">Expédition Fiable et Abordable</h2>
+              <p className="text-sm md:text-base">Des solutions d'expédition adaptées à tous vos besoins</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Banner */}
       <div className="bg-gray-100 rounded-lg p-8 text-center mb-12">
