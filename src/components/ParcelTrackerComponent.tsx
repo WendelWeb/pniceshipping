@@ -2,21 +2,26 @@ import { HandIcon } from "@heroicons/react/solid"; // Nécessite l'installation 
 
 const ParcelTracker = () => {
   return (
-    <div className="flex flex-col items-center p-4 max-w-md mx-auto">
+    <div
+      className="flex flex-col items-center p-4 w-full min-h-screen bg-cover bg-center sm:bg-[url('/tracking-image.png')]"
+      style={{ backgroundImage: "url('/mobile-tracking-image.png')" }}
+    >
       {/* Titre */}
-      <h1 className="text-4xl font-bold mb-4">Suivez votre colis</h1>
+      <h1 className="text-4xl font-bold mb-4 text-white bg-blue-600 bg-opacity-5 p-3 rounded">
+        Suivez votre colis
+      </h1>
 
       {/* Texte d'instruction */}
-      <p className="text-sm text-gray-500 mb-6 text-center">
-        Pour suivre votre colis sur Pnice, entrez votre numéro de suivi fourni
-        par le vendeur ou la plateforme auprès de laquelle vous avez effectué
-        votre achat. Nous assurons uniquement le transport de votre colis.
+      <p className="text-sm mb-6 text-center text-white bg-gray-800 bg-opacity-5 p-3 rounded max-w-lg">
+        Pour suivre votre colis sur Pnice, entrez votre numéro de suivi fourni par
+        le vendeur ou la plateforme auprès de laquelle vous avez effectué votre
+        achat. Nous assurons uniquement le transport de votre colis.
       </p>
 
       {/* Formulaire */}
-      <form className="w-full">
+      <form className="w-full max-w-lg">
         <label
-          className="block text-sm font-bold mb-2"
+          className="block text-sm font-bold mb-2 text-white bg-blue-600 bg-opacity-5 p-2 rounded"
           htmlFor="tracking-number"
         >
           Numéro de suivi*
@@ -38,11 +43,17 @@ const ParcelTracker = () => {
       </form>
 
       {/* Hyperliens */}
-      <div className="mt-6 flex flex-wrap justify-center gap-4">
-        <a href="#guide" className="text-black underline hover:text-blue-500">
+      <div className="mt-4 flex flex-wrap justify-center gap-4">
+        <a
+          href="#guide"
+          className="text-white underline bg-gray-800 bg-opacity-5 p-2 rounded hover:bg-blue-500 hover:bg-opacity-5"
+        >
           Ce que vous pouvez envoyer
         </a>
-        <a href="#guide" className="text-black underline hover:text-blue-500">
+        <a
+          href="#guide"
+          className="text-white underline bg-gray-800 bg-opacity-5 p-2 rounded hover:bg-blue-500 hover:bg-opacity-5"
+        >
           Guide des tailles et poids des colis
         </a>
       </div>

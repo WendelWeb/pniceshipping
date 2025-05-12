@@ -64,7 +64,7 @@ const testimonials = [
     name: "Marie Dubois",
     username: "@mdubois_shop",
     role: "Pharmacienne",
-    avatar: "https://randomuser.me/api/portraits/women/2.jpg",
+    avatar: "/testimony-1.png",
     message:
       "Le service de coursier médical est exceptionnel. La livraison de médicaments urgents nécessite une précision et une rapidité sans faille. Leur équipe comprend parfaitement ces enjeux et assure une livraison sécurisée dans des délais très courts.",
   },
@@ -72,7 +72,7 @@ const testimonials = [
     name: "Thomas Laurent",
     username: "@tlaurent_tech",
     role: "Informaticien",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+    avatar: "/testimony-3.png",
     message:
       "Je commande souvent des produits high-tech en ligne, et la rapidité de livraison est essentielle pour moi. Pnice assure un suivi précis et des délais toujours respectés, ce qui me permet d’acheter en toute confiance.",
   },
@@ -80,7 +80,7 @@ const testimonials = [
     name: "Sophie Martin",
     username: "@smartin_fashion",
     role: "Passionnée de mode",
-    avatar: "https://randomuser.me/api/portraits/women/3.jpg",
+    avatar: "/testimony-2.png",
     message:
       "Acheter des vêtements en ligne peut être stressant quand on craint les retards de livraison. Avec Pnice, mes commandes arrivent toujours à temps et en parfait état. C'est un vrai soulagement !",
   },
@@ -165,7 +165,7 @@ const Home = () => {
 
           <div className="relative">
             <img
-              src="./about.png"
+              src="./about.jpg"
               alt="Service de livraison"
               className="rounded-xl shadow-lg"
             />
@@ -187,46 +187,63 @@ const Home = () => {
       </section>
 
       <section className="py-12 px-6 bg-white">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="text-yellow-500 font-semibold">
-              Pourquoi Nous Choisir
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
-              Vivez la Meilleure Expérience de Service Avec Nous
-            </h2>
-            <p className="text-gray-600 mt-4">
-              Choisissez-nous pour notre fiabilité éprouvée, notre disponibilité
-              24/7 et notre engagement envers la satisfaction client. Nous
-              priorisons les livraisons rapides et sécurisées et offrons un
-              suivi en temps réel pour vous tenir informé à chaque étape.
-            </p>
-            <a href="#calculator">
-              <button className="mt-6 cursor-pointer bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center space-x-2 hover:bg-blue-700 transition">
-                <span>Obtenir un Devis</span>
-                <ArrowUpRight size={18} />
-              </button>
-            </a>
-          </div>
+  <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+    <div>
+      <p className="text-yellow-500 font-semibold">
+        Pourquoi Nous Choisir
+      </p>
+      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+        Vivez la Meilleure Expérience de Service Avec Nous
+      </h2>
+      <p className="text-gray-600 mt-4">
+        Choisissez-nous pour notre fiabilité éprouvée, notre disponibilité
+        24/7 et notre engagement envers la satisfaction client. Nous
+        priorisons les livraisons rapides et sécurisées et offrons un
+        suivi en temps réel pour vous tenir informé à chaque étape.
+      </p>
+      <div className="mt-6 md:hidden">
+        <img 
+          src="/customer-service.png" 
+          alt="Service client premium" 
+          className="w-full h-auto rounded-lg shadow-md"
+        />
+      </div>
+      <a href="#calculator">
+        <button className="mt-6 cursor-pointer bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center space-x-2 hover:bg-blue-700 transition">
+          <span>Obtenir un Devis</span>
+          <ArrowUpRight size={18} />
+        </button>
+      </a>
+    </div>
 
-          <div className="space-y-6">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="flex items-start bg-gray-50 p-6 rounded-xl shadow-sm"
-              >
-                <span className="text-3xl font-bold text-blue-600">
-                  {feature.number}
-                </span>
-                <div className="ml-4">
-                  <h3 className="font-semibold text-lg">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
-                </div>
-              </div>
-            ))}
+    <div className="hidden md:block">
+      <img 
+        src="/customer-service.png" 
+        alt="Service client premium" 
+        className="w-full h-auto rounded-lg shadow-lg"
+      />
+    </div>
+
+    <div className="md:col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {features.map((feature, index) => (
+          <div
+            key={index}
+            className="flex items-start bg-gray-50 p-6 rounded-xl shadow-sm"
+          >
+            <span className="text-3xl font-bold text-blue-600">
+              {feature.number}
+            </span>
+            <div className="ml-4">
+              <h3 className="font-semibold text-lg">{feature.title}</h3>
+              <p className="text-gray-600 text-sm">{feature.description}</p>
+            </div>
           </div>
-        </div>
-      </section>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
       <Pricing />
       <section className="py-12 px-6 bg-white m">
         <div className="max-w-6xl mx-auto">
@@ -302,7 +319,7 @@ const Home = () => {
           </div>
           <div>
             <img
-              src="./workers.png"
+              src="./worker.png"
               alt="Équipe de Construction"
               className="rounded-lg shadow-lg"
             />
