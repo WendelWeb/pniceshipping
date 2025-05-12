@@ -74,7 +74,7 @@ const ShipmentView = () => {
           className="mt-6 flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
         >
           <ArrowLeftIcon className="h-5 w-5" />
-          Retour au tableau de bord
+          Retour dans mes colis
         </button>
       </div>
     );
