@@ -7,7 +7,8 @@ import { sendDeliveredEmail } from "@/services/emailServices";
 
 const ConfirmDeliveryPage = () => {
   const { state } = useLocation();
-  const { selectedShipments, selectedUserId }: { selectedShipments: Shipment[]; selectedUserId: string } = state || {};
+  // Ignorer totalCost de state car il pourrait contenir plusieurs frais de service
+  const { selectedShipments, selectedUserId }: { selectedShipments: Shipment[]; selectedUserId: string; totalCost?: number } = state || {};
   const navigate = useNavigate();
   const [isDelivering, setIsDelivering] = useState(false);
 
@@ -28,7 +29,7 @@ const ConfirmDeliveryPage = () => {
     return <div className="p-6 text-center text-red-600">Erreur : Aucune donnée de livraison trouvée.</div>;
   }
 
-  // Calcul des totaux
+  // Calcul des coûts individuels pour chaque colis (STRICTEMENT sans le frais de service)
   const totalWeight = selectedShipments.reduce((sum, s) => sum + parseFloat(s.weight || "0"), 0);
   const shipmentCosts = selectedShipments.map((shipment) => {
     const shippingRate = getShippingRate(shipment.destination);
@@ -45,6 +46,7 @@ const ConfirmDeliveryPage = () => {
     if (normalizedCategory) {
       const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
       if (mappedCategory in FIXED_ITEM_RATES) {
+        // Tarif fixe SANS le frais de service
         cost = FIXED_ITEM_RATES[mappedCategory];
         isFixedRate = true;
         fixedRateCategory = mappedCategory
@@ -52,26 +54,44 @@ const ConfirmDeliveryPage = () => {
           .toUpperCase()
           + mappedCategory.slice(1).replace("_", " ");
       } else {
+        // Coût au poids SANS le frais de service
         cost = poids * shippingRate;
         isFixedRate = false;
       }
     } else {
+      // Coût au poids SANS le frais de service
       cost = poids * shippingRate;
       isFixedRate = false;
     }
 
+    // Retourner uniquement le coût d'expédition sans frais de service
     return { cost, isFixedRate, fixedRateCategory };
   });
 
+  // Somme des coûts d'expédition individuels de tous les colis (sans frais de service)
   const shippingCost = shipmentCosts.reduce((sum, { cost }) => sum + cost, 0);
-  const totalServiceFees = SERVICE_FEE * selectedShipments.length;
-  const totalCost = shippingCost + totalServiceFees;
+  
+  // Ajouter UN SEUL frais de service au total, peu importe le nombre de colis
+  const calculatedTotalCost = shippingCost + SERVICE_FEE;
+  
+  // Si un totalCost est fourni par l'état, nous l'ignorons car il pourrait inclure plusieurs frais de service
+  // Nous utilisons toujours notre calcul avec un seul frais de service
+  const finalTotalCost = calculatedTotalCost;
 
   const handleConfirmDelivery = async () => {
     setIsDelivering(true);
     try {
       const shipmentIds = selectedShipments.map((s) => s.id);
-      const { deliveredShipments } = await markMultipleShipmentsAsDelivered(shipmentIds, selectedUserId);
+      
+      // Nous ne pouvons pas passer directement le coût total à la fonction markMultipleShipmentsAsDelivered
+      // car elle n'accepte que 2 paramètres
+      const { deliveredShipments } = await markMultipleShipmentsAsDelivered(
+        shipmentIds, 
+        selectedUserId
+      );
+
+      // Nous devons nous assurer que le backend applique un seul frais de service
+      // Si nécessaire, implémenter cette logique côté serveur
 
       for (const shipment of deliveredShipments) {
         await sendDeliveredEmail(shipment.fullName, shipment.emailAdress, shipment.trackingNumber);
@@ -101,7 +121,6 @@ const ConfirmDeliveryPage = () => {
             {selectedShipments.map((shipment, index) => {
               const { cost, isFixedRate, fixedRateCategory } = shipmentCosts[index];
               const shippingRate = getShippingRate(shipment.destination);
-              const totalShipmentCost = cost + SERVICE_FEE;
 
               return (
                 <div key={shipment.id} className="bg-gray-50 p-4 rounded-lg shadow-sm">
@@ -113,10 +132,10 @@ const ConfirmDeliveryPage = () => {
                   <p><strong>Catégorie :</strong> {shipment.category}</p>
                   <p><strong>Poids :</strong> {shipment.weight} lbs</p>
                   <p>
-                    <strong>Coût :</strong> ${totalShipmentCost.toFixed(2)} 
+                    <strong>Coût d'expédition :</strong> ${cost.toFixed(2)}{" "}
                     {isFixedRate
-                      ? ` (Tarif fixe pour ${fixedRateCategory} + $${SERVICE_FEE} service)`
-                      : ` ($${shippingRate}/lb + $${SERVICE_FEE} service)`}
+                      ? ` (Tarif fixe pour ${fixedRateCategory})`
+                      : ` ($${shippingRate}/lb)`}
                   </p>
                 </div>
               );
@@ -127,9 +146,9 @@ const ConfirmDeliveryPage = () => {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Résumé</h3>
           <p><strong>Poids total :</strong> {totalWeight.toFixed(2)} lbs</p>
-          <p><strong>Coût d'expédition :</strong> ${shippingCost.toFixed(2)}</p>
-          <p><strong>Frais de service :</strong> ${totalServiceFees.toFixed(2)} ({selectedShipments.length} colis)</p>
-          <p className="text-lg font-bold text-indigo-600 mt-2"><strong>Total :</strong> ${totalCost.toFixed(2)}</p>
+          <p><strong>Coût total d'expédition :</strong> ${shippingCost.toFixed(2)}</p>
+          <p><strong>Frais de service unique :</strong> ${SERVICE_FEE.toFixed(2)} (un seul pour tous les {selectedShipments.length} colis)</p>
+          <p className="text-lg font-bold text-indigo-600 mt-2"><strong>Total à payer :</strong> ${finalTotalCost.toFixed(2)}</p>
           <div className="mt-6 flex gap-4">
             <button
               onClick={handleConfirmDelivery}

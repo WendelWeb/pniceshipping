@@ -212,10 +212,11 @@ const BatchCard = ({ batch }: { batch: DeliveryBatch }) => {
                 <div className="flex items-center gap-4">
                   <span>{formatWeight(shipment.details.weight)}</span>
                   <span>
-                    {formatCurrency.format(shipment.details.shippingCost + SERVICE_FEE)}
+                    {formatCurrency.format(shipment.details.shippingCost)}
                     {shipment.details.isFixedRate
                       ? ` (Tarif fixe pour ${shipment.details.fixedRateCategory})`
-                      : ` ($/lb + $${SERVICE_FEE} service)`}
+                      : ` ($/lb)`}
+                    {batch.shipments.length > 1 ? " + Frais de service unique" : ""}
                   </span>
                 </div>
               </div>
@@ -302,18 +303,18 @@ const DeliveryDashboard = () => {
           if (normalizedCategory) {
             const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
             if (mappedCategory in FIXED_ITEM_RATES) {
-              shippingCost = FIXED_ITEM_RATES[mappedCategory];
+              shippingCost = FIXED_ITEM_RATES[mappedCategory]; // Sans SERVICE_FEE
               isFixedRate = true;
               fixedRateCategory = mappedCategory
                 .charAt(0)
                 .toUpperCase()
                 + mappedCategory.slice(1).replace("_", " ");
             } else {
-              shippingCost = weight * shippingRate;
+              shippingCost = weight * shippingRate; // Sans SERVICE_FEE
               isFixedRate = false;
             }
           } else {
-            shippingCost = weight * shippingRate;
+            shippingCost = weight * shippingRate; // Sans SERVICE_FEE
             isFixedRate = false;
           }
 
@@ -337,7 +338,7 @@ const DeliveryDashboard = () => {
 
         const totalWeight = shipments.reduce((sum: number, s: ShipmentInBatch) => sum + s.details.weight, 0);
         const shippingCost = shipments.reduce((sum: number, s: ShipmentInBatch) => sum + s.details.shippingCost, 0);
-        const serviceFee = SERVICE_FEE * shipments.length;
+        const serviceFee = SERVICE_FEE; // Un seul frais de service par lot
         const totalCost = shippingCost + serviceFee;
 
         return {
@@ -617,7 +618,7 @@ const DeliveryDashboard = () => {
           s.destination,
           s.category,
           s.details.weight.toFixed(2),
-          (s.details.shippingCost + SERVICE_FEE).toFixed(2),
+          s.details.shippingCost.toFixed(2), // Sans SERVICE_FEE individuel
           s.details.isFixedRate ? `Fixed (${s.details.fixedRateCategory})` : "Per Pound",
         ])
       );
@@ -1521,11 +1522,12 @@ const DeliveryDashboard = () => {
                                 </td>
                                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                   {formatCurrency.format(
-                                    shipment.details.shippingCost + SERVICE_FEE
+                                    shipment.details.shippingCost
                                   )}
                                   {shipment.details.isFixedRate
                                     ? ` (Tarif fixe pour ${shipment.details.fixedRateCategory})`
-                                    : ` ($/lb + $${SERVICE_FEE} service)`}
+                                    : ` ($/lb)`}
+                                  {selectedBatch.shipments.length > 1 ? " + Frais de service unique" : ""}
                                 </td>
                               </tr>
                             ))}

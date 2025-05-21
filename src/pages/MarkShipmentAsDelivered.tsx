@@ -40,7 +40,7 @@ const MarkShipmentAsDelivered = () => {
     telephones: "telephones",
     téléphone: "telephones",
     téléphones: "telephones",
-    ordinateurportbable: "ordinateurs_portables", // Gère la typo
+    ordinateurportbable: "ordinateurs_portables",
     ordinateurportable: "ordinateurs_portables",
     ordinateursportables: "ordinateurs_portables",
     ordinateurportables: "ordinateurs_portables",
@@ -67,14 +67,16 @@ const MarkShipmentAsDelivered = () => {
 
   useEffect(() => {
     const filtered = users.filter(
-      (user) =>
+      (
+        user,
+      ) =>
         `${user.firstName} ${user.lastName}`
           .toLowerCase()
           .includes(searchTermUsers.toLowerCase()) ||
         user.username.toLowerCase().includes(searchTermUsers.toLowerCase()) ||
         user.emailAddresses.some((email) =>
-          email.emailAddress.toLowerCase().includes(searchTermUsers.toLowerCase())
-        )
+          email.emailAddress.toLowerCase().includes(searchTermUsers.toLowerCase()),
+        ),
     );
     setFilteredUsers(filtered);
     setIsUserListOpen(searchTermUsers.length > 0 && filtered.length > 0);
@@ -89,7 +91,7 @@ const MarkShipmentAsDelivered = () => {
         const userShipments = results
           .filter(
             (shipment) =>
-              shipment.ownerId === selectedUserId && shipment.status === "Disponible🟢"
+              shipment.ownerId === selectedUserId && shipment.status === "Disponible🟢",
           )
           .map((shipment) => ({
             ...shipment,
@@ -107,14 +109,40 @@ const MarkShipmentAsDelivered = () => {
 
   const handleSelectShipment = (id: number) => {
     setSelectedShipmentIds((prev) =>
-      prev.includes(id) ? prev.filter((sId) => sId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((sId) => sId !== id) : [...prev, id],
     );
+  };
+
+  // Nouvelle fonction pour calculer le coût total avec un seul SERVICE_FEE
+  const calculateTotalCost = (selectedShipments: Shipment[]) => {
+    let totalCost = 0;
+    selectedShipments.forEach((shipment) => {
+      const shippingRate = getShippingRate(shipment.destination);
+      const poids = parseFloat(shipment.weight || "0");
+      const normalizedCategory = shipment.category
+        ?.toLowerCase()
+        .replace(/[\s-]/g, "")
+        .replace("portbable", "portables")
+        .replace(/[éèê]/g, "e");
+      const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
+
+      if (mappedCategory in FIXED_ITEM_RATES) {
+        totalCost += FIXED_ITEM_RATES[mappedCategory]; // Sans SERVICE_FEE
+      } else {
+        totalCost += poids * shippingRate; // Sans SERVICE_FEE
+      }
+    });
+    totalCost += SERVICE_FEE; // Ajouter un seul SERVICE_FEE
+    return totalCost;
   };
 
   const handleDeliver = () => {
     if (selectedShipmentIds.length === 0 || !selectedUserId) return;
     const selectedShipments = shipments.filter((s) => selectedShipmentIds.includes(s.id));
-    navigate("/admin/confirm-delivery", { state: { selectedShipments, selectedUserId } });
+    const totalCost = calculateTotalCost(selectedShipments);
+    navigate("/admin/confirm-delivery", {
+      state: { selectedShipments, selectedUserId, totalCost },
+    });
   };
 
   const filteredShipments = shipments.filter(
@@ -123,7 +151,7 @@ const MarkShipmentAsDelivered = () => {
         shipment.fullName.toLowerCase().includes(searchTermShipments.toLowerCase()) ||
         shipment.userName.toLowerCase().includes(searchTermShipments.toLowerCase()) ||
         shipment.emailAdress.toLowerCase().includes(searchTermShipments.toLowerCase())) &&
-      (selectedCategory ? shipment.category === selectedCategory : true)
+      (selectedCategory ? shipment.category === selectedCategory : true),
   );
 
   return (
@@ -138,9 +166,10 @@ const MarkShipmentAsDelivered = () => {
 
         {/* Sélection des utilisateurs */}
         <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Recherche par nom */}
           <div className="relative" ref={userSearchRef}>
-            <label className="block text-gray-700 font-medium mb-2">Rechercher un utilisateur :</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Rechercher un utilisateur :
+            </label>
             <input
               type="text"
               placeholder="Nom, username ou email..."
@@ -154,7 +183,12 @@ const MarkShipmentAsDelivered = () => {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
             {isUserListOpen && (
               <div className="absolute z-10 mt-2 w-full bg-white rounded-lg shadow-xl max-h-96 overflow-y-auto animate-slide-down">
@@ -170,18 +204,36 @@ const MarkShipmentAsDelivered = () => {
                   >
                     <div className="flex items-center gap-4">
                       {user.imageUrl ? (
-                        <img src={user.imageUrl} alt={`${user.firstName}`} className="w-12 h-12 rounded-full object-cover shadow-sm" />
+                        <img
+                          src={user.imageUrl}
+                          alt={`${user.firstName}`}
+                          className="w-12 h-12 rounded-full object-cover shadow-sm"
+                        />
                       ) : (
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                          <svg className="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          <svg
+                            className="h-6 w-6 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
                           </svg>
                         </div>
                       )}
                       <div>
-                        <p className="text-lg font-semibold text-gray-800">{user.firstName} {user.lastName}</p>
+                        <p className="text-lg font-semibold text-gray-800">
+                          {user.firstName} {user.lastName}
+                        </p>
                         <p className="text-sm text-gray-600">@{user.username}</p>
-                        <p className="text-sm text-gray-500">{user.emailAddresses[0]?.emailAddress}</p>
+                        <p className="text-sm text-gray-500">
+                          {user.emailAddresses[0]?.emailAddress}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -190,9 +242,10 @@ const MarkShipmentAsDelivered = () => {
             )}
           </div>
 
-          {/* Liste déroulante */}
           <div className="relative">
-            <label className="block text-gray-700 font-medium mb-2">Sélectionner un utilisateur :</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Sélectionner un utilisateur :
+            </label>
             <select
               value={selectedUserId || ""}
               onChange={(e) => setSelectedUserId(e.target.value || null)}
@@ -211,7 +264,12 @@ const MarkShipmentAsDelivered = () => {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
             <svg
               className="absolute right-4 top-10 h-5 w-5 text-gray-400"
@@ -219,7 +277,12 @@ const MarkShipmentAsDelivered = () => {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </div>
         </div>
@@ -241,7 +304,12 @@ const MarkShipmentAsDelivered = () => {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </div>
             <div className="relative w-full md:w-1/3">
@@ -250,7 +318,9 @@ const MarkShipmentAsDelivered = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full pl-12 pr-10 py-3 cursor-pointer border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-300"
               >
-                <option value="" className="cursor-pointer">Toutes les catégories</option>
+                <option value="" className="cursor-pointer">
+                  Toutes les catégories
+                </option>
                 {CATEGORIES.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -263,7 +333,12 @@ const MarkShipmentAsDelivered = () => {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7m-9-4v4m0 0H7m5 0h5" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7m-9-4v4m0 0H7m5 0h5"
+                />
               </svg>
             </div>
             <button
@@ -276,10 +351,28 @@ const MarkShipmentAsDelivered = () => {
               }`}
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               Livrer ({selectedShipmentIds.length})
             </button>
+          </div>
+        )}
+
+        {/* Affichage du coût total */}
+        {selectedShipmentIds.length > 0 && (
+          <div className="mb-8 p-4 bg-gray-100 rounded-lg">
+            <p className="text-lg font-semibold text-gray-800">
+              Coût total : $
+              {calculateTotalCost(
+                shipments.filter((s) => selectedShipmentIds.includes(s.id)),
+              ).toFixed(2)}{" "}
+              (inclut un seul frais de service de ${SERVICE_FEE.toFixed(2)})
+            </p>
           </div>
         )}
 
@@ -290,7 +383,9 @@ const MarkShipmentAsDelivered = () => {
           </div>
         ) : !selectedUserId ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-lg text-gray-500 animate-pulse">Sélectionnez un utilisateur...</p>
+            <p className="text-lg text-gray-500 animate-pulse">
+              Sélectionnez un utilisateur...
+            </p>
           </div>
         ) : filteredShipments.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -312,22 +407,22 @@ const MarkShipmentAsDelivered = () => {
                 .replace("portbable", "portables")
                 .replace(/[éèê]/g, "e");
 
-              // Calcul des frais
+              // Calcul des frais sans SERVICE_FEE
               if (normalizedCategory) {
                 const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
                 if (mappedCategory in FIXED_ITEM_RATES) {
-                  cost = FIXED_ITEM_RATES[mappedCategory] + SERVICE_FEE;
+                  cost = FIXED_ITEM_RATES[mappedCategory]; // Sans SERVICE_FEE
                   isFixedRate = true;
                   fixedRateCategory = mappedCategory
                     .charAt(0)
                     .toUpperCase()
                     + mappedCategory.slice(1).replace("_", " ");
                 } else {
-                  cost = poids * shippingRate + SERVICE_FEE;
+                  cost = poids * shippingRate; // Sans SERVICE_FEE
                   isFixedRate = false;
                 }
               } else {
-                cost = poids * shippingRate + SERVICE_FEE;
+                cost = poids * shippingRate; // Sans SERVICE_FEE
                 isFixedRate = false;
               }
 
@@ -340,7 +435,9 @@ const MarkShipmentAsDelivered = () => {
                 >
                   <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-3 text-white rounded-t-lg flex justify-between items-center">
                     <h3 className="font-semibold text-lg">#{shipment.trackingNumber}</h3>
-                    <span className="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">Disponible</span>
+                    <span className="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">
+                      Disponible
+                    </span>
                   </div>
                   <div className="p-4 space-y-2">
                     <div className="flex items-center">
@@ -353,43 +450,107 @@ const MarkShipmentAsDelivered = () => {
                       <p className="text-gray-800 font-semibold">{shipment.fullName}</p>
                     </div>
                     <p className="text-sm text-gray-600 flex items-center">
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      <svg
+                        className="h-4 w-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
                       </svg>
                       @{shipment.userName}
                     </p>
                     <p className="text-sm text-gray-600 flex items-center">
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <svg
+                        className="h-4 w-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
                       </svg>
                       {shipment.emailAdress}
                     </p>
                     <p className="text-sm text-gray-600 flex items-center">
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <svg
+                        className="h-4 w-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
                       </svg>
                       {shipment.destination}
                     </p>
                     <p className="text-sm text-gray-600 flex items-center">
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7m-9-4v4m0 0H7m5 0h5" />
+                      <svg
+                        className="h-4 w-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7m-9-4v4m0 0H7m5 0h5"
+                        />
                       </svg>
                       {shipment.category}
                     </p>
                     <p className="text-sm text-gray-600 flex items-center">
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2" />
+                      <svg
+                        className="h-4 w-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2"
+                        />
                       </svg>
                       {shipment.weight} lbs
                     </p>
                     <p className="text-sm text-gray-600 flex items-center">
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zm0 8c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" />
+                      <svg
+                        className="h-4 w-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zm0 8c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4-4z"
+                        />
                       </svg>
-                      Coût : ${cost.toFixed(2)} 
+                      Coût : ${cost.toFixed(2)}{" "}
                       {isFixedRate
                         ? ` (Tarif fixe pour ${fixedRateCategory})`
-                        : ` ($${shippingRate}/lb + $${SERVICE_FEE} service)`}
+                        : ` ($${shippingRate}/lb)`}
+                      {selectedShipmentIds.length > 1 &&
+                      selectedShipmentIds.includes(shipment.id)
+                        ? " + Frais de service unique appliqué au total"
+                        : ""}
                     </p>
                   </div>
                 </div>
