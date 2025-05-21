@@ -253,7 +253,7 @@ System: center text-sm md:text-base min-w-16 md:min-w-24"
                   </li>
                   <li className="flex justify-between">
                     <span className="text-gray-600">Poids:</span>
-                    <span className="font-medium">{shipmentData.weight ? `${shipmentData.weight} kg` : "Non spécifié"}</span>
+                    <span className="font-medium">{shipmentData.weight ? `${shipmentData.weight} lbs` : "Non spécifié"}</span>
                   </li>
                   <li className="flex justify-between">
                     <span className="text-gray-600">Destination:</span>

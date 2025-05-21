@@ -67,7 +67,7 @@ const ShipmentSuccessModal = ({
                 ➡️ <span className="font-semibold">Mise à jour des paramètres du colis</span> : Les champs suivants ont été actualisés :
                 <ul className="list-circle pl-5 mt-1">
                   <li>📦 Catégorie : {shipmentData.category}</li>
-                  <li>⚖️ Poids : {shipmentData.weight || "Non spécifié"} kg</li>
+                  <li>⚖️ Poids : {shipmentData.weight || "Non spécifié"} lbs</li>
                   <li>📍 Statut : {shipmentData.status}</li>
                   <li>🌍 Destination : {shipmentData.destination}</li>
                   <li>📅 Livraison estimée : {shipmentData.estimatedDelivery}</li>
@@ -92,7 +92,7 @@ const ShipmentSuccessModal = ({
           <p><span className="font-semibold">Email :</span> {shipmentData.emailAdress}</p>
           <p><span className="font-semibold">Téléphone :</span> {shipmentData.phone || "Inconnu"}</p>
           <p><span className="font-semibold">Catégorie :</span> {shipmentData.category}</p>
-          <p><span className="font-semibold">Poids :</span> {shipmentData.weight || "Non spécifié"} kg</p>
+          <p><span className="font-semibold">Poids :</span> {shipmentData.weight || "Non spécifié"} lbs</p>
           <p><span className="font-semibold">Statut :</span> {shipmentData.status}</p>
           <p><span className="font-semibold">Destination :</span> {shipmentData.destination}</p>
           <p><span className="font-semibold">Livraison estimée :</span> {shipmentData.estimatedDelivery}</p>
@@ -158,7 +158,7 @@ const ShipmentErrorCard = ({
           <p><span className="font-semibold">Email :</span> {existingShipment.emailAdress}</p>
           <p><span className="font-semibold">Numéro de suivi :</span> {existingShipment.trackingNumber}</p>
           <p><span className="font-semibold">Catégorie :</span> {existingShipment.category}</p>
-          <p><span className="font-semibold">Poids :</span> {existingShipment.weight || "Non spécifié"} kg</p>
+          <p><span className="font-semibold">Poids :</span> {existingShipment.weight || "Non spécifié"} lbs</p>
           <p><span className="font-semibold">Statut :</span> {existingShipment.status}</p>
           <p><span className="font-semibold">Destination :</span> {existingShipment.destination}</p>
           <p><span className="font-semibold">Livraison estimée :</span> {existingShipment.estimatedDelivery}</p>
