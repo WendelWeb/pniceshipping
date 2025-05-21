@@ -350,20 +350,20 @@ const ParcelTracker = () => {
       </div>
 
       {/* FAQ avec image responsive */}
-      <div className="hidden md:block">
+      {/* <div className="hidden md:block">
         <img 
           src="/tracking-image.png" 
           alt="Support client" 
           className="w-auto rounded" 
         />
-      </div>
-      <div className="md:hidden">
+      </div> */}
+      {/* <div className="md:hidden">
         <img 
           src="/tracking-image.png" 
           alt="Support client" 
           className="w-auto rounded" 
         />
-      </div>
+      </div> */}
       <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden mb-6 md:mb-8">
         <div className="bg-gray-50 p-3 md:p-4 border-b flex justify-between items-center">
           <h2 className="text-lg md:text-xl font-bold text-gray-800">Questions fréquentes</h2>
@@ -373,7 +373,7 @@ const ParcelTracker = () => {
           <div className="space-y-3 md:space-y-4">
             <div className="border-b pb-3 md:pb-4">
               <h3 className="font-medium text-gray-800 mb-1 md:mb-2 text-sm md:text-base">Combien de temps prend une livraison standard ?</h3>
-              <p className="text-gray-600 text-xs md:text-sm">La durée de livraison standard est généralement de 3 à 7 jours ouvrables, selon la destination. Des options d'expédition express sont également disponibles.</p>
+              <p className="text-gray-600 text-xs md:text-sm">La durée de livraison standard est généralement de 3 à 5 jours ouvrables, selon la destination. Des options d'expédition express sont également disponibles.</p>
             </div>
             
             <div className="border-b pb-3 md:pb-4">

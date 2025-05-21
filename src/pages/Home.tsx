@@ -8,6 +8,7 @@ import ShippingGuide from "@/components/ShippingGuide";
 import Pricing from "./Pricing";
 import GetAQuote from "@/components/GetAQuote";
 import ShippingModel from "@/components/ShippingModel";
+import HaitiShippingInfo from "@/components/HaitiShippingInfo";
 
 const services = [
   {
@@ -94,6 +95,8 @@ const Home = () => {
       <HeroSection />
       <ShippingModel />
       <ParcelTracker />
+      <HaitiShippingInfo />
+
       <GetAQuote />
       <section className="py-12 px-4" id="services">
         <div className="max-w-6xl mx-auto">
