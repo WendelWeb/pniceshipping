@@ -5,7 +5,7 @@ import { useUser } from "@clerk/clerk-react";
 import { shipmentListing } from "../../configs/schema";
 import { eq } from "drizzle-orm";
 import shipmentDetails from "../assets/shared/shipmentDetails.json";
-import { sendStatusEmail } from "../services/emailServices"; // Changé de sendPendingEmail à sendStatusEmail
+import { sendStatusEmail } from "../services/emailServices";
 import { findByTrackingNumber, updateShipmentStatus } from "@/utils/shipmentQueries.ts";
 
 type AddShipmentByUserProps = {
@@ -20,7 +20,6 @@ const Loader = () => (
   </div>
 );
 
-// Composant pour la carte d'erreur (colis déjà livré)
 const ShipmentErrorCard = ({
   trackingNumber,
   onClose,
@@ -65,7 +64,6 @@ const ShipmentErrorCard = ({
   );
 };
 
-// Composant pour la carte d'erreur (colis revendiqué par un autre client)
 const ShipmentClaimedCard = ({
   trackingNumber,
   onClose,
@@ -110,7 +108,6 @@ const ShipmentClaimedCard = ({
   );
 };
 
-// Composant pour le modal de succès (enregistrement ou transfert)
 const ShipmentSuccessModal = ({
   isTransfer,
   trackingNumber,
@@ -163,7 +160,9 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
   const COMPANY_USER_ID = "user_2v0TyYr3oFSH1ZqHhlas0sPkEyq";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTrackingNumber(e.target.value);
+    // Limiter l'entrée à 20 caractères
+    const value = e.target.value.slice(0, 20);
+    setTrackingNumber(value);
   };
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -182,6 +181,9 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
     e.preventDefault();
     setLoading(true);
 
+    // S'assurer que seuls les 20 premiers caractères sont utilisés
+    const truncatedTrackingNumber = trackingNumber.slice(0, 21);
+
     try {
       // Vérification de la validité des données utilisateur
       if (!user?.id || !user?.emailAddresses?.[0]?.emailAddress) {
@@ -190,7 +192,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
       }
 
       // Étape 1 : Vérifier si le colis existe
-      const existingShipments = await findByTrackingNumber(trackingNumber);
+      const existingShipments = await findByTrackingNumber(truncatedTrackingNumber);
       console.log("Résultat de findByTrackingNumber :", existingShipments);
 
       if (existingShipments.length > 0) {
@@ -207,7 +209,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
 
         // Étape 3 : Vérifier si le colis appartient à l'entreprise
         if (shipment.ownerId !== COMPANY_USER_ID) {
-          console.log("Colis revendiqué par un autre client :", { trackingNumber, ownerId: shipment.ownerId });
+          console.log("Colis revendiqué par un autre client :", { trackingNumber: truncatedTrackingNumber, ownerId: shipment.ownerId });
           setExistingShipment(shipment);
           setShowClaimedCard(true);
           setLoading(false);
@@ -229,7 +231,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
         await db
           .update(shipmentListing)
           .set(updatedData)
-          .where(eq(shipmentListing.trackingNumber, trackingNumber));
+          .where(eq(shipmentListing.trackingNumber, truncatedTrackingNumber));
 
         // Ajouter une entrée dans statusDates pour indiquer le transfert, en conservant le statut actuel
         await updateShipmentStatus(
@@ -243,10 +245,10 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           "En attente⏳",
           updatedData.fullName,
           updatedData.emailAdress,
-          trackingNumber
+          truncatedTrackingNumber
         );
 
-        console.log("Transfert réussi pour le colis :", { trackingNumber, status: shipment.status });
+        console.log("Transfert réussi pour le colis :", { trackingNumber: truncatedTrackingNumber, status: shipment.status });
 
         setIsTransfer(true);
         setShowSuccessModal(true);
@@ -269,7 +271,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           fullName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
           userName: user.username ?? "",
           emailAdress: user.emailAddresses[0].emailAddress,
-          trackingNumber: trackingNumber,
+          trackingNumber: truncatedTrackingNumber,
           category: "Standard",
           weight: "",
           status: "En attente⏳",
@@ -287,7 +289,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           "En attente⏳",
           insertData.fullName,
           insertData.emailAdress,
-          trackingNumber
+          truncatedTrackingNumber
         );
 
         const result = await db
@@ -295,7 +297,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           .values(insertData);
 
         if (result) {
-          console.log("Nouvelle requête enregistrée :", trackingNumber);
+          console.log("Nouvelle requête enregistrée :", truncatedTrackingNumber);
           setIsTransfer(false);
           setShowSuccessModal(true);
           setRefreshShipments(true);
@@ -335,6 +337,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
             className="w-full p-2 border rounded-md"
             required
             disabled={loading}
+            maxLength={20} // Ajout de l'attribut maxLength pour limiter l'entrée
           />
         </div>
         <div className="mb-4">

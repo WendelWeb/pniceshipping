@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Ajout de useNavigate
+import { useNavigate } from "react-router-dom";
 import { shipmentListing } from "../../../configs/schema.ts";
 import { db } from "../../../configs/index.ts";
 import { ShipmentFormData } from "@/types/shipment.ts";
@@ -15,7 +15,7 @@ import Button from "@/components/Button.tsx";
 import { findByTrackingNumber } from "@/utils/shipmentQueries.ts";
 import { eq } from "drizzle-orm";
 import {
-  sendStatusEmail, // Ajout de sendStatusEmail pour les statuts arbitraires
+  sendStatusEmail,
 } from "../../services/emailServices.ts";
 
 // Composant Loader
@@ -233,7 +233,7 @@ const UserDataErrorCard = ({
 
 const AddShipment = () => {
   const { user } = useUserContext();
-  const navigate = useNavigate(); // Ajout de useNavigate
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<ShipmentFormData>({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isTransfer, setIsTransfer] = useState(false);
@@ -257,9 +257,11 @@ const AddShipment = () => {
   }, []);
 
   const handleInputChange = (name: string, value: any) => {
+    // Limiter l'entrée à 20 caractères pour le champ trackingNumber
+    const processedValue = name === "trackingNumber" ? String(value).slice(0, 20) : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: processedValue,
     }));
   };
 
@@ -287,7 +289,6 @@ const AddShipment = () => {
     setIsTransfer(false);
   };
 
-  // Fonction pour envoyer l'email selon le statut
   const sendEmailByStatus = async (
     status: string,
     userName: string,
@@ -295,7 +296,6 @@ const AddShipment = () => {
     packageId: string
   ): Promise<boolean> => {
     try {
-      // Appeler directement sendStatusEmail pour tout statut
       await sendStatusEmail(status, userName, userEmail, packageId);
       console.log(`Email envoyé pour le statut ${status} à ${userEmail}`);
       return true;
@@ -310,8 +310,10 @@ const AddShipment = () => {
     e.preventDefault();
     setLoading(true);
 
+    // S'assurer que seuls les 20 premiers caractères sont utilisés pour le trackingNumber
+    const truncatedTrackingNumber = String(formData.trackingNumber || "").slice(0, 20);
+
     try {
-      // Étape 1 : Vérification des données utilisateur
       if (!user?.id || !formData.emailAdress) {
         console.error("Données utilisateur manquantes :", {
           userId: user?.id,
@@ -323,9 +325,7 @@ const AddShipment = () => {
         return;
       }
 
-      // Étape 2 : Vérifier si le numéro de suivi existe déjà
-      const trackingNumber = formData.trackingNumber || "";
-      const existingShipments = await findByTrackingNumber(trackingNumber);
+      const existingShipments = await findByTrackingNumber(truncatedTrackingNumber);
       console.log("Résultat de findByTrackingNumber :", existingShipments);
 
       let emailSent = false;
@@ -336,19 +336,16 @@ const AddShipment = () => {
       if (existingShipments.length > 0) {
         const shipment = existingShipments[0];
 
-        // Étape 3 : Vérifier si le colis est en statut "En attente⏳"
         if (shipment.status === "En attente⏳") {
-          // Utiliser les infos du client initial pour l'email
           emailRecipient = shipment.emailAdress;
           recipientName = shipment.userName || shipment.fullName || "Client";
 
-          // Préparer les données de mise à jour
           shipmentData = {
             fullName: shipment.fullName,
             userName: shipment.userName,
             emailAdress: shipment.emailAdress,
             ownerId: shipment.ownerId,
-            trackingNumber: formData.trackingNumber || shipment.trackingNumber,
+            trackingNumber: truncatedTrackingNumber,
             category: formData.category || shipment.category,
             weight: formData.weight?.toString() || shipment.weight,
             status: formData.status || shipment.status,
@@ -357,7 +354,6 @@ const AddShipment = () => {
             phone: formData.phone || shipment.phone || "inconnu",
           };
 
-          // Étape 4 : Envoyer l'email avant la mise à jour
           emailSent = await sendEmailByStatus(
             shipmentData.status,
             recipientName,
@@ -371,15 +367,13 @@ const AddShipment = () => {
             return;
           }
 
-          // Étape 5 : Mettre à jour le colis si l'email est envoyé
           console.log("Données de mise à jour pour le colis :", shipmentData);
 
           await db
             .update(shipmentListing)
             .set(shipmentData)
-            .where(eq(shipmentListing.trackingNumber, trackingNumber));
+            .where(eq(shipmentListing.trackingNumber, truncatedTrackingNumber));
 
-          // Ajouter une entrée dans statusDates
           const now = new Date();
           const formattedDate = now.toISOString().split("T")[0];
           const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
@@ -404,14 +398,13 @@ const AddShipment = () => {
           await db
             .update(shipmentListing)
             .set({ statusDates })
-            .where(eq(shipmentListing.trackingNumber, trackingNumber));
+            .where(eq(shipmentListing.trackingNumber, truncatedTrackingNumber));
 
           console.log("Mise à jour réussie pour le colis :", {
-            trackingNumber,
+            trackingNumber: truncatedTrackingNumber,
             status: shipmentData.status,
           });
 
-          // Stocker les données mises à jour pour le modal
           setUpdatedShipmentData({ ...shipmentData, statusDates });
 
           setIsTransfer(true);
@@ -419,7 +412,7 @@ const AddShipment = () => {
           resetForm();
         } else {
           console.log("Colis existant avec statut non autorisé :", {
-            trackingNumber,
+            trackingNumber: truncatedTrackingNumber,
             status: shipment.status,
           });
           setExistingShipment(shipment);
@@ -429,12 +422,11 @@ const AddShipment = () => {
         return;
       }
 
-      // Étape 6 : Préparer les données pour un nouvel enregistrement
       shipmentData = {
         fullName: formData.fullName || "",
         userName: formData.userName || "",
         emailAdress: formData.emailAdress || "",
-        trackingNumber: formData.trackingNumber || "",
+        trackingNumber: truncatedTrackingNumber,
         category: formData.category || "",
         weight: formData.weight?.toString() || "",
         status: formData.status || "",
@@ -444,7 +436,6 @@ const AddShipment = () => {
         phone: formData.phone || "inconnu",
       };
 
-      // Étape 7 : Envoyer l'email avant l'enregistrement
       emailSent = await sendEmailByStatus(
         shipmentData.status,
         recipientName,
@@ -458,7 +449,6 @@ const AddShipment = () => {
         return;
       }
 
-      // Étape 8 : Enregistrer le colis si l'email est envoyé
       const now = new Date();
       const formattedDate = now.toISOString().split("T")[0];
       const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
@@ -486,7 +476,7 @@ const AddShipment = () => {
         .values({ ...shipmentData, statusDates });
 
       if (result) {
-        console.log("Nouvel enregistrement réussi :", trackingNumber);
+        console.log("Nouvel enregistrement réussi :", truncatedTrackingNumber);
         setIsTransfer(false);
         setShowSuccessModal(true);
         resetForm();
@@ -553,7 +543,7 @@ const AddShipment = () => {
                   </label>
                   {item.fieldType === "text" || item.fieldType === "number" ? (
                     <InputField
-                      handleIputChange={handleInputChange}
+                      handleIputChange={handleInputChange} // Note : il y a une faute de frappe ici ("Iput" au lieu de "Input")
                       defaultValue={defaultValues(item.label)}
                       item={item}
                     />
@@ -602,7 +592,7 @@ const AddShipment = () => {
           shipmentData={isTransfer ? updatedShipmentData : formData}
           onClose={() => {
             setShowSuccessModal(false);
-            navigate('/admin/all-users'); // Redirection vers /admin/all-users
+            navigate('/admin/all-users');
           }}
         />
       )}

@@ -35,9 +35,11 @@ const ParcelTracker = () => {
   }, []);
 
   const saveToRecentSearches = (number: string) => {
+    // Utiliser les 20 premiers caractères pour les recherches récentes
+    const truncatedNumber = number.slice(0, 20);
     const updatedSearches = [
-      number,
-      ...recentSearches.filter(item => item !== number)
+      truncatedNumber,
+      ...recentSearches.filter(item => item !== truncatedNumber)
     ].slice(0, 5);
     
     setRecentSearches(updatedSearches);
@@ -45,7 +47,10 @@ const ParcelTracker = () => {
   };
 
   const trackParcel = async (number: string) => {
-    if (!number.trim()) {
+    // Tronquer le numéro de suivi à 20 caractères
+    const truncatedTrackingNumber = number.slice(0, 20);
+
+    if (!truncatedTrackingNumber.trim()) {
       setError("Veuillez entrer un numéro de suivi.");
       return;
     }
@@ -55,11 +60,11 @@ const ParcelTracker = () => {
       setError(null);
       setShipmentData(null);
       
-      const results = await findByTrackingNumber(number) as ShipmentData[];
+      const results = await findByTrackingNumber(truncatedTrackingNumber) as ShipmentData[];
       
       if (results && results.length > 0) {
         setShipmentData(results[0]);
-        saveToRecentSearches(number);
+        saveToRecentSearches(truncatedTrackingNumber);
       } else {
         setError("Aucun colis trouvé avec ce numéro de suivi.");
       }
@@ -77,8 +82,10 @@ const ParcelTracker = () => {
   };
 
   const handleSelectRecent = (number: string) => {
-    setTrackingNumber(number);
-    trackParcel(number);
+    // Tronquer le numéro sélectionné à 20 caractères
+    const truncatedNumber = number.slice(0, 20);
+    setTrackingNumber(truncatedNumber);
+    trackParcel(truncatedNumber);
     setShowSuggestions(false);
   };
 
@@ -166,11 +173,14 @@ const ParcelTracker = () => {
                     placeholder="Entrez le numéro de suivi"
                     value={trackingNumber}
                     onChange={(e) => {
-                      setTrackingNumber(e.target.value);
-                      setShowSuggestions(e.target.value.length > 0);
+                      // Limiter l'entrée à 20 caractères
+                      const truncatedValue = e.target.value.slice(0, 20);
+                      setTrackingNumber(truncatedValue);
+                      setShowSuggestions(truncatedValue.length > 0);
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                     onFocus={() => setShowSuggestions(trackingNumber.length > 0)}
+                    maxLength={20} // Limiter l'entrée à 20 caractères dans l'interface
                   />
                   
                   {/* Suggestions de recherches récentes */}
@@ -350,20 +360,6 @@ const ParcelTracker = () => {
       </div>
 
       {/* FAQ avec image responsive */}
-      {/* <div className="hidden md:block">
-        <img 
-          src="/tracking-image.png" 
-          alt="Support client" 
-          className="w-auto rounded" 
-        />
-      </div> */}
-      {/* <div className="md:hidden">
-        <img 
-          src="/tracking-image.png" 
-          alt="Support client" 
-          className="w-auto rounded" 
-        />
-      </div> */}
       <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden mb-6 md:mb-8">
         <div className="bg-gray-50 p-3 md:p-4 border-b flex justify-between items-center">
           <h2 className="text-lg md:text-xl font-bold text-gray-800">Questions fréquentes</h2>

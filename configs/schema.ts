@@ -9,7 +9,7 @@ export const shipmentListing = pgTable("shipmentListing", {
   userName: varchar("userName").notNull(),
   category: varchar("category").notNull(),
   emailAdress: varchar("emailAdress").notNull(),
-  trackingNumber: varchar("trackingNumber").notNull(),
+  trackingNumber: varchar("trackingNumber", { length: 20 }).notNull(),
   weight: varchar("weight").notNull(),
   status: varchar("status").notNull(),
   destination: varchar("destination").notNull(),
