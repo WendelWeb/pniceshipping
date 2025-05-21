@@ -1,6 +1,6 @@
 import { db } from '../../configs/index.ts'; // Ajustez l'import selon votre structure
 import { shipmentListing,deliveryBatch,shipmentToDelivery } from '../../configs/schema.ts'; // Ajustez l'import selon votre structure
-import { eq, or, like, inArray } from 'drizzle-orm';
+import { eq, or, like, inArray, sql } from 'drizzle-orm';
 import { Shipment } from '@/types/shipment';
 import { getShippingRate, SERVICE_FEE } from '@/constants/shippingRates.ts';
 // Dans "@/utils/shipmentQueries.ts"
@@ -91,10 +91,13 @@ export const findByTrackingNumber = async (trackingNumber: string) => {
       return [];
     }
 
+    // Tronquer le numéro de suivi à 20 caractères pour la comparaison
+    const truncatedTrackingNumber = trackingNumber.slice(0, 20);
+
     const results = await db
       .select()
       .from(shipmentListing)
-      .where(eq(shipmentListing.trackingNumber, trackingNumber));
+      .where(sql`LEFT(${shipmentListing.trackingNumber}, 20) = ${truncatedTrackingNumber}`);
 
     return results;
   } catch (error) {

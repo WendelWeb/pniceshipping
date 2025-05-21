@@ -13,10 +13,8 @@ import IconField from "./IconField.tsx";
 import { Link } from "react-router-dom";
 import Button from "@/components/Button.tsx";
 import { findByTrackingNumber } from "@/utils/shipmentQueries.ts";
-import { eq } from "drizzle-orm";
-import {
-  sendStatusEmail,
-} from "../../services/emailServices.ts";
+import { sql } from "drizzle-orm";
+import { sendStatusEmail } from "@/services/emailServices.ts";
 
 // Composant Loader
 const Loader = () => (
@@ -87,7 +85,8 @@ const ShipmentSuccessModal = ({
           </p>
         )}
         <div className="space-y-2 text-sm bg-gray-50 p-4 rounded-md border border-gray-200">
-          <p><span className="font-semibold">Numéro de suivi :</span> {shipmentData.trackingNumber}</p>
+          <p><span className="font-semibold">Numéro de suivi </span>
+            suivi : {shipmentData.trackingNumber}</p>
           <p><span className="font-semibold">Destinataire :</span> {shipmentData.fullName}</p>
           <p><span className="font-semibold">Nom d'utilisateur :</span> {shipmentData.userName}</p>
           <p><span className="font-semibold">Email :</span> {shipmentData.emailAdress}</p>
@@ -257,8 +256,8 @@ const AddShipment = () => {
   }, []);
 
   const handleInputChange = (name: string, value: any) => {
-    // Limiter l'entrée à 20 caractères pour le champ trackingNumber
-    const processedValue = name === "trackingNumber" ? String(value).slice(0, 20) : value;
+    // Ne pas limiter l'entrée pour trackingNumber
+    const processedValue = name === "trackingNumber" ? String(value) : value;
     setFormData((prev) => ({
       ...prev,
       [name]: processedValue,
@@ -310,7 +309,7 @@ const AddShipment = () => {
     e.preventDefault();
     setLoading(true);
 
-    // S'assurer que seuls les 20 premiers caractères sont utilisés pour le trackingNumber
+    // Tronquer le numéro de suivi à 20 caractères pour la comparaison
     const truncatedTrackingNumber = String(formData.trackingNumber || "").slice(0, 20);
 
     try {
@@ -345,7 +344,7 @@ const AddShipment = () => {
             userName: shipment.userName,
             emailAdress: shipment.emailAdress,
             ownerId: shipment.ownerId,
-            trackingNumber: truncatedTrackingNumber,
+            trackingNumber: formData.trackingNumber, // Conserver l'intégralité du numéro de suivi
             category: formData.category || shipment.category,
             weight: formData.weight?.toString() || shipment.weight,
             status: formData.status || shipment.status,
@@ -372,7 +371,7 @@ const AddShipment = () => {
           await db
             .update(shipmentListing)
             .set(shipmentData)
-            .where(eq(shipmentListing.trackingNumber, truncatedTrackingNumber));
+            .where(sql`LEFT(${shipmentListing.trackingNumber}, 20) = ${truncatedTrackingNumber}`);
 
           const now = new Date();
           const formattedDate = now.toISOString().split("T")[0];
@@ -398,7 +397,7 @@ const AddShipment = () => {
           await db
             .update(shipmentListing)
             .set({ statusDates })
-            .where(eq(shipmentListing.trackingNumber, truncatedTrackingNumber));
+            .where(sql`LEFT(${shipmentListing.trackingNumber}, 20) = ${truncatedTrackingNumber}`);
 
           console.log("Mise à jour réussie pour le colis :", {
             trackingNumber: truncatedTrackingNumber,
@@ -426,7 +425,7 @@ const AddShipment = () => {
         fullName: formData.fullName || "",
         userName: formData.userName || "",
         emailAdress: formData.emailAdress || "",
-        trackingNumber: truncatedTrackingNumber,
+        trackingNumber: formData.trackingNumber, // Conserver l'intégralité du numéro de suivi
         category: formData.category || "",
         weight: formData.weight?.toString() || "",
         status: formData.status || "",
@@ -476,7 +475,7 @@ const AddShipment = () => {
         .values({ ...shipmentData, statusDates });
 
       if (result) {
-        console.log("Nouvel enregistrement réussi :", truncatedTrackingNumber);
+        console.log("Nouvel enregistrement réussi :", formData.trackingNumber);
         setIsTransfer(false);
         setShowSuccessModal(true);
         resetForm();
@@ -543,7 +542,7 @@ const AddShipment = () => {
                   </label>
                   {item.fieldType === "text" || item.fieldType === "number" ? (
                     <InputField
-                      handleIputChange={handleInputChange} // Note : il y a une faute de frappe ici ("Iput" au lieu de "Input")
+                      handleInputChange={handleInputChange}
                       defaultValue={defaultValues(item.label)}
                       item={item}
                     />

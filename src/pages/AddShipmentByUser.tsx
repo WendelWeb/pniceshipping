@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { db } from "../../configs/index";
 import { useUser } from "@clerk/clerk-react";
 import { shipmentListing } from "../../configs/schema";
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import shipmentDetails from "../assets/shared/shipmentDetails.json";
 import { sendStatusEmail } from "../services/emailServices";
 import { findByTrackingNumber, updateShipmentStatus } from "@/utils/shipmentQueries.ts";
@@ -160,9 +160,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
   const COMPANY_USER_ID = "user_2v0TyYr3oFSH1ZqHhlas0sPkEyq";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Limiter l'entrée à 20 caractères
-    const value = e.target.value.slice(0, 20);
-    setTrackingNumber(value);
+    setTrackingNumber(e.target.value);
   };
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -181,8 +179,8 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
     e.preventDefault();
     setLoading(true);
 
-    // S'assurer que seuls les 20 premiers caractères sont utilisés
-    const truncatedTrackingNumber = trackingNumber.slice(0, 21);
+    // Tronquer le numéro de suivi à 20 caractères pour la comparaison
+    const truncatedTrackingNumber = trackingNumber.slice(0, 20);
 
     try {
       // Vérification de la validité des données utilisateur
@@ -192,7 +190,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
       }
 
       // Étape 1 : Vérifier si le colis existe
-      const existingShipments = await findByTrackingNumber(truncatedTrackingNumber);
+      const existingShipments = await findByTrackingNumber(trackingNumber);
       console.log("Résultat de findByTrackingNumber :", existingShipments);
 
       if (existingShipments.length > 0) {
@@ -209,7 +207,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
 
         // Étape 3 : Vérifier si le colis appartient à l'entreprise
         if (shipment.ownerId !== COMPANY_USER_ID) {
-          console.log("Colis revendiqué par un autre client :", { trackingNumber: truncatedTrackingNumber, ownerId: shipment.ownerId });
+          console.log("Colis revendiqué par un autre client :", { trackingNumber: trackingNumber, ownerId: shipment.ownerId });
           setExistingShipment(shipment);
           setShowClaimedCard(true);
           setLoading(false);
@@ -228,10 +226,11 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
 
         console.log("Données de mise à jour pour le transfert :", { ...updatedData, status: shipment.status });
 
+        // Mettre à jour en comparant les 20 premiers caractères du numéro de suivi
         await db
           .update(shipmentListing)
           .set(updatedData)
-          .where(eq(shipmentListing.trackingNumber, truncatedTrackingNumber));
+          .where(sql`LEFT(${shipmentListing.trackingNumber}, 20) = ${truncatedTrackingNumber}`);
 
         // Ajouter une entrée dans statusDates pour indiquer le transfert, en conservant le statut actuel
         await updateShipmentStatus(
@@ -245,10 +244,10 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           "En attente⏳",
           updatedData.fullName,
           updatedData.emailAdress,
-          truncatedTrackingNumber
+          trackingNumber
         );
 
-        console.log("Transfert réussi pour le colis :", { trackingNumber: truncatedTrackingNumber, status: shipment.status });
+        console.log("Transfert réussi pour le colis :", { trackingNumber: trackingNumber, status: shipment.status });
 
         setIsTransfer(true);
         setShowSuccessModal(true);
@@ -271,7 +270,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           fullName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
           userName: user.username ?? "",
           emailAdress: user.emailAddresses[0].emailAddress,
-          trackingNumber: truncatedTrackingNumber,
+          trackingNumber: trackingNumber, // Conserver l'intégralité du numéro de suivi
           category: "Standard",
           weight: "",
           status: "En attente⏳",
@@ -289,7 +288,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           "En attente⏳",
           insertData.fullName,
           insertData.emailAdress,
-          truncatedTrackingNumber
+          trackingNumber
         );
 
         const result = await db
@@ -297,7 +296,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           .values(insertData);
 
         if (result) {
-          console.log("Nouvelle requête enregistrée :", truncatedTrackingNumber);
+          console.log("Nouvelle requête enregistrée :", trackingNumber);
           setIsTransfer(false);
           setShowSuccessModal(true);
           setRefreshShipments(true);
@@ -337,7 +336,6 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
             className="w-full p-2 border rounded-md"
             required
             disabled={loading}
-            maxLength={20} // Ajout de l'attribut maxLength pour limiter l'entrée
           />
         </div>
         <div className="mb-4">
