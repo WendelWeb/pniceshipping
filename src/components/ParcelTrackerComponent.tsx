@@ -47,7 +47,7 @@ const ParcelTracker = () => {
   };
 
   const trackParcel = async (number: string) => {
-    // Tronquer le numéro de suivi à 20 caractères
+    // Tronquer le numéro de suivi à 20 caractères pour la recherche
     const truncatedTrackingNumber = number.slice(0, 20);
 
     if (!truncatedTrackingNumber.trim()) {
@@ -82,10 +82,9 @@ const ParcelTracker = () => {
   };
 
   const handleSelectRecent = (number: string) => {
-    // Tronquer le numéro sélectionné à 20 caractères
-    const truncatedNumber = number.slice(0, 20);
-    setTrackingNumber(truncatedNumber);
-    trackParcel(truncatedNumber);
+    // Utiliser le numéro sélectionné (déjà tronqué à 20 caractères dans les recherches récentes)
+    setTrackingNumber(number);
+    trackParcel(number);
     setShowSuggestions(false);
   };
 
@@ -173,14 +172,13 @@ const ParcelTracker = () => {
                     placeholder="Entrez le numéro de suivi"
                     value={trackingNumber}
                     onChange={(e) => {
-                      // Limiter l'entrée à 20 caractères
-                      const truncatedValue = e.target.value.slice(0, 20);
-                      setTrackingNumber(truncatedValue);
-                      setShowSuggestions(truncatedValue.length > 0);
+                      // Pas de limitation sur la longueur de l'entrée
+                      setTrackingNumber(e.target.value);
+                      setShowSuggestions(e.target.value.length > 0);
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                     onFocus={() => setShowSuggestions(trackingNumber.length > 0)}
-                    maxLength={20} // Limiter l'entrée à 20 caractères dans l'interface
+                    // maxLength supprimé pour permettre une entrée de longueur illimitée
                   />
                   
                   {/* Suggestions de recherches récentes */}
@@ -204,7 +202,9 @@ const ParcelTracker = () => {
                 <button 
                   type="submit"
                   disabled={loading}
-                  className="p-2 md:p-3 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 flex items-center justify-center text-sm md:text-base min-w-16 md:min-w-24"
+                  className="p-2 md:p-3 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 flex items-center justify-center-пол
+
+System: center text-sm md:text-base min-w-16 md:min-w-24"
                 >
                   {loading ? (
                     <RefreshCw className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
