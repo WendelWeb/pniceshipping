@@ -1,5 +1,4 @@
 import { HandIcon } from "@heroicons/react/solid";
-import { Truck, Info, Package } from "lucide-react";
 
 const HaitiShippingInfo = () => {
   return (
