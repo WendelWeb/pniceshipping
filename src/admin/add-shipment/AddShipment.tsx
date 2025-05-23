@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { shipmentListing } from "../../../configs/schema.ts";
 import { db } from "../../../configs/index.ts";
 import { ShipmentFormData } from "@/types/shipment.ts";
@@ -231,8 +230,8 @@ const UserDataErrorCard = ({
 };
 
 const AddShipment = () => {
+  const [formKey, setFormKey] = useState(0);
   const { user } = useUserContext();
-  const navigate = useNavigate();
   const [formData, setFormData] = useState<ShipmentFormData>({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isTransfer, setIsTransfer] = useState(false);
@@ -523,7 +522,7 @@ const AddShipment = () => {
             <Button text="Liste Utilisateurs" />
           </Link>
         </div>
-        <form onSubmit={onFormSubmit} className="p-10 border rounded-xl mt-10">
+        <form key={formKey} onSubmit={onFormSubmit} className="p-10 border rounded-xl mt-10">
           <h2 className="font-medium text-xl mb-6">Détails du colis</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {shipmentDetails.shipmentDetails.map(
@@ -590,9 +589,14 @@ const AddShipment = () => {
           isTransfer={isTransfer}
           shipmentData={isTransfer ? updatedShipmentData : formData}
           onClose={() => {
-            setShowSuccessModal(false);
-            navigate('/admin/all-users');
-          }}
+  setShowSuccessModal(false);
+  setFormData((prev) => ({
+    ...prev,
+    trackingNumber: "",
+    weight: "",
+  }));
+  setFormKey(prev => prev + 1); // Force le re-render
+}}
         />
       )}
       {showErrorCard && existingShipment && (
