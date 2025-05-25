@@ -35,11 +35,10 @@ const ParcelTracker = () => {
   }, []);
 
   const saveToRecentSearches = (number: string) => {
-    // Utiliser les 20 premiers caractères pour les recherches récentes
-    const truncatedNumber = number.slice(0, 20);
+    // Conserver le numéro de suivi complet pour les recherches récentes
     const updatedSearches = [
-      truncatedNumber,
-      ...recentSearches.filter(item => item !== truncatedNumber)
+      number,
+      ...recentSearches.filter(item => item !== number)
     ].slice(0, 5);
     
     setRecentSearches(updatedSearches);
@@ -47,10 +46,7 @@ const ParcelTracker = () => {
   };
 
   const trackParcel = async (number: string) => {
-    // Tronquer le numéro de suivi à 20 caractères pour la recherche
-    const truncatedTrackingNumber = number.slice(0, 20);
-
-    if (!truncatedTrackingNumber.trim()) {
+    if (!number.trim()) {
       setError("Veuillez entrer un numéro de suivi.");
       return;
     }
@@ -60,11 +56,11 @@ const ParcelTracker = () => {
       setError(null);
       setShipmentData(null);
       
-      const results = await findByTrackingNumber(truncatedTrackingNumber) as ShipmentData[];
+      const results = await findByTrackingNumber(number) as ShipmentData[];
       
       if (results && results.length > 0) {
         setShipmentData(results[0]);
-        saveToRecentSearches(truncatedTrackingNumber);
+        saveToRecentSearches(number);
       } else {
         setError("Aucun colis trouvé avec ce numéro de suivi.");
       }
@@ -82,7 +78,6 @@ const ParcelTracker = () => {
   };
 
   const handleSelectRecent = (number: string) => {
-    // Utiliser le numéro sélectionné (déjà tronqué à 20 caractères dans les recherches récentes)
     setTrackingNumber(number);
     trackParcel(number);
     setShowSuggestions(false);
@@ -172,13 +167,11 @@ const ParcelTracker = () => {
                     placeholder="Entrez le numéro de suivi"
                     value={trackingNumber}
                     onChange={(e) => {
-                      // Pas de limitation sur la longueur de l'entrée
                       setTrackingNumber(e.target.value);
                       setShowSuggestions(e.target.value.length > 0);
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                     onFocus={() => setShowSuggestions(trackingNumber.length > 0)}
-                    // maxLength supprimé pour permettre une entrée de longueur illimitée
                   />
                   
                   {/* Suggestions de recherches récentes */}
@@ -202,9 +195,7 @@ const ParcelTracker = () => {
                 <button 
                   type="submit"
                   disabled={loading}
-                  className="p-2 md:p-3 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 flex items-center justify-center-пол
-
-System: center text-sm md:text-base min-w-16 md:min-w-24"
+                  className="p-2 md:p-3 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 text-sm md:text-base min-w-16 md:min-w-24"
                 >
                   {loading ? (
                     <RefreshCw className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
@@ -393,7 +384,7 @@ System: center text-sm md:text-base min-w-16 md:min-w-24"
       {/* Bouton d'assistance - taille ajustée pour mobile */}
       <div className="fixed bottom-4 right-4 z-50">
         <button className="bg-blue-600 text-white p-2 md:p-3 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
         </button>

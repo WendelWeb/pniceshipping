@@ -36,7 +36,7 @@ const ShipmentSuccessModal = ({
 }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-blue-600 bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 w-[450px] shadow-2xl border-l-4 border-green-500 animate-fade-in">
+      <div className="bg-white rounded-lg p-6 w-[400px] md:w-[450px] shadow-2xl border-l-4 border-green-500 animate-fade-in">
         <div className="flex items-center gap-2 mb-4">
           <svg
             className="w-6 h-6 text-green-500"
@@ -60,6 +60,9 @@ const ShipmentSuccessModal = ({
             <p className="font-semibold">Mise à jour d'un colis en attente ⏳ :</p>
             <ul className="list-disc pl-5 mt-2 space-y-2">
               <li>
+                ✅ <span className="font-semibold">Requête confirmée</span> : La requête de mise à jour a été validée par l'administrateur.
+              </li>
+              <li>
                 ✅ <span className="font-semibold">Conservation des informations du client initial</span> : Les données du propriétaire (Nom, Nom d'utilisateur, Email, ID du propriétaire) ont été préservées.
               </li>
               <li>
@@ -74,7 +77,7 @@ const ShipmentSuccessModal = ({
                 </ul>
               </li>
               <li>
-                📝 <span className="font-semibold">Ajout à l'historique des statuts</span> : Une nouvelle entrée a été ajoutée à l'historique.
+                📝 <span className="font-semibold">Ajout à l'historique des statuts</span> : Les nouvelles entrées ont été ajoutées à l'historique.
               </li>
             </ul>
           </div>
@@ -84,8 +87,7 @@ const ShipmentSuccessModal = ({
           </p>
         )}
         <div className="space-y-2 text-sm bg-gray-50 p-4 rounded-md border border-gray-200">
-          <p><span className="font-semibold">Numéro de suivi </span>
-            suivi : {shipmentData.trackingNumber}</p>
+          <p><span className="font-semibold">Numéro de suivi :</span> {shipmentData.trackingNumber}</p>
           <p><span className="font-semibold">Destinataire :</span> {shipmentData.fullName}</p>
           <p><span className="font-semibold">Nom d'utilisateur :</span> {shipmentData.userName}</p>
           <p><span className="font-semibold">Email :</span> {shipmentData.emailAdress}</p>
@@ -229,6 +231,22 @@ const UserDataErrorCard = ({
   );
 };
 
+// Fonction utilitaire pour déterminer la location basée sur le statut
+const getStatusLocation = (status: string, destination: string): string => {
+  switch (status) {
+    case "Recu📦":
+      return "Pnice Miami, FL Warehouse";
+    case "En Transit✈️":
+      return "En route vers Haiti";
+    case "Disponible🟢":
+      return `Colis disponible au local ${destination || "Inconnu"}`;
+    case "Livré✅":
+      return `Colis livré au local ${destination || "Inconnu"}`;
+    default:
+      return `Statut mis à jour : ${destination || "Inconnu"}`;
+  }
+};
+
 const AddShipment = () => {
   const [formKey, setFormKey] = useState(0);
   const { user } = useUserContext();
@@ -255,7 +273,6 @@ const AddShipment = () => {
   }, []);
 
   const handleInputChange = (name: string, value: any) => {
-    // Ne pas limiter l'entrée pour trackingNumber
     const processedValue = name === "trackingNumber" ? String(value) : value;
     setFormData((prev) => ({
       ...prev,
@@ -308,9 +325,6 @@ const AddShipment = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Tronquer le numéro de suivi à 20 caractères pour la comparaison
-    const truncatedTrackingNumber = String(formData.trackingNumber || "").slice(0, 20);
-
     try {
       if (!user?.id || !formData.emailAdress) {
         console.error("Données utilisateur manquantes :", {
@@ -323,7 +337,8 @@ const AddShipment = () => {
         return;
       }
 
-      const existingShipments = await findByTrackingNumber(truncatedTrackingNumber);
+      const trackingNumber = String(formData.trackingNumber || "");
+      const existingShipments = await findByTrackingNumber(trackingNumber);
       console.log("Résultat de findByTrackingNumber :", existingShipments);
 
       let emailSent = false;
@@ -338,12 +353,18 @@ const AddShipment = () => {
           emailRecipient = shipment.emailAdress;
           recipientName = shipment.userName || shipment.fullName || "Client";
 
+          // Choisir le trackingNumber le plus long
+          const selectedTrackingNumber =
+            (formData.trackingNumber?.length || 0) >= (shipment.trackingNumber?.length || 0)
+              ? formData.trackingNumber
+              : shipment.trackingNumber;
+
           shipmentData = {
             fullName: shipment.fullName,
             userName: shipment.userName,
             emailAdress: shipment.emailAdress,
             ownerId: shipment.ownerId,
-            trackingNumber: formData.trackingNumber, // Conserver l'intégralité du numéro de suivi
+            trackingNumber: selectedTrackingNumber,
             category: formData.category || shipment.category,
             weight: formData.weight?.toString() || shipment.weight,
             status: formData.status || shipment.status,
@@ -351,6 +372,15 @@ const AddShipment = () => {
             estimatedDelivery: addDays(new Date(), 7),
             phone: formData.phone || shipment.phone || "inconnu",
           };
+
+          // Valider le statut
+          if (!shipmentData.status || shipmentData.status.trim() === "") {
+            console.error("Statut invalide pour le transfert :", shipmentData.status);
+            setErrorMessage("Le statut du colis est requis pour le transfert.");
+            setShowUserDataErrorCard(true);
+            setLoading(false);
+            return;
+          }
 
           emailSent = await sendEmailByStatus(
             shipmentData.status,
@@ -367,11 +397,7 @@ const AddShipment = () => {
 
           console.log("Données de mise à jour pour le colis :", shipmentData);
 
-          await db
-            .update(shipmentListing)
-            .set(shipmentData)
-            .where(sql`LEFT(${shipmentListing.trackingNumber}, 20) = ${truncatedTrackingNumber}`);
-
+          // Préparer les nouvelles entrées pour statusDates
           const now = new Date();
           const formattedDate = now.toISOString().split("T")[0];
           const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
@@ -379,27 +405,24 @@ const AddShipment = () => {
             ...(Array.isArray(shipment.statusDates) ? shipment.statusDates : []),
             {
               date: `${formattedDate} ${formattedTime}`,
+              status: "✔️Confimée",
+              location: "Requête confirmée par l'administrateur",
+            },
+            {
+              date: `${formattedDate} ${formattedTime}`,
               status: shipmentData.status,
-              location:
-                shipmentData.status === "Recu📦"
-                  ? "Pnice Miami, FL Warehouse"
-                  : shipmentData.status === "En Transit✈️"
-                  ? "En route vers Haiti"
-                  : shipmentData.status === "Disponible🟢"
-                  ? `Coli Disponible au local ${shipmentData.destination}`
-                  : shipmentData.status === "Livré✅"
-                  ? `Coli Livré au local ${shipmentData.destination}`
-                  : "Mis à jour par admin",
+              location: getStatusLocation(shipmentData.status, shipmentData.destination),
             },
           ];
 
+          // Mettre à jour le colis et statusDates en une seule requête
           await db
             .update(shipmentListing)
-            .set({ statusDates })
-            .where(sql`LEFT(${shipmentListing.trackingNumber}, 20) = ${truncatedTrackingNumber}`);
+            .set({ ...shipmentData, statusDates })
+            .where(sql`${shipmentListing.trackingNumber} = ${shipment.trackingNumber}`);
 
           console.log("Mise à jour réussie pour le colis :", {
-            trackingNumber: truncatedTrackingNumber,
+            trackingNumber: shipmentData.trackingNumber,
             status: shipmentData.status,
           });
 
@@ -410,7 +433,7 @@ const AddShipment = () => {
           resetForm();
         } else {
           console.log("Colis existant avec statut non autorisé :", {
-            trackingNumber: truncatedTrackingNumber,
+            trackingNumber: trackingNumber,
             status: shipment.status,
           });
           setExistingShipment(shipment);
@@ -424,7 +447,7 @@ const AddShipment = () => {
         fullName: formData.fullName || "",
         userName: formData.userName || "",
         emailAdress: formData.emailAdress || "",
-        trackingNumber: formData.trackingNumber, // Conserver l'intégralité du numéro de suivi
+        trackingNumber: formData.trackingNumber,
         category: formData.category || "",
         weight: formData.weight?.toString() || "",
         status: formData.status || "",
@@ -433,6 +456,15 @@ const AddShipment = () => {
         estimatedDelivery: addDays(new Date(), 7),
         phone: formData.phone || "inconnu",
       };
+
+      // Valider le statut pour un nouveau colis
+      if (!shipmentData.status || shipmentData.status.trim() === "") {
+        console.error("Statut invalide pour le nouveau colis :", shipmentData.status);
+        setErrorMessage("Le statut du colis est requis.");
+        setShowUserDataErrorCard(true);
+        setLoading(false);
+        return;
+      }
 
       emailSent = await sendEmailByStatus(
         shipmentData.status,
@@ -454,16 +486,7 @@ const AddShipment = () => {
         {
           date: `${formattedDate} ${formattedTime}`,
           status: shipmentData.status,
-          location:
-            shipmentData.status === "Recu📦"
-              ? "Pnice Miami, FL Warehouse"
-              : shipmentData.status === "En Transit✈️"
-              ? "En route vers Haiti"
-              : shipmentData.status === "Disponible🟢"
-              ? `Coli Disponible au local ${shipmentData.destination}`
-              : shipmentData.status === "Livré✅"
-              ? `Coli Livré au local ${shipmentData.destination}`
-              : "Enregistré par admin",
+          location: getStatusLocation(shipmentData.status, shipmentData.destination),
         },
       ];
 
@@ -530,7 +553,7 @@ const AddShipment = () => {
                 <div
                   key={index}
                   className={`${
-                    item.fieldType == "textarea" &&
+                    item.fieldType === "textarea" &&
                     "my-custom-breakpoint:col-span-2"
                   }`}
                 >
@@ -589,14 +612,14 @@ const AddShipment = () => {
           isTransfer={isTransfer}
           shipmentData={isTransfer ? updatedShipmentData : formData}
           onClose={() => {
-  setShowSuccessModal(false);
-  setFormData((prev) => ({
-    ...prev,
-    trackingNumber: "",
-    weight: "",
-  }));
-  setFormKey(prev => prev + 1); // Force le re-render
-}}
+            setShowSuccessModal(false);
+            setFormData((prev) => ({
+              ...prev,
+              trackingNumber: "",
+              weight: "",
+            }));
+            setFormKey((prev) => prev + 1);
+          }}
         />
       )}
       {showErrorCard && existingShipment && (

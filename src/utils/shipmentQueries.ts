@@ -91,13 +91,19 @@ export const findByTrackingNumber = async (trackingNumber: string) => {
       return [];
     }
 
-    // Tronquer le numéro de suivi à 20 caractères pour la comparaison
-    const truncatedTrackingNumber = trackingNumber.slice(0, 20);
+    const trackingLength = trackingNumber.length;
 
+    // Recherche des correspondances bidirectionnelles
     const results = await db
       .select()
       .from(shipmentListing)
-      .where(sql`LEFT(${shipmentListing.trackingNumber}, 20) = ${truncatedTrackingNumber}`);
+      .where(sql`
+        (
+          ${shipmentListing.trackingNumber} LIKE ${trackingNumber + '%'}
+          OR ${trackingNumber} LIKE ${shipmentListing.trackingNumber} || '%'
+        )
+        AND ABS(LENGTH(${shipmentListing.trackingNumber}) - ${trackingLength}) <= 2
+      `);
 
     return results;
   } catch (error) {
@@ -105,7 +111,6 @@ export const findByTrackingNumber = async (trackingNumber: string) => {
     throw error;
   }
 };
-
 /**
  * Recherche des expéditions avec une correspondance partielle
  * sur username, email ou numéro de suivi

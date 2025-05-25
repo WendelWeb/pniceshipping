@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import { db } from "../../configs/index";
+import { db } from "../../configs";
 import { useUser } from "@clerk/clerk-react";
-import { shipmentListing } from "../../configs/schema";
 import { sql } from "drizzle-orm";
 import shipmentDetails from "../assets/shared/shipmentDetails.json";
-import { sendStatusEmail } from "../services/emailServices";
-import { findByTrackingNumber, updateShipmentStatus } from "@/utils/shipmentQueries.ts";
+import { findByTrackingNumber, updateShipmentStatus } from "@/utils/shipmentQueries";
+import { sendStatusEmail } from "@/services/emailServices";
+import { shipmentListing } from "../../configs/schema";
 
-type AddShipmentByUserProps = {
+type AddShipmentProps = {
   setRefreshShipments: (value: boolean) => void;
 };
 
@@ -26,43 +26,41 @@ const ShipmentErrorCard = ({
 }: {
   trackingNumber: string;
   onClose: () => void;
-}) => {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-red-600 bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 w-[400px] shadow-2xl border-l-4 border-red-500 animate-fade-in">
-        <div className="flex items-center gap-2 mb-4">
-          <svg
-            className="w-6 h-6 text-red-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <h3 className="text-xl font-semibold text-red-600">
-            Colis déjà livré !
-          </h3>
-        </div>
-        <p className="text-sm text-gray-600 mb-4 font-medium">
-          Le colis avec le numéro de suivi{" "}
-          <span className="font-semibold">{trackingNumber}</span>{" "}
-          a déjà été livré et ne peut pas être transféré.
-        </p>
-        <button
-          onClick={onClose}
-          className="mt-4 w-full cursor-pointer bg-red-500 text-white py-2 rounded hover:bg-red-600 transition-colors"
+}) => (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
+    <div className="bg-white rounded-lg p-6 w-[400px] shadow-2xl border-l-4 border-red-600 animate-fade-in">
+      <div className="flex items-center gap-2 mb-4">
+        <svg
+          className="w-6 h-6 text-red-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          Fermer
-        </button>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <h3 className="text-xl font-semibold text-red-600">
+          Colis déjà livré !
+        </h3>
       </div>
+      <p className="text-sm text-gray-700 mb-4 font-medium">
+        Le colis avec le numéro de suivi{" "}
+        <span className="font-bold">{trackingNumber}</span>{" "}
+        a déjà été livré et ne peut pas être transféré.
+      </p>
+      <button
+        onClick={onClose}
+        className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors"
+      >
+        Fermer
+      </button>
     </div>
-  );
-};
+  </div>
+);
 
 const ShipmentClaimedCard = ({
   trackingNumber,
@@ -70,13 +68,106 @@ const ShipmentClaimedCard = ({
 }: {
   trackingNumber: string;
   onClose: () => void;
+}) => (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
+    <div className="bg-white rounded-lg p-6 w-[400px] shadow-2xl border-l-4 border-orange-600 animate-fade-in">
+      <div className="flex items-center gap-2 mb-4">
+        <svg
+          className="w-6 h-6 text-orange-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <h3 className="text-xl font-semibold text-orange-600">
+          Colis déjà revendiqué !
+        </h3>
+      </div>
+      <p className="text-sm text-gray-700 mb-4 font-medium">
+        Le colis avec le numéro de suivi{" "}
+        <span className="font-bold">{trackingNumber}</span>{" "}
+        est déjà associé à un autre client et ne peut pas être transféré.
+      </p>
+      <button
+        onClick={onClose}
+        className="mt-4 w-full bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition-colors"
+      >
+        Fermer
+      </button>
+    </div>
+  </div>
+);
+
+const UserDataErrorCard = ({
+  onClose,
+  errorMessage,
+}: {
+  onClose: () => void;
+  errorMessage?: string;
+}) => (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
+    <div className="bg-white rounded-lg p-6 w-[400px] shadow-2xl border-l-4 border-red-600 animate-fade-in">
+      <div className="flex items-center gap-2 mb-4">
+        <svg
+          className="w-6 h-6 text-red-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <h3 className="text-xl font-semibold text-red-600">
+          Erreur !
+        </h3>
+      </div>
+      <p className="text-sm text-gray-700 mb-4 font-medium">
+        {errorMessage || "Une erreur s'est produite. Veuillez vérifier les informations et réessayer."}
+      </p>
+      <button
+        onClick={onClose}
+        className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors"
+      >
+        Fermer
+      </button>
+    </div>
+  </div>
+);
+
+const ShipmentSuccessModal = ({
+  isTransfer,
+  trackingNumber,
+  userName,
+  onClose,
+}: {
+  isTransfer: boolean;
+  trackingNumber: string;
+  userName: string;
+  onClose: () => void;
 }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 7000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-orange-600 bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 w-[400px] border-l-4 border-orange-500 shadow-2xl animate-fade-in">
-        <div className="flex items-center gap-2 mb-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 z-50">
+      <div className="bg-white rounded-xl p-8 w-[450px] shadow-2xl border-l-4 border-green-500 animate-fade-in">
+        <div className="flex items-center gap-3 mb-4">
           <svg
-            className="w-6 h-6 text-orange-500"
+            className="w-8 h-8 text-green-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -85,21 +176,33 @@ const ShipmentClaimedCard = ({
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
-              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              d="M5 13l4 4L19 7"
             />
           </svg>
-          <h3 className="text-xl font-semibold text-orange-600">
-            Colis déjà revendiqué !
+          <h3 className="text-xl font-semibold text-gray-800">
+            {isTransfer ? "Transfert effectué avec succès !" : "Requête enregistrée !"}
           </h3>
         </div>
-        <p className="text-sm text-gray-600 mb-4 font-medium">
-          Le colis avec le numéro de suivi{" "}
-          <span className="font-semibold">{trackingNumber}</span>{" "}
-          est déjà associé à un autre client et ne peut pas être transféré.
-        </p>
+        {isTransfer ? (
+          <div className="text-sm text-gray-600 mb-6">
+            <p className="font-medium">
+              Nous avons vérifié que le colis avec le numéro <span className="font-bold">{trackingNumber}</span> existe dans notre système.
+            </p>
+            <ul className="list-disc pl-5 mt-2 space-y-1">
+              <li>Il est maintenant attribué à votre compte ({userName}).</li>
+              <li>Vous recevrez des notifications pour chaque mise à jour du statut.</li>
+              <li>Suivez votre colis directement sur notre application.</li>
+            </ul>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600 mb-6 font-medium">
+            Votre requête pour le colis avec le numéro <span className="font-bold">{trackingNumber}</span> a été enregistrée.
+            Une fois reçu dans nos locaux, nous validerons le processus. Suivez les mises à jour sur l’application.
+          </p>
+        )}
         <button
           onClick={onClose}
-          className="mt-4 w-full cursor-pointer bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition-colors"
+          className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
         >
           Fermer
         </button>
@@ -108,45 +211,13 @@ const ShipmentClaimedCard = ({
   );
 };
 
-const ShipmentSuccessModal = ({
-  isTransfer,
-  trackingNumber,
-  onClose,
-}: {
-  isTransfer: boolean;
-  trackingNumber: string;
-  onClose: () => void;
-}) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
+function addDays(date: Date, days: number): string {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result.toISOString().split("T")[0];
+}
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-blue-600 bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 w-[350px] shadow-2xl border-l-4 border-green-500 animate-fade-in">
-        <h3 className="text-lg font-semibold text-center">
-          {isTransfer ? "Colis transféré avec succès !" : "Requête envoyée avec succès !"}
-        </h3>
-        <p className="text-sm text-center mt-2">
-          {isTransfer
-            ? `Le colis avec le numéro de suivi ${trackingNumber} a été transféré à votre compte.`
-            : "Une fois le colis reçu dans nos locaux, il sera validé. Vous pourrez suivre toutes les mises à jour sur l'application."}
-        </p>
-        <button
-          onClick={onClose}
-          className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
-        >
-          Fermer
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipments }) => {
+const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) => {
   const { user } = useUser();
   const [trackingNumber, setTrackingNumber] = useState("");
   const [destination, setDestination] = useState("");
@@ -154,6 +225,8 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
   const [isTransfer, setIsTransfer] = useState(false);
   const [showErrorCard, setShowErrorCard] = useState(false);
   const [showClaimedCard, setShowClaimedCard] = useState(false);
+  const [showUserDataErrorCard, setShowUserDataErrorCard] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [existingShipment, setExistingShipment] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -172,6 +245,8 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
     setDestination("");
     setShowErrorCard(false);
     setShowClaimedCard(false);
+    setShowUserDataErrorCard(false);
+    setErrorMessage(undefined);
     setExistingShipment(null);
   };
 
@@ -179,15 +254,28 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
     e.preventDefault();
     setLoading(true);
 
-    // Tronquer le numéro de suivi à 20 caractères pour la comparaison
-    const truncatedTrackingNumber = trackingNumber.slice(0, 20);
-
     try {
-      // Vérification de la validité des données utilisateur
+      // Vérification des données utilisateur
       if (!user?.id || !user?.emailAddresses?.[0]?.emailAddress) {
-        console.error("Données utilisateur manquantes :", { userId: user?.id, email: user?.emailAddresses?.[0]?.emailAddress });
-        throw new Error("Informations utilisateur manquantes.");
+        console.error("Données utilisateur manquantes :", {
+          userId: user?.id,
+          email: user?.emailAddresses?.[0]?.emailAddress,
+        });
+        setErrorMessage("Informations utilisateur manquantes.");
+        setShowUserDataErrorCard(true);
+        setLoading(false);
+        return;
       }
+
+      const userName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
+      const now = new Date();
+      const formattedDate = now.toISOString().split("T")[0];
+      const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
+      const requestStatusEntry = {
+        date: `${formattedDate} ${formattedTime}`,
+        status: "Requête par l'utilisateur en ligne",
+        location: `Soumise en ligne par ${userName}`,
+      };
 
       // Étape 1 : Vérifier si le colis existe
       const existingShipments = await findByTrackingNumber(trackingNumber);
@@ -205,41 +293,47 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           return;
         }
 
-        // Étape 3 : Vérifier si le colis appartient à l'entreprise
+        // Étape 3 : Vérifier si le colis appartient à l’entreprise
         if (shipment.ownerId !== COMPANY_USER_ID) {
-          console.log("Colis revendiqué par un autre client :", { trackingNumber: trackingNumber, ownerId: shipment.ownerId });
+          console.log("Colis revendiqué par un autre client :", {
+            trackingNumber: trackingNumber,
+            ownerId: shipment.ownerId,
+          });
           setExistingShipment(shipment);
           setShowClaimedCard(true);
           setLoading(false);
           return;
         }
 
-        // Étape 4 : Transférer le colis à l'utilisateur
+        // Étape 4 : Transférer le colis
         const updatedData = {
           ownerId: user.id,
-          fullName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+          fullName: userName,
           userName: user.username ?? "",
           emailAdress: user.emailAddresses[0].emailAddress,
-          phone: user.phoneNumbers?.[0]?.phoneNumber ?? "inconnu",
+          phone: user.phoneNumbers?.[0]?.phoneNumber || "inconnu",
           destination: destination || shipment.destination,
         };
 
         console.log("Données de mise à jour pour le transfert :", { ...updatedData, status: shipment.status });
 
-        // Mettre à jour en comparant les 20 premiers caractères du numéro de suivi
+        // Ajouter l’entrée de requête à statusDates
+        const currentStatusDates = Array.isArray(shipment.statusDates) ? shipment.statusDates : [];
+        const updatedStatusDates = [...currentStatusDates, requestStatusEntry];
+
         await db
           .update(shipmentListing)
-          .set(updatedData)
-          .where(sql`LEFT(${shipmentListing.trackingNumber}, 20) = ${truncatedTrackingNumber}`);
+          .set({ ...updatedData, statusDates: updatedStatusDates })
+          .where(sql`${shipmentListing.trackingNumber} = ${shipment.trackingNumber}`);
 
-        // Ajouter une entrée dans statusDates pour indiquer le transfert, en conservant le statut actuel
+        // Ajouter une entrée pour le transfert
         await updateShipmentStatus(
           shipment.id,
           shipment.status,
           `Transféré à l'utilisateur ${updatedData.fullName}`
         );
 
-        // Envoyer un email de confirmation avec statut "En attente⏳"
+        // Envoyer un email de confirmation
         await sendStatusEmail(
           "En attente⏳",
           updatedData.fullName,
@@ -247,53 +341,51 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           trackingNumber
         );
 
-        console.log("Transfert réussi pour le colis :", { trackingNumber: trackingNumber, status: shipment.status });
+        console.log("Transfert réussi :", { trackingNumber: trackingNumber, status: shipment.status });
 
         setIsTransfer(true);
         setShowSuccessModal(true);
         setRefreshShipments(true);
         resetForm();
       } else {
-        // Étape 5 : Si le colis n'existe pas, créer une nouvelle requête
-        const now = new Date();
-        const formattedDate = now.toISOString().split("T")[0];
-        const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
+        // Étape 5 : Créer une nouvelle requête
         const statusDates = [
+          requestStatusEntry,
           {
             date: `${formattedDate} ${formattedTime}`,
             status: "En attente⏳",
-            location: "by user online",
+            location: "En attente de réception",
           },
         ];
 
-        const insertData = {
-          fullName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+        const data = {
+          fullName: userName,
           userName: user.username ?? "",
           emailAdress: user.emailAddresses[0].emailAddress,
-          trackingNumber: trackingNumber, // Conserver l'intégralité du numéro de suivi
+          trackingNumber: trackingNumber,
           category: "Standard",
           weight: "",
           status: "En attente⏳",
           ownerId: user.id,
           destination: destination || "non spécifié",
-          estimatedDelivery: "Sera calculé après confirmation",
-          phone: user.phoneNumbers?.[0]?.phoneNumber ?? "inconnu",
+          estimatedDelivery: addDays(new Date(), 7), // Date par défaut valide
+          phone: user.phoneNumbers?.[0]?.phoneNumber || "inconnu",
           statusDates,
         };
 
-        console.log("Données pour nouvelle requête :", insertData);
+        console.log("Données pour la nouvelle requête :", data);
 
-        // Envoyer un email avec statut "En attente⏳"
+        // Envoyer un email
         await sendStatusEmail(
           "En attente⏳",
-          insertData.fullName,
-          insertData.emailAdress,
+          data.fullName,
+          data.emailAdress,
           trackingNumber
         );
 
         const result = await db
           .insert(shipmentListing)
-          .values(insertData);
+          .values(data);
 
         if (result) {
           console.log("Nouvelle requête enregistrée :", trackingNumber);
@@ -303,8 +395,14 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
           resetForm();
         }
       }
-    } catch (error) {
-      console.error("Erreur lors de la soumission de la requête :", error);
+    } catch (error: any) {
+      console.error("Erreur lors de la soumission :", error);
+      setErrorMessage(
+        error.message.includes("not-null constraint")
+          ? "Erreur : Une date de livraison estimée valide est requise."
+          : "Une erreur s'est produite lors de l'enregistrement de la requête. Veuillez réessayer."
+      );
+      setShowUserDataErrorCard(true);
     } finally {
       setLoading(false);
     }
@@ -316,36 +414,37 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
   const destinationOptions = destinationField?.options || [];
 
   return (
-    <div className="px-2 md:px-20 py-10">
+    <div className="px-4 md:px-20 py-10">
       <div className="flex justify-between">
-        <h2 className="font-bold text-xl">Ajouter un colis en attente</h2>
+        <h2 className="font-bold text-2xl">Ajouter un colis en attente</h2>
       </div>
       <form
         onSubmit={onFormSubmit}
-        className="p-10 px-2 border rounded-xl mt-2"
+        className="p-6 md:p-10 border rounded-xl mt-4 bg-white shadow-sm"
       >
         <h2 className="font-medium text-xl mb-6">Détails du colis</h2>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium">
-            Ajoutez Votre Numéro de tracking
+          <label className="block text-gray-700 font-medium mb-1">
+            Numéro de suivi
           </label>
           <input
             type="text"
             value={trackingNumber}
             onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             required
             disabled={loading}
+            placeholder="Entrez votre numéro de suivi"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium">
-            Choisissez une destination
+          <label className="block text-gray-700 font-medium mb-1">
+            Destination
           </label>
           <select
             value={destination}
             onChange={handleDestinationChange}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             required
             disabled={loading}
           >
@@ -361,7 +460,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
         <div className="mt-6 flex justify-center">
           <button
             type="submit"
-            className={`px-6 py-2 text-lg rounded-lg text-white transition cursor-pointer flex items-center gap-2 ${
+            className={`px-6 py-2 text-lg rounded-lg text-white transition flex items-center gap-2 ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
@@ -383,6 +482,7 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
         <ShipmentSuccessModal
           isTransfer={isTransfer}
           trackingNumber={trackingNumber}
+          userName={`${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()}
           onClose={() => setShowSuccessModal(false)}
         />
       )}
@@ -396,6 +496,12 @@ const AddShipmentByUser: React.FC<AddShipmentByUserProps> = ({ setRefreshShipmen
         <ShipmentClaimedCard
           trackingNumber={trackingNumber}
           onClose={() => setShowClaimedCard(false)}
+        />
+      )}
+      {showUserDataErrorCard && (
+        <UserDataErrorCard
+          onClose={() => setShowUserDataErrorCard(false)}
+          errorMessage={errorMessage}
         />
       )}
     </div>
