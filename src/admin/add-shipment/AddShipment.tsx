@@ -526,9 +526,9 @@ const AddShipment = () => {
       case "Category":
         return "Standard";
       case "Status":
-        return "Recu📦";
+        return "En Transit✈️";
       case "Destination":
-        return "Cap-haitien";
+        return "Cap-haitien, Rue 6 j-k";
       case "Phone":
         return "inconnu";
       default:
