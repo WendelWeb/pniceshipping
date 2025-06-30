@@ -1,6 +1,6 @@
 import HeroSection from "../components/HeroSection";
 import ParcelTracker from "../components/ParcelTrackerComponent";
-import { Mail } from "lucide-react";
+import { Mail, Package, DollarSign, Scale, Ban, Smartphone, Eye, CheckCircle, MessageCircle } from "lucide-react";
 import Button from "../components/Button";
 
 import { ArrowRight, ArrowUpRight } from "lucide-react";
@@ -58,7 +58,67 @@ const features = [
   },
 ];
 
-// ... [Code précédent inchangé jusqu'à testimonials]
+// Conditions générales d'expédition
+const shippingTerms = [
+  {
+    icon: <DollarSign className="w-8 h-8 text-blue-600" />,
+    title: "Tarification",
+    items: [
+      "Frais de service : 10 $",
+      "Tarif au poids : 4,50 $ par livre (lbs)",
+      "Téléphones : 60 $",
+      "Laptops : 90 $",
+      "Starlink : 120 $"
+    ]
+  },
+  {
+    icon: <Scale className="w-8 h-8 text-green-600" />,
+    title: "Limites de Poids",
+    items: [
+      "Maximum 40 livres (lbs) par colis",
+      "Colis plus lourds doivent être divisés",
+      "Service de dispatch disponible"
+    ]
+  },
+  {
+    icon: <Ban className="w-8 h-8 text-red-600" />,
+    title: "Articles Réglementés",
+    items: [
+      "Produits pharmaceutiques : accord préalable requis",
+      "Produits aromatiques : expédiés une fois par semaine",
+      "Articles non autorisés = fraude, aucun remboursement"
+    ]
+  },
+  {
+    icon: <Eye className="w-8 h-8 text-purple-600" />,
+    title: "Suivi et Gestion",
+    items: [
+      "Suivi complet sur pniceshipping.com",
+      "Requête de colis disponible",
+      "Contact WhatsApp direct",
+      "Support client réactif"
+    ]
+  }
+];
+
+const bestPractices = [
+  {
+    icon: <CheckCircle className="w-6 h-6 text-green-500" />,
+    text: "Vérifiez le poids et le contenu avant envoi"
+  },
+  {
+    icon: <MessageCircle className="w-6 h-6 text-blue-500" />,
+    text: "Informez-nous pour les articles de valeur"
+  },
+  {
+    icon: <Package className="w-6 h-6 text-orange-500" />,
+    text: "Utilisez votre compte client pour le suivi"
+  },
+  {
+    icon: <Smartphone className="w-6 h-6 text-purple-500" />,
+    text: "Contactez-nous en cas de doute"
+  }
+];
 
 const testimonials = [
   {
@@ -75,7 +135,7 @@ const testimonials = [
     role: "Informaticien",
     avatar: "/testimony-3.png",
     message:
-      "Je commande souvent des produits high-tech en ligne, et la rapidité de livraison est essentielle pour moi. Pnice assure un suivi précis et des délais toujours respectés, ce qui me permet d’acheter en toute confiance.",
+      "Je commande souvent des produits high-tech en ligne, et la rapidité de livraison est essentielle pour moi. Pnice assure un suivi précis et des délais toujours respectés, ce qui me permet d'acheter en toute confiance.",
   },
   {
     name: "Sophie Martin",
@@ -86,8 +146,6 @@ const testimonials = [
       "Acheter des vêtements en ligne peut être stressant quand on craint les retards de livraison. Avec Pnice, mes commandes arrivent toujours à temps et en parfait état. C'est un vrai soulagement !",
   },
 ];
-
-// ... [Reste du code inchangé]
 
 const Home = () => {
   return (
@@ -121,6 +179,66 @@ const Home = () => {
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Nouvelle section Conditions Générales d'Expédition */}
+      <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-indigo-100" id="conditions">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-full mb-4">
+              ✈️
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Conditions Générales d'Expédition
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Chez Pnice Shipping, nous nous engageons à vous offrir un service rapide, sécurisé et transparent pour l'expédition de vos colis vers Haïti.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {shippingTerms.map((term, index) => (
+              <div key={index} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center mb-4">
+                  {term.icon}
+                  <h3 className="text-xl font-semibold text-gray-900 ml-3">{term.title}</h3>
+                </div>
+                <ul className="space-y-2">
+                  {term.items.map((item, itemIndex) => (
+                    <li key={itemIndex} className="text-gray-600 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Bonnes pratiques */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+              ✅ Bonnes Pratiques à Respecter
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {bestPractices.map((practice, index) => (
+                <div key={index} className="flex items-center p-4 bg-gray-50 rounded-xl">
+                  {practice.icon}
+                  <span className="ml-3 text-gray-700">{practice.text}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 text-center">
+              <p className="text-gray-600 mb-4">
+                <strong>Nous sommes là pour vous accompagner et garantir une expérience fluide.</strong>
+              </p>
+              <div className="inline-flex items-center px-6 py-3 bg-green-100 text-green-800 rounded-full">
+                <span className="mr-2">💬</span>
+                Contactez-nous dès qu'un doute survient : mieux vaut prévenir que guérir !
+              </div>
+            </div>
           </div>
         </div>
       </section>

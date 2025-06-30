@@ -498,6 +498,7 @@ export const getDeliveredShipments = async () => {
       .leftJoin(shipmentListing, eq(shipmentToDelivery.shipmentId, shipmentListing.id));
 
     // Regrouper les résultats par lot
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const batchesMap = new Map<number, any>();
     results.forEach((row) => {
       if (!batchesMap.has(row.deliveryBatchId)) {
