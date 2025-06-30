@@ -22,8 +22,8 @@ const ContactSection = () => {
   ];
 
   const stats = [
-    { icon: <Users />, value: "500+", label: "Clients Satisfaits" },
-    { icon: <Award />, value: "10%", label: "Taux de Réussite" },
+    { icon: <Users />, value: "5k+", label: "Clients Satisfaits" },
+    { icon: <Award />, value: "100%", label: "Taux de Réussite" },
     { icon: <Zap />, value: "24/7", label: "Support Disponible" },
     { icon: <Clock />, value: "3-6j", label: "Délai de Livraison" }
   ];
