@@ -492,7 +492,7 @@ const Home = () => {
             8298 Northwest 68th Street Miami Fl, 33166
             </p>
             <p className="text-gray-600 mt-1">pniceshipping@gmail.com</p>
-            <p className="text-gray-600 mt-1">+509 4881 26-52</p>
+            <p className="text-gray-600 mt-1">+509 31 97 0548</p>
           </div>
 
           <div>
