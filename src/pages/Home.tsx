@@ -1,6 +1,6 @@
 import HeroSection from "../components/HeroSection";
 import ParcelTracker from "../components/ParcelTrackerComponent";
-import { Mail, Package, DollarSign, Scale, Ban, Smartphone, Eye, CheckCircle, MessageCircle } from "lucide-react";
+import { Mail, Package, DollarSign, Scale, Ban, Smartphone, Eye, CheckCircle, MessageCircle, } from "lucide-react";
 import Button from "../components/Button";
 
 import { ArrowRight, ArrowUpRight } from "lucide-react";
@@ -9,6 +9,7 @@ import Pricing from "./Pricing";
 import GetAQuote from "@/components/GetAQuote";
 import ShippingModel from "@/components/ShippingModel";
 import HaitiShippingInfo from "@/components/HaitiShippingInfo";
+import ContactSection from "@/components/ContactForConditions";
 
 const services = [
   {
@@ -181,6 +182,7 @@ const Home = () => {
             ))}
           </div>
         </div>
+        <ContactSection />
       </section>
 
       {/* Nouvelle section Conditions Générales d'Expédition */}
@@ -454,10 +456,31 @@ const Home = () => {
               Découvrez notre engagement envers l'excellence dans le transport
               et la logistique.
             </p>
-            <div className="flex gap-4 mt-4">
-              <span className="p-2 bg-gray-200 rounded-full">🌐</span>
-              <span className="p-2 bg-gray-200 rounded-full">📷</span>
-              <span className="p-2 bg-gray-200 rounded-full">🎥</span>
+            <div className="flex flex-col sm:flex-row gap-3 mt-6">
+              <a 
+                href="https://api.whatsapp.com/send/?phone=50931970548&text&type=phone_number&app_absent=0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer"
+                title="Contactez-nous sur WhatsApp"
+              >
+                <span className="mr-2 text-lg">💬</span>
+                Aide WhatsApp
+              </a>
+              <a 
+                href="https://www.instagram.com/invites/contact/?utm_source=ig_contact_invite&utm_medium=user_system_sheet"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer"
+                title="Suivez-nous sur Instagram"
+              >
+                <span className="mr-2 text-lg">📸</span>
+                Suivre Instagram
+              </a>
+              <div className="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+                <span className="mr-2 text-lg">🌐</span>
+                Site Web
+              </div>
             </div>
           </div>
 
