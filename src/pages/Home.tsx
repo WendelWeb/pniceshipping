@@ -10,6 +10,7 @@ import GetAQuote from "@/components/GetAQuote";
 import ShippingModel from "@/components/ShippingModel";
 import HaitiShippingInfo from "@/components/HaitiShippingInfo";
 import ContactSection from "@/components/ContactForConditions";
+import Footer from "@/components/Footer";
 
 const services = [
   {
@@ -515,6 +516,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 };

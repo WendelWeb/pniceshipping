@@ -38,7 +38,6 @@ const App: React.FC = () => {
           <main className="container py-8 pt-20">
             <RouteRenderer /> {/* Utilisation du composant pour rendre les routes */}
           </main>
-          <Footer />
         </div>
       </UserProvider>
     </BrowserRouter>

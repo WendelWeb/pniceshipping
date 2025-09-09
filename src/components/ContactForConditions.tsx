@@ -202,6 +202,7 @@ const ContactSection = () => {
           </div>
         </div>
       </div>
+
     </section>
   );
 };
