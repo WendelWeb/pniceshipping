@@ -1,142 +1,217 @@
-import React from 'react';
-import { Mail, Phone, MapPin, Instagram, MessageCircle,  Clock, Users, Award, Zap } from "lucide-react";
+import React, { useState } from 'react';
+import { Mail, Phone, MapPin, Instagram, MessageCircle, Clock, Users, Award, Zap, Send, ArrowUpRight, Sparkles } from "lucide-react";
 
 const ContactSection = () => {
+  const [email, setEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [hoveredStat, setHoveredStat] = useState(null);
+  const [hoveredSocial, setHoveredSocial] = useState(null);
+
   const socialLinks = [
     {
       name: "WhatsApp",
       url: "https://wa.me/50931970548",
-      icon: <MessageCircle className="w-5 h-5" />,
-      color: "from-green-500 to-green-600 hover:from-green-600 hover:to-green-700",
+      icon: <MessageCircle className="w-6 h-6" />,
+      color: "from-emerald-400 to-green-500",
+      glow: "shadow-emerald-500/50",
       description: "Support instantané 24/7",
       badge: "Réponse rapide"
     },
     {
       name: "Instagram",
       url: "https://www.instagram.com/invites/contact/?utm_source=ig_contact_invite&utm_medium=user_system_sheet",
-      icon: <Instagram className="w-5 h-5" />,
-      color: "from-purple-500 via-pink-500 to-orange-400 hover:from-purple-600 hover:via-pink-600 hover:to-orange-500",
+      icon: <Instagram className="w-6 h-6" />,
+      color: "from-pink-500 via-purple-500 to-indigo-500",
+      glow: "shadow-purple-500/50",
       description: "Suivez nos actualités",
       badge: "Stories quotidiennes"
     },
   ];
 
   const stats = [
-    { icon: <Users />, value: "5k+", label: "Clients Satisfaits" },
-    { icon: <Award />, value: "100%", label: "Taux de Réussite" },
-    { icon: <Zap />, value: "24/7", label: "Support Disponible" },
-    { icon: <Clock />, value: "3-6j", label: "Délai de Livraison" }
+    { icon: <Users />, value: "5k+", label: "Clients Satisfaits", color: "text-blue-600" },
+    { icon: <Award />, value: "100%", label: "Taux de Réussite", color: "text-emerald-600" },
+    { icon: <Zap />, value: "24/7", label: "Support Disponible", color: "text-purple-600" },
+    { icon: <Clock />, value: "3-6j", label: "Délai de Livraison", color: "text-orange-600" }
   ];
 
+  const contactInfo = [
+    {
+      icon: <MapPin className="w-5 h-5" />,
+      title: "Adresse",
+      value: "8298 Northwest 68th Street Miami FL, 33166",
+      color: "bg-blue-500",
+      lightColor: "bg-blue-50"
+    },
+    {
+      icon: <Mail className="w-5 h-5" />,
+      title: "Email",
+      value: "pniceshipping@gmail.com",
+      color: "bg-emerald-500",
+      lightColor: "bg-emerald-50"
+    },
+    {
+      icon: <Phone className="w-5 h-5" />,
+      title: "Téléphone",
+      value: "+509 31 97 0548",
+      color: "bg-purple-500",
+      lightColor: "bg-purple-50"
+    }
+  ];
+
+  const handleSubscribe = () => {
+    if (email) {
+      setIsSubscribed(true);
+      setTimeout(() => setIsSubscribed(false), 3000);
+      setEmail('');
+    }
+  };
+
   return (
-    <section className="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 py-12 sm:py-16 lg:py-20 px-4 sm:px-6 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-5">
-        <div className="absolute top-10 left-10 w-12 h-12 sm:w-20 sm:h-20 bg-blue-600 rounded-full blur-xl"></div>
-        <div className="absolute top-40 right-20 w-20 h-20 sm:w-32 sm:h-32 bg-purple-600 rounded-full blur-xl"></div>
-        <div className="absolute bottom-20 left-1/4 w-16 h-16 sm:w-24 sm:h-24 bg-green-600 rounded-full blur-xl"></div>
+    <section className="relative bg-gradient-to-br from-slate-50 via-white to-slate-50 py-20 px-4 sm:px-6 overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-emerald-200/30 to-blue-200/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1000ms' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-pink-200/20 to-indigo-200/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '500ms' }} />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header Section */}
-        <div className="text-center mb-12 sm:mb-16">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl sm:rounded-2xl mb-4 sm:mb-6 shadow-xl">
-            <MessageCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+        {/* Header Section with Animation */}
+        <div className="text-center mb-16" style={{ animation: 'fadeIn 1s ease-out' }}>
+          <div className="inline-flex items-center justify-center mb-6 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-xl opacity-50 animate-pulse" />
+            <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-5 rounded-2xl shadow-2xl">
+              <MessageCircle className="w-10 h-10 text-white" />
+            </div>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
+          
+          <h2 className="text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
             Connectons-nous
           </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4">
+          
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Découvrez notre engagement envers l'excellence dans le transport et la logistique. 
             Notre équipe est disponible pour répondre à tous vos besoins.
           </p>
         </div>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16">
+        {/* Stats Section with Hover Effects */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center group">
-              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-xl sm:rounded-2xl shadow-lg mb-3 sm:mb-4 group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                <div className="text-blue-600">{React.cloneElement(stat.icon, { className: "w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8" })}</div>
+            <div 
+              key={index} 
+              className="relative group"
+              onMouseEnter={() => setHoveredStat(index)}
+              onMouseLeave={() => setHoveredStat(null)}
+              style={{ animation: `fadeInUp ${0.5 + index * 0.1}s ease-out` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500" />
+              <div className="relative p-6 text-center">
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 transition-all duration-500 ${
+                  hoveredStat === index ? 'scale-110 rotate-3' : ''
+                } ${stat.color} bg-opacity-10`}>
+                  {React.cloneElement(stat.icon, { className: `w-8 h-8 ${stat.color}` })}
+                </div>
+                <div className={`text-3xl font-bold mb-2 transition-all duration-500 ${
+                  hoveredStat === index ? 'scale-110' : ''
+                }`}>
+                  {stat.value}
+                </div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
               </div>
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
-              <div className="text-xs sm:text-sm text-gray-600">{stat.label}</div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           {/* Left Side - Contact Info */}
           <div className="space-y-8">
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
+              <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-8">
                 Informations de Contact
               </h3>
               
               <div className="space-y-4">
-                <div className="flex items-center p-4 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group">
-                  <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mr-4 group-hover:bg-blue-200 transition-colors">
-                    <MapPin className="w-6 h-6 text-blue-600" />
+                {contactInfo.map((info, index) => (
+                  <div 
+                    key={index}
+                    className="group relative overflow-hidden bg-gradient-to-r from-gray-50 to-white p-5 rounded-2xl border border-gray-100 hover:border-gray-200 transition-all duration-500 hover:shadow-lg"
+                    style={{ animation: `fadeInLeft ${0.5 + index * 0.15}s ease-out` }}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className={`relative flex items-center justify-center w-14 h-14 rounded-xl ${info.lightColor} group-hover:scale-110 transition-transform duration-500`}>
+                        <div className={`absolute inset-0 ${info.color} rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                        <div className={`relative ${info.color} bg-clip-text text-transparent`}>
+                          {info.icon}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 mb-1">{info.title}</p>
+                        <p className="text-gray-600 group-hover:text-gray-900 transition-colors duration-300">
+                          {info.value}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`absolute inset-0 ${info.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">Adresse</p>
-                    <p className="text-gray-600">8298 Northwest 68th Street Miami FL, 33166</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center p-4 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group">
-                  <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mr-4 group-hover:bg-green-200 transition-colors">
-                    <Mail className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">Email</p>
-                    <p className="text-gray-600">pniceshipping@gmail.com</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center p-4 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group">
-                  <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-xl mr-4 group-hover:bg-purple-200 transition-colors">
-                    <Phone className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">Téléphone</p>
-                    <p className="text-gray-600">+509 31 97 0548</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
             {/* Newsletter Section */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Newsletter</h3>
-              <p className="text-gray-600 mb-4">
-                Restez informé avec Pnice en vous abonnant à notre newsletter.
-              </p>
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="email"
-                    placeholder="Votre adresse email"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+            <div className="relative bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl p-8 shadow-2xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent" style={{ animation: 'shimmer 3s infinite' }} />
+              
+              <div className="relative z-10">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
+                  <h3 className="text-2xl font-bold text-white">Newsletter</h3>
                 </div>
-                <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105">
-                  <span className="text-lg">→</span>
-                </button>
+                
+                <p className="text-white/90 mb-6">
+                  Restez informé avec Pnice en vous abonnant à notre newsletter.
+                </p>
+                
+                <div className="relative">
+                  <div className="flex gap-3">
+                    <div className="flex-1 relative group">
+                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-blue-600 transition-colors" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Votre adresse email"
+                        className="w-full pl-12 pr-4 py-4 bg-white/95 backdrop-blur rounded-2xl focus:outline-none focus:ring-4 focus:ring-white/30 transition-all duration-300 placeholder:text-gray-400"
+                      />
+                    </div>
+                    <button 
+                      onClick={handleSubscribe}
+                      className="px-6 py-4 bg-white text-blue-600 rounded-2xl font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center space-x-2 group"
+                    >
+                      <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                    </button>
+                  </div>
+                  
+                  {isSubscribed && (
+                    <div className="absolute -bottom-8 left-0 text-green-300 text-sm" style={{ animation: 'fadeIn 0.5s ease-out' }}>
+                      ✓ Inscription réussie !
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right Side - Social Links */}
-          <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
-            <div className="text-center lg:text-left">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+          <div className="space-y-6">
+            <div className="text-center lg:text-left mb-8">
+              <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-3">
                 Rejoignez Notre Communauté
               </h3>
             </div>
 
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-4">
               {socialLinks.map((link, index) => (
                 <a
                   key={index}
@@ -144,55 +219,64 @@ const ContactSection = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block group"
+                  onMouseEnter={() => setHoveredSocial(index)}
+                  onMouseLeave={() => setHoveredSocial(null)}
                 >
-                  <div className={`relative overflow-hidden bg-gradient-to-r ${link.color} p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                        <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-lg sm:rounded-xl backdrop-blur-sm flex-shrink-0">
-                          {React.cloneElement(link.icon, { className: "w-4 h-4 sm:w-5 sm:h-5" })}
+                  <div className={`relative overflow-hidden bg-gradient-to-r ${link.color} p-6 rounded-3xl shadow-xl ${link.glow} hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-500`}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    
+                    <div className="relative z-10 flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className={`flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl transition-all duration-500 ${
+                          hoveredSocial === index ? 'rotate-12 scale-110' : ''
+                        }`}>
+                          {link.icon}
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <h4 className="text-white font-bold text-base sm:text-lg truncate">{link.name}</h4>
-                          <p className="text-white text-opacity-90 text-xs sm:text-sm truncate">{link.description}</p>
+                        <div className="text-white">
+                          <h4 className="font-bold text-xl mb-1">{link.name}</h4>
+                          <p className="text-white/90 text-sm">{link.description}</p>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                        <span className="inline-block bg-white bg-opacity-20 text-white text-xs px-2 py-1 rounded-full mb-1 sm:mb-2 backdrop-blur-sm">
+                      
+                      <div className="flex flex-col items-end space-y-2">
+                        <span className="bg-white/25 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full font-medium">
                           {link.badge}
                         </span>
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:rotate-45 transition-transform duration-300">
-                          <span className="text-white text-sm sm:text-lg">↗</span>
+                        <div className={`w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-500 ${
+                          hoveredSocial === index ? 'rotate-45 scale-110' : ''
+                        }`}>
+                          <ArrowUpRight className="w-5 h-5 text-white" />
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Animated background */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                   </div>
                 </a>
               ))}
             </div>
 
-            {/* Call to Action */}
-            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border-2 border-dashed border-gray-200">
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🚀</div>
-                <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2">
+            {/* Call to Action Card */}
+            <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 shadow-2xl overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="relative z-10 text-center">
+                <div className="text-5xl mb-4" style={{ animation: 'bounce 3s infinite' }}>🚀</div>
+                <h4 className="text-2xl font-bold text-white mb-3">
                   Prêt à Expédier ?
                 </h4>
-                <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">
+                <p className="text-gray-300 mb-6">
                   Obtenez votre devis personnalisé en quelques clics
                 </p>
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                
+                <div className="space-y-3">
                   <a
                     href="#calculator"
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 text-center text-sm sm:text-base"
+                    className="block w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-4 rounded-2xl font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105"
                   >
                     Obtenir un Devis
                   </a>
                   <a
                     href="#services"
-                    className="flex-1 border-2 border-gray-200 text-gray-700 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold hover:bg-gray-50 transition-all duration-300 text-center text-sm sm:text-base"
+                    className="block w-full bg-white/10 backdrop-blur border border-white/20 text-white px-6 py-4 rounded-2xl font-semibold hover:bg-white/20 transition-all duration-300"
                   >
                     Nos Services
                   </a>
@@ -203,6 +287,32 @@ const ContactSection = () => {
         </div>
       </div>
 
+      <style jsx>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInLeft {
+          from { opacity: 0; transform: translateX(-30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+      `}</style>
     </section>
   );
 };
