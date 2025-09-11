@@ -5,7 +5,6 @@ import Navbar from "./components/Navbar";
 // import { useEffect } from "react";
 import { UserProvider } from "./contexts/UserContext";
 import { routes } from "./router/routes"; // Importation des routes
-import Footer from "./components/Footer";
 
 // Composant pour rendre les routes
 const RouteRenderer = () => {

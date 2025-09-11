@@ -48,6 +48,7 @@
     "react-router-dom": "^7.2.0",
     "react-select": "^5.10.1",
     "recoil": "^0.7.7",
+    "styled-jsx": "^5.1.7",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7"
   },
@@ -60,6 +61,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@types/react-leaflet": "^2.8.3",
+    "@types/styled-jsx": "^2.2.9",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.21",
     "drizzle-kit": "^0.30.5",

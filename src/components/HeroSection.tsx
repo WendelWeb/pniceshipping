@@ -7,6 +7,7 @@ import {
 } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 import { memo, useMemo, useEffect, useState } from "react";
+import style from "./HeroSection.module.css";
 
 // Memoized button components for better performance
 const AuthButton = memo(({ 
@@ -296,7 +297,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative min-h-[90vh] bg-gradient-to-br from-gray-900 via-indigo-900/20 to-gray-900 pt-5 overflow-hidden">
+    <section className={`${style.container} relative min-h-[90vh] bg-gradient-to-br from-gray-900 via-indigo-900/20 to-gray-900 pt-5 overflow-hidden`}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-float" />
@@ -401,73 +402,6 @@ const HeroSection = () => {
         </div>
       </div>
       
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(10deg); }
-        }
-        
-        @keyframes float-delayed {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-30px) rotate(-10deg); }
-        }
-        
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.1); }
-        }
-        
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        
-        @keyframes bounce-slow-delayed {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
-        }
-        
-        @keyframes wave {
-          0%, 100% { transform: rotate(0deg); }
-          25% { transform: rotate(20deg); }
-          75% { transform: rotate(-20deg); }
-        }
-        
-        @keyframes ripple {
-          to {
-            transform: scale(4);
-            opacity: 0;
-          }
-        }
-        
-        :global(.animate-float) {
-          animation: float 6s ease-in-out infinite;
-        }
-        
-        :global(.animate-float-delayed) {
-          animation: float-delayed 8s ease-in-out infinite;
-        }
-        
-        :global(.animate-pulse-slow) {
-          animation: pulse-slow 4s ease-in-out infinite;
-        }
-        
-        :global(.animate-bounce-slow) {
-          animation: bounce-slow 3s ease-in-out infinite;
-        }
-        
-        :global(.animate-bounce-slow-delayed) {
-          animation: bounce-slow-delayed 3s ease-in-out infinite 0.5s;
-        }
-        
-        :global(.animate-wave) {
-          animation: wave 1s ease-in-out infinite;
-        }
-        
-        :global(.animate-ripple) {
-          animation: ripple 0.6s ease-out;
-        }
-      `}</style>
     </section>
   );
 };

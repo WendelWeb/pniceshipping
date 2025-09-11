@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Instagram, MessageCircle, Clock, Users, Award, Zap, Send, ArrowUpRight, Sparkles } from "lucide-react";
-
+import style from "./ContactForConditions.module.css";
 const ContactSection = () => {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [hoveredStat, setHoveredStat] = useState(null);
-  const [hoveredSocial, setHoveredSocial] = useState(null);
+
+  const [hoveredStat, setHoveredStat] = useState<number | null>(null);
+const [hoveredSocial, setHoveredSocial] = useState<number | null>(null);
 
   const socialLinks = [
     {
@@ -68,7 +69,7 @@ const ContactSection = () => {
   };
 
   return (
-    <section className="relative bg-gradient-to-br from-slate-50 via-white to-slate-50 py-20 px-4 sm:px-6 overflow-hidden">
+    <section className={`${style.container} relative bg-gradient-to-br from-slate-50 via-white to-slate-50 py-20 px-4 sm:px-6 overflow-hidden`}>
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl animate-pulse" />
@@ -287,32 +288,7 @@ const ContactSection = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeInLeft {
-          from { opacity: 0; transform: translateX(-30px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-      `}</style>
+      
     </section>
   );
 };
