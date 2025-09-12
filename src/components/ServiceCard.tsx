@@ -2,12 +2,9 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { 
   ArrowRight,
-  Truck,
   Shield,
   Zap,
   Globe,
-  Package,
-  Clock,
   Star,
   CheckCircle,
   Sparkles

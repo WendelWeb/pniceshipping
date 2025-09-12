@@ -3,13 +3,12 @@ import ParcelTracker from "../components/ParcelTrackerComponent";
 import { Mail, Package, DollarSign, Scale, Ban, Smartphone, Eye, CheckCircle, MessageCircle, } from "lucide-react";
 import Button from "../components/Button";
 
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import {  ArrowUpRight } from "lucide-react";
 import ShippingGuide from "@/components/ShippingGuide";
 import Pricing from "./Pricing";
 import GetAQuote from "@/components/GetAQuote";
 import ShippingModel from "@/components/ShippingModel";
 import HaitiShippingInfo from "@/components/HaitiShippingInfo";
-import ContactSection from "@/components/ContactForConditions";
 import Footer from "@/components/Footer";
 import ServiceCard from "@/components/ServiceCard";
 
@@ -159,8 +158,8 @@ const Home = () => {
       <HaitiShippingInfo />
 
       <GetAQuote />
-      <ServiceCard />
-
+      {/* Services Section */}
+      <ServiceCard services={services} />
       {/* Nouvelle section Conditions Générales d'Expédition */}
       <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-indigo-100" id="conditions">
         <div className="max-w-6xl mx-auto">
