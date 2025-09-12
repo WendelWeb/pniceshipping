@@ -6,6 +6,25 @@ import { useUser } from "@clerk/clerk-react";
 import LoginPrompt from "./LoginPrompts.tsx";
 import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Package, 
+  Plane, 
+  CheckCircle, 
+  Truck, 
+  Clock, 
+  Eye, 
+  X, 
+  MapPin, 
+  User, 
+  Calendar,
+  Weight,
+  DollarSign,
+  Filter,
+  ArrowRight,
+  TrendingUp,
+  Sparkles
+} from "lucide-react";
 
 interface Colis {
   tracking: string;
@@ -157,17 +176,34 @@ const Dashboard = () => {
   const getStatusColor = (statut: string) => {
     switch (statut) {
       case "En attente⏳":
-        return "text-orange-500 bg-red-100";
+        return "text-amber-400 bg-amber-500/10 border-amber-500/20";
       case "Recu📦":
-        return "text-orange-600 bg-orange-100";
+        return "text-blue-400 bg-blue-500/10 border-blue-500/20";
       case "En Transit✈️":
-        return "text-yellow-600 bg-yellow-100";
+        return "text-purple-400 bg-purple-500/10 border-purple-500/20";
       case "Disponible🟢":
-        return "text-green-600 bg-green-100";
+        return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
       case "Livré✅":
-        return "text-blue-600 bg-blue-100";
+        return "text-green-400 bg-green-500/10 border-green-500/20";
       default:
-        return "text-gray-600 bg-gray-100";
+        return "text-gray-400 bg-gray-500/10 border-gray-500/20";
+    }
+  };
+
+  const getStatusIcon = (statut: string) => {
+    switch (statut) {
+      case "En attente⏳":
+        return <Clock className="h-4 w-4" />;
+      case "Recu📦":
+        return <Package className="h-4 w-4" />;
+      case "En Transit✈️":
+        return <Plane className="h-4 w-4" />;
+      case "Disponible🟢":
+        return <Truck className="h-4 w-4" />;
+      case "Livré✅":
+        return <CheckCircle className="h-4 w-4" />;
+      default:
+        return <Package className="h-4 w-4" />;
     }
   };
 
@@ -183,24 +219,23 @@ const Dashboard = () => {
     if (colis.isFixedRate) {
       const baseFrais = colis.frais - SERVICE_FEE;
       return (
-        <>
-          <p className="font-medium text-sm">
-            ${colis.frais.toFixed(2)} (Tarif fixe pour {colis.fixedRateCategory})
+        <div className="space-y-1">
+          <p className="font-semibold text-sm text-white">
+            ${colis.frais.toFixed(2)} <span className="text-emerald-400">✨</span>
           </p>
-          <p className="text-xs text-gray-400">
-            *Tarif fixe de ${baseFrais.toFixed(2)} + ${SERVICE_FEE.toFixed(2)} de frais de service. Un seul frais de service si plusieurs colis sont récupérés ensemble.
+          <p className="text-xs text-gray-400 leading-relaxed">
+            Tarif fixe ${baseFrais.toFixed(2)} + ${SERVICE_FEE.toFixed(2)} frais de service 🚀
           </p>
-        </>
+        </div>
       );
     }
-    const baseFrais = colis.frais - SERVICE_FEE;
     return (
-      <>
-        <p className="font-medium text-sm">${colis.frais.toFixed(2)}</p>
-        <p className="text-xs text-gray-400">
-          *Frais calculés à ${getShippingRate(colis.destination).toFixed(2)}/lbs pour {colis.poids} lbs = ${baseFrais.toFixed(2)} + ${SERVICE_FEE.toFixed(2)} de frais de service. Un seul frais de service si plusieurs colis.
+      <div className="space-y-1">
+        <p className="font-semibold text-sm text-white">${colis.frais.toFixed(2)}</p>
+        <p className="text-xs text-gray-400 leading-relaxed">
+          ${getShippingRate(colis.destination).toFixed(2)}/lbs × {colis.poids}lbs + ${SERVICE_FEE.toFixed(2)} service 📊
         </p>
-      </>
+      </div>
     );
   };
 
@@ -208,274 +243,620 @@ const Dashboard = () => {
     return <LoginPrompt />;
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
   return (
-    <div className="relative min-h-screen bg-gray-50">
-      <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <motion.div 
+        className="flex flex-col min-h-screen"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
         <AddShipmentByUser setRefreshShipments={setAsToRefreshShipments} />
-        <main className="flex-grow max-w-7xl mx-auto px-1 sm:px-6 lg:px-8 py-6">
-          {!selectedColis ? (
-            <>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6">
-                Mes Colis
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
-                {[
-                  { label: 'Total', value: stats.total, tab: 'tous', color: 'bg-blue-500' },
-                  { label: 'Reçu', value: stats.recu, tab: 'recu', color: 'bg-blue-500' },
-                  { label: 'En transit', value: stats.transit, tab: 'transit', color: 'bg-yellow-500' },
-                  { label: 'Disponibles', value: stats.disponible, tab: 'disponible', color: 'bg-green-500' },
-                  { label: 'Livrés', value: stats.livré, tab: 'livré', color: 'bg-blue-500' },
-                ].map((stat) => (
-                  <div
-                    key={stat.tab}
-                    className="bg-white rounded-lg shadow p-3 sm:p-4 md:p-6 cursor-pointer hover:shadow-md transition-shadow duration-200"
-                    onClick={() => setActiveTab(stat.tab)}
-                  >
-                    <div className="flex items-center">
-                      <div className={`flex-shrink-0 ${stat.color} rounded-md p-2 sm:p-3`}>
-                        <svg className="h-4 w-4 sm:h-5 md:h-6 sm:w-5 md:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          {stat.tab === 'tous' ? (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                          ) : stat.tab === 'recu' ? (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12l-8 4-8-4m16 0V8a2 2 0 00-1-1.73L13 3.27a2 2 0 00-2 0L5 6.27A2 2 0 004 8v4m16 0l-8 4-8-4" />
-                          ) : stat.tab === 'transit' ? (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          ) : stat.tab === 'disponible' ? (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          ) : (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          )}
-                        </svg>
-                      </div>
-                      <div className="ml-2 sm:ml-3 md:ml-4">
-                        <h3 className="text-xs sm:text-sm font-medium text-gray-500">{stat.label}</h3>
-                        <p className="text-base sm:text-lg md:text-2xl font-semibold text-gray-900">{stat.value}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="hidden md:block mb-4 sm:mb-6">
-                <div className="border-b border-gray-200">
-                  <nav className="flex -mb-px space-x-4 sm:space-x-6">
-                    {['tous', 'recu', 'transit', 'disponible', 'livré'].map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`py-3 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors duration-200 ${
-                          activeTab === tab
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        {tab === 'tous' ? 'Tous les colis' : tab === 'recu' ? 'Reçu' : tab === 'transit' ? 'En transit' : tab === 'disponible' ? 'Disponibles' : 'Livrés'}
-                      </button>
-                    ))}
-                  </nav>
-                </div>
-              </div>
-              <div className="md:hidden mb-4">
-                <label htmlFor="filter" className="sr-only">
-                  Filtrer les colis
-                </label>
-                <select
-                  id="filter"
-                  value={activeTab}
-                  onChange={(e) => setActiveTab(e.target.value)}
-                  className="w-full rounded-md border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="tous">Tous les colis</option>
-                  <option value="recu">Reçu</option>
-                  <option value="transit">En transit</option>
-                  <option value="disponible">Disponibles</option>
-                  <option value="livré">Livrés</option>
-                </select>
-              </div>
-              <div className="hidden md:block bg-white shadow-md rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Tracking</th>
-                        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poids (lbs)</th>
-                        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
-                        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frais ($)</th>
-                        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {getFilteredColis().map((colis) => (
-                        <tr key={colis.id} className="hover:bg-gray-50 cursor-pointer transition-colors duration-200" onClick={() => handleColisClick(colis)}>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500">{colis.tracking}</td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500">{colis.poids} lbs</td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500">{colis.destination}</td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(colis.statut)}`}>
-                              {colis.statut}
-                            </span>
-                          </td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500">{getFraisExplanation(colis)}</td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                              className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleColisClick(colis);
-                              }}
-                            >
-                              Détails
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div className="md:hidden space-y-3 sm:space-y-4">
-                {getFilteredColis().map((colis) => (
-                  <div
-                    key={colis.id}
-                    className="bg-white rounded-lg shadow overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-200"
-                    onClick={() => handleColisClick(colis)}
-                  >
-                    <div className="px-1 py-4 sm:px-4 sm:py-5">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">{colis.tracking}</h3>
-                          <p className="text-xs sm:text-sm text-gray-600">{colis.description}</p>
-                        </div>
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(colis.statut)}`}>
-                          {colis.statut}
-                        </span>
-                      </div>
-                      <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-3 text-xs sm:text-sm">
-                        <div>
-                          <p className="text-gray-500">Destination</p>
-                          <p className="font-medium">{colis.destination}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">N° Tracking</p>
-                          <p className="font-medium">{colis.tracking}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">Poids</p>
-                          <p className="font-medium">{colis.poids} lbs</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">Frais</p>
-                          {getFraisExplanation(colis)}
-                        </div>
-                      </div>
-                      <div className="mt-3 sm:mt-4 flex justify-end">
-                        <button
-                          className="text-blue-600 text-xs sm:text-sm font-medium hover:text-blue-900 transition-colors duration-200"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleColisClick(colis);
-                          }}
-                        >
-                          Voir les détails →
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="px-3 py-4 sm:px-4 sm:py-5 border-b border-gray-200">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-base sm:text-lg font-medium text-gray-900">Détails du colis {selectedColis.tracking}</h3>
-                  <button
-                    className="p-1 sm:p-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
-                    onClick={closeColisDetails}
-                  >
-                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div className="px-3 py-4 sm:px-4 sm:py-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                  <div className="sm:col-span-2">
-                    <div className="bg-gray-50 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
-                      <h4 className="text-xs sm:text-sm font-medium text-gray-500 mb-3 sm:mb-4">Informations du colis</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                        <div>
-                          <p className="text-xs text-gray-500">N° Tracking</p>
-                          <p className="text-xs sm:text-sm font-medium">{selectedColis.tracking}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Statut</p>
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(selectedColis.statut)}`}>
-                            {selectedColis.statut}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Date de création</p>
-                          <p className="text-xs sm:text-sm font-medium">{selectedColis.dateCreation}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Date estimée de livraison</p>
-                          <p className="text-xs sm:text-sm font-medium">{selectedColis.dateEstimee}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Destination</p>
-                          <p className="text-xs sm:text-sm font-medium">{selectedColis.destination}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Expéditeur</p>
-                          <p className="text-xs sm:text-sm font-medium">{selectedColis.expediteur}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Poids</p>
-                          <p className="text-xs sm:text-sm font-medium">{selectedColis.poids} lbs</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Frais</p>
-                          {getFraisExplanation(selectedColis)}
-                        </div>
-                        <div className="col-span-1 sm:col-span-2">
-                          <p className="text-xs text-gray-500">Description</p>
-                          <p className="text-xs sm:text-sm font-medium">{selectedColis.description}</p>
-                        </div>
-                      </div>
+        
+        <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <AnimatePresence mode="wait">
+            {!selectedColis ? (
+              <motion.div
+                key="dashboard"
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                variants={containerVariants}
+                className="space-y-8"
+              >
+                {/* Header */}
+                <motion.div variants={itemVariants} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+                      <Package className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <h4 className="text-xs sm:text-sm font-medium text-gray-500 mb-3 sm:mb-4">Suivi du colis</h4>
-                      <div className="space-y-4 sm:space-y-6">
-                        {selectedColis.historique.map((evenement, index) => (
-                          <div key={index} className="relative flex items-start">
-                            <div className="flex items-center h-full mr-3 sm:mr-4">
-                              <div className="flex-shrink-0 h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-blue-500"></div>
-                              {index < selectedColis.historique.length - 1 && (
-                                <div className="ml-1.5 sm:ml-2 w-0.5 bg-blue-200 h-full absolute top-3 sm:top-4"></div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs sm:text-sm font-medium text-gray-900">{evenement.date}</div>
-                              <div className="text-xs sm:text-sm text-gray-500">{evenement.statut}</div>
-                              <div className="text-xs sm:text-sm text-gray-500">{evenement.lieu}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                        Mes Colis <Sparkles className="inline h-6 w-6 text-yellow-400 ml-2" />
+                      </h1>
+                      <p className="text-gray-400 mt-1">Gérez vos expéditions en temps réel 🚀</p>
                     </div>
                   </div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="hidden sm:flex items-center space-x-2 text-sm text-gray-400"
+                  >
+                    <TrendingUp className="h-4 w-4" />
+                    <span>{stats.total} colis actifs</span>
+                  </motion.div>
+                </motion.div>
+
+                {/* Stats Cards */}
+                <motion.div 
+                  variants={itemVariants}
+                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6"
+                >
+                  {[
+                    { 
+                      label: 'Total', 
+                      value: stats.total, 
+                      tab: 'tous', 
+                      gradient: 'from-blue-500 to-cyan-500',
+                      icon: Package,
+                      emoji: '📦'
+                    },
+                    { 
+                      label: 'Reçus', 
+                      value: stats.recu, 
+                      tab: 'recu', 
+                      gradient: 'from-indigo-500 to-blue-500',
+                      icon: Package,
+                      emoji: '📥'
+                    },
+                    { 
+                      label: 'En Transit', 
+                      value: stats.transit, 
+                      tab: 'transit', 
+                      gradient: 'from-purple-500 to-pink-500',
+                      icon: Plane,
+                      emoji: '✈️'
+                    },
+                    { 
+                      label: 'Disponibles', 
+                      value: stats.disponible, 
+                      tab: 'disponible', 
+                      gradient: 'from-emerald-500 to-teal-500',
+                      icon: Truck,
+                      emoji: '🚚'
+                    },
+                    { 
+                      label: 'Livrés', 
+                      value: stats.livré, 
+                      tab: 'livré', 
+                      gradient: 'from-green-500 to-emerald-500',
+                      icon: CheckCircle,
+                      emoji: '✅'
+                    },
+                  ].map((stat) => (
+                    <motion.div
+                      key={stat.tab}
+                      variants={itemVariants}
+                      whileHover={{ 
+                        scale: 1.02,
+                        y: -4,
+                        transition: { duration: 0.2 }
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`relative group cursor-pointer overflow-hidden
+                        bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
+                        rounded-2xl p-4 sm:p-6 transition-all duration-300
+                        ${activeTab === stat.tab ? 'ring-2 ring-blue-500/50 bg-gray-800/70' : 'hover:bg-gray-800/70'}
+                      `}
+                      onClick={() => setActiveTab(stat.tab)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-lg">{stat.emoji}</span>
+                            <p className="text-xs sm:text-sm text-gray-400 font-medium">{stat.label}</p>
+                          </div>
+                          <motion.p 
+                            className="text-2xl sm:text-3xl font-bold text-white"
+                            key={stat.value}
+                            initial={{ scale: 1.2, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            {stat.value}
+                          </motion.p>
+                        </div>
+                        <div className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-lg opacity-80 group-hover:opacity-100 transition-opacity`}>
+                          <stat.icon className="h-5 w-5 text-white" />
+                        </div>
+                      </div>
+                      
+                      {/* Gradient overlay on hover */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl`} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* Filter Tabs - Desktop */}
+                <motion.div variants={itemVariants} className="hidden lg:block">
+                  <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-2">
+                    <nav className="flex space-x-2">
+                      {[
+                        { key: 'tous', label: 'Tous les colis', icon: Package },
+                        { key: 'recu', label: 'Reçus', icon: Package },
+                        { key: 'transit', label: 'En Transit', icon: Plane },
+                        { key: 'disponible', label: 'Disponibles', icon: Truck },
+                        { key: 'livré', label: 'Livrés', icon: CheckCircle }
+                      ].map((tab) => (
+                        <motion.button
+                          key={tab.key}
+                          onClick={() => setActiveTab(tab.key)}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`flex items-center space-x-2 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+                            activeTab === tab.key
+                              ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                              : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                          }`}
+                        >
+                          <tab.icon className="h-4 w-4" />
+                          <span>{tab.label}</span>
+                        </motion.button>
+                      ))}
+                    </nav>
+                  </div>
+                </motion.div>
+
+                {/* Filter Select - Mobile */}
+                <motion.div variants={itemVariants} className="lg:hidden">
+                  <div className="relative">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <select
+                      value={activeTab}
+                      onChange={(e) => setActiveTab(e.target.value)}
+                      className="w-full bg-gray-800/50 border border-gray-700/50 rounded-xl pl-10 pr-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      <option value="tous">📦 Tous les colis</option>
+                      <option value="recu">📥 Reçus</option>
+                      <option value="transit">✈️ En Transit</option>
+                      <option value="disponible">🚚 Disponibles</option>
+                      <option value="livré">✅ Livrés</option>
+                    </select>
+                  </div>
+                </motion.div>
+
+                {/* Table - Desktop */}
+                <motion.div variants={itemVariants} className="hidden lg:block">
+                  <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full">
+                        <thead className="bg-gray-800/50">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                              Tracking 🏷️
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                              Poids ⚖️
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                              Destination 🌍
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                              Statut 📊
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                              Frais 💰
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                              Actions ⚡
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-700/50">
+                          <AnimatePresence>
+                            {getFilteredColis().map((colis, index) => (
+                              <motion.tr
+                                key={colis.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ duration: 0.3, delay: index * 0.05 }}
+                                whileHover={{ 
+                                  backgroundColor: "rgba(55, 65, 81, 0.3)",
+                                  transition: { duration: 0.2 }
+                                }}
+                                className="cursor-pointer transition-colors"
+                                onClick={() => handleColisClick(colis)}
+                              >
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center space-x-3">
+                                    <Package className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm font-mono text-white">{colis.tracking}</span>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center space-x-2">
+                                    <Weight className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm text-gray-300">{colis.poids} lbs</span>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center space-x-2">
+                                    <MapPin className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm text-gray-300">{colis.destination}</span>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${getStatusColor(colis.statut)}`}
+                                  >
+                                    {getStatusIcon(colis.statut)}
+                                    <span>{colis.statut}</span>
+                                  </motion.div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  {getFraisExplanation(colis)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <motion.button
+                                    whileHover={{ scale: 1.05, x: 2 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="inline-flex items-center space-x-2 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-medium transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleColisClick(colis);
+                                    }}
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                    <span>Détails</span>
+                                    <ArrowRight className="h-3 w-3" />
+                                  </motion.button>
+                                </td>
+                              </motion.tr>
+                            ))}
+                          </AnimatePresence>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Cards - Mobile/Tablet */}
+                <motion.div variants={itemVariants} className="lg:hidden space-y-4">
+                  <AnimatePresence>
+                    {getFilteredColis().map((colis, index) => (
+                      <motion.div
+                        key={colis.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden cursor-pointer group hover:border-gray-600/50 transition-all duration-300"
+                        onClick={() => handleColisClick(colis)}
+                      >
+                        <div className="p-5">
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="flex items-center space-x-3">
+                              <Package className="h-5 w-5 text-blue-400" />
+                              <div>
+                                <h3 className="font-mono text-lg font-semibold text-white">{colis.tracking}</h3>
+                                <p className="text-sm text-gray-400">{colis.description}</p>
+                              </div>
+                            </div>
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusColor(colis.statut)}`}
+                            >
+                              {getStatusIcon(colis.statut)}
+                              <span>{colis.statut}</span>
+                            </motion.div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="space-y-3">
+                              <div className="flex items-center space-x-2">
+                                <MapPin className="h-4 w-4 text-gray-400" />
+                                <div>
+                                  <p className="text-xs text-gray-500">Destination</p>
+                                  <p className="text-sm font-medium text-white">{colis.destination}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Weight className="h-4 w-4 text-gray-400" />
+                                <div>
+                                  <p className="text-xs text-gray-500">Poids</p>
+                                  <p className="text-sm font-medium text-white">{colis.poids} lbs</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="space-y-3">
+                              <div className="flex items-center space-x-2">
+                                <User className="h-4 w-4 text-gray-400" />
+                                <div>
+                                  <p className="text-xs text-gray-500">Expéditeur</p>
+                                  <p className="text-sm font-medium text-white">{colis.expediteur}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <DollarSign className="h-4 w-4 text-gray-400" />
+                                <div>
+                                  <p className="text-xs text-gray-500">Frais</p>
+                                  {getFraisExplanation(colis)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center pt-4 border-t border-gray-700/50">
+                            <div className="flex items-center space-x-2 text-xs text-gray-400">
+                              <Calendar className="h-3 w-3" />
+                              <span>Créé le {colis.dateCreation}</span>
+                            </div>
+                            <motion.div
+                              whileHover={{ x: 4 }}
+                              className="flex items-center space-x-2 text-blue-400 text-sm font-medium group-hover:text-blue-300 transition-colors"
+                            >
+                              <span>Voir détails</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </motion.div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              </motion.div>
+            ) : (
+              /* Modal de détails */
+              <motion.div
+                key="details"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl"
+              >
+                {/* Header */}
+                <div className="px-6 py-5 border-b border-gray-700/50 bg-gray-800/30">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+                        <Package className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white">
+                          Colis {selectedColis.tracking} 📦
+                        </h3>
+                        <p className="text-gray-400">Détails complets de votre expédition</p>
+                      </div>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="p-2 rounded-xl hover:bg-gray-700/50 transition-colors text-gray-400 hover:text-white"
+                      onClick={closeColisDetails}
+                    >
+                      <X className="h-5 w-5" />
+                    </motion.button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+
+                <div className="p-6 space-y-8">
+                  {/* Informations principales */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-gray-800/30 border border-gray-700/50 rounded-2xl p-6"
+                  >
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl">
+                        <Sparkles className="h-5 w-5 text-white" />
+                      </div>
+                      <h4 className="text-lg font-semibold text-white">Informations du colis ✨</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {[
+                        { 
+                          label: "N° Tracking", 
+                          value: selectedColis.tracking, 
+                          icon: Package,
+                          emoji: "🏷️"
+                        },
+                        { 
+                          label: "Statut", 
+                          value: selectedColis.statut, 
+                          icon: getStatusIcon(selectedColis.statut).type,
+                          emoji: "📊",
+                          isStatus: true
+                        },
+                        { 
+                          label: "Date de création", 
+                          value: selectedColis.dateCreation, 
+                          icon: Calendar,
+                          emoji: "📅"
+                        },
+                        { 
+                          label: "Date estimée", 
+                          value: selectedColis.dateEstimee, 
+                          icon: Calendar,
+                          emoji: "⏰"
+                        },
+                        { 
+                          label: "Destination", 
+                          value: selectedColis.destination, 
+                          icon: MapPin,
+                          emoji: "🌍"
+                        },
+                        { 
+                          label: "Expéditeur", 
+                          value: selectedColis.expediteur, 
+                          icon: User,
+                          emoji: "👤"
+                        },
+                        { 
+                          label: "Poids", 
+                          value: `${selectedColis.poids} lbs`, 
+                          icon: Weight,
+                          emoji: "⚖️"
+                        },
+                        { 
+                          label: "Description", 
+                          value: selectedColis.description, 
+                          icon: Package,
+                          emoji: "📝",
+                          fullWidth: true
+                        },
+                      ].map((item, index) => (
+                        <motion.div
+                          key={item.label}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 + index * 0.05 }}
+                          className={`space-y-2 ${item.fullWidth ? 'sm:col-span-2 lg:col-span-3' : ''}`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm">{item.emoji}</span>
+                            <item.icon className="h-4 w-4 text-gray-400" />
+                            <p className="text-xs text-gray-400 font-medium">{item.label}</p>
+                          </div>
+                          {item.isStatus ? (
+                            <motion.div
+                              whileHover={{ scale: 1.02 }}
+                              className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-semibold border ${getStatusColor(item.value)}`}
+                            >
+                              {getStatusIcon(item.value)}
+                              <span>{item.value}</span>
+                            </motion.div>
+                          ) : (
+                            <p className="text-sm font-semibold text-white">{item.value}</p>
+                          )}
+                        </motion.div>
+                      ))}
+                      
+                      {/* Frais - Section spéciale */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="space-y-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm">💰</span>
+                          <DollarSign className="h-4 w-4 text-gray-400" />
+                          <p className="text-xs text-gray-400 font-medium">Frais</p>
+                        </div>
+                        <div className="bg-gray-900/50 rounded-xl p-3 border border-gray-600/30">
+                          {getFraisExplanation(selectedColis)}
+                        </div>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+
+                  {/* Historique de suivi */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-gray-800/30 border border-gray-700/50 rounded-2xl p-6"
+                  >
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
+                        <Clock className="h-5 w-5 text-white" />
+                      </div>
+                      <h4 className="text-lg font-semibold text-white">Suivi du colis 🚚</h4>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      {selectedColis.historique.map((evenement, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 + index * 0.1 }}
+                          className="relative flex items-start group"
+                        >
+                          {/* Timeline dot */}
+                          <div className="flex items-center h-full mr-4">
+                            <motion.div 
+                              whileHover={{ scale: 1.2 }}
+                              className={`flex-shrink-0 h-4 w-4 rounded-full border-2 ${
+                                index === 0 
+                                  ? 'bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-400' 
+                                  : 'bg-blue-500 border-blue-400'
+                              } shadow-lg`}
+                            >
+                              {index === 0 && (
+                                <motion.div
+                                  animate={{ scale: [1, 1.2, 1] }}
+                                  transition={{ duration: 2, repeat: Infinity }}
+                                  className="h-full w-full rounded-full bg-white opacity-30"
+                                />
+                              )}
+                            </motion.div>
+                            {index < selectedColis.historique.length - 1 && (
+                              <div className="ml-1.5 w-0.5 bg-gradient-to-b from-gray-600 to-gray-700 h-full absolute top-6" />
+                            )}
+                          </div>
+                          
+                          {/* Event content */}
+                          <motion.div
+                            whileHover={{ x: 4, backgroundColor: "rgba(55, 65, 81, 0.3)" }}
+                            className="flex-1 bg-gray-900/30 rounded-xl p-4 border border-gray-700/30 group-hover:border-gray-600/50 transition-all duration-300"
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1">
+                                <div className="flex items-center space-x-2">
+                                  {getStatusIcon(evenement.statut)}
+                                  <p className="text-sm font-semibold text-white">{evenement.statut}</p>
+                                  {index === 0 && <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">Actuel ✨</span>}
+                                </div>
+                                <div className="flex items-center space-x-2 text-xs text-gray-400">
+                                  <Calendar className="h-3 w-3" />
+                                  <span>{evenement.date}</span>
+                                </div>
+                                <div className="flex items-center space-x-2 text-xs text-gray-400">
+                                  <MapPin className="h-3 w-3" />
+                                  <span>{evenement.lieu}</span>
+                                </div>
+                              </div>
+                              <motion.div
+                                whileHover={{ rotate: 15 }}
+                                className="text-2xl opacity-70"
+                              >
+                                {index === 0 ? '🔥' : '📍'}
+                              </motion.div>
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </main>
-      </div>
+      </motion.div>
     </div>
   );
 };

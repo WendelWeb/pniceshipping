@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Package, Send, MapPin,  CheckCircle, AlertTriangle, XCircle, Sparkles } from "lucide-react";
 import { db } from "../../configs";
 import { useUser } from "@clerk/clerk-react";
 import { sql } from "drizzle-orm";
@@ -13,11 +15,28 @@ type AddShipmentProps = {
 };
 
 const Loader = () => (
-  <div className="flex items-center justify-center space-x-2">
-    <div className="h-4 w-4 bg-blue-500 rounded-full animate-bounce"></div>
-    <div className="h-4 w-4 bg-blue-500 rounded-full animate-bounce delay-200"></div>
-    <div className="h-4 w-4 bg-blue-500 rounded-full animate-bounce delay-400"></div>
-  </div>
+  <motion.div 
+    className="flex items-center justify-center space-x-1"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+  >
+    {[0, 1, 2].map((i) => (
+      <motion.div
+        key={i}
+        className="h-2 w-2 bg-blue-400 rounded-full"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.5, 1, 0.5]
+        }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          delay: i * 0.2
+        }}
+      />
+    ))}
+  </motion.div>
 );
 
 const ShipmentErrorCard = ({
@@ -27,39 +46,49 @@ const ShipmentErrorCard = ({
   trackingNumber: string;
   onClose: () => void;
 }) => (
-  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
-    <div className="bg-white rounded-lg p-6 w-[400px] shadow-2xl border-l-4 border-red-600 animate-fade-in">
-      <div className="flex items-center gap-2 mb-4">
-        <svg
-          className="w-6 h-6 text-red-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <h3 className="text-xl font-semibold text-red-600">
-          Colis déjà livré !
-        </h3>
-      </div>
-      <p className="text-sm text-gray-700 mb-4 font-medium">
-        Le colis avec le numéro de suivi{" "}
-        <span className="font-bold">{trackingNumber}</span>{" "}
-        a déjà été livré et ne peut pas être transféré.
-      </p>
-      <button
-        onClick={onClose}
-        className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors"
+  <AnimatePresence>
+    <motion.div 
+      className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div 
+        className="bg-gray-900 border border-red-500/20 rounded-2xl p-8 w-[420px] shadow-2xl"
+        initial={{ scale: 0.8, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
       >
-        Fermer
-      </button>
-    </div>
-  </div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-red-500/10 rounded-full">
+            <XCircle className="w-6 h-6 text-red-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-white">
+            🚫 Colis déjà livré !
+          </h3>
+        </div>
+        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6">
+          <p className="text-sm text-gray-300 font-medium">
+            Le colis avec le numéro de suivi{" "}
+            <span className="font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded">
+              {trackingNumber}
+            </span>{" "}
+            a déjà été livré et ne peut pas être transféré.
+          </p>
+        </div>
+        <motion.button
+          onClick={onClose}
+          className="w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-3 rounded-xl hover:from-red-500 hover:to-red-400 transition-all duration-200 font-semibold"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          Fermer
+        </motion.button>
+      </motion.div>
+    </motion.div>
+  </AnimatePresence>
 );
 
 const ShipmentClaimedCard = ({
@@ -69,39 +98,49 @@ const ShipmentClaimedCard = ({
   trackingNumber: string;
   onClose: () => void;
 }) => (
-  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
-    <div className="bg-white rounded-lg p-6 w-[400px] shadow-2xl border-l-4 border-orange-600 animate-fade-in">
-      <div className="flex items-center gap-2 mb-4">
-        <svg
-          className="w-6 h-6 text-orange-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <h3 className="text-xl font-semibold text-orange-600">
-          Colis déjà revendiqué !
-        </h3>
-      </div>
-      <p className="text-sm text-gray-700 mb-4 font-medium">
-        Le colis avec le numéro de suivi{" "}
-        <span className="font-bold">{trackingNumber}</span>{" "}
-        est déjà associé à un autre client et ne peut pas être transféré.
-      </p>
-      <button
-        onClick={onClose}
-        className="mt-4 w-full bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition-colors"
+  <AnimatePresence>
+    <motion.div 
+      className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div 
+        className="bg-gray-900 border border-orange-500/20 rounded-2xl p-8 w-[420px] shadow-2xl"
+        initial={{ scale: 0.8, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
       >
-        Fermer
-      </button>
-    </div>
-  </div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-orange-500/10 rounded-full">
+            <AlertTriangle className="w-6 h-6 text-orange-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-white">
+            ⚠️ Colis déjà revendiqué !
+          </h3>
+        </div>
+        <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4 mb-6">
+          <p className="text-sm text-gray-300 font-medium">
+            Le colis avec le numéro de suivi{" "}
+            <span className="font-bold text-orange-400 bg-orange-500/10 px-2 py-1 rounded">
+              {trackingNumber}
+            </span>{" "}
+            est déjà associé à un autre client et ne peut pas être transféré.
+          </p>
+        </div>
+        <motion.button
+          onClick={onClose}
+          className="w-full bg-gradient-to-r from-orange-600 to-orange-500 text-white py-3 rounded-xl hover:from-orange-500 hover:to-orange-400 transition-all duration-200 font-semibold"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          Fermer
+        </motion.button>
+      </motion.div>
+    </motion.div>
+  </AnimatePresence>
 );
 
 const UserDataErrorCard = ({
@@ -111,37 +150,45 @@ const UserDataErrorCard = ({
   onClose: () => void;
   errorMessage?: string;
 }) => (
-  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
-    <div className="bg-white rounded-lg p-6 w-[400px] shadow-2xl border-l-4 border-red-600 animate-fade-in">
-      <div className="flex items-center gap-2 mb-4">
-        <svg
-          className="w-6 h-6 text-red-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <h3 className="text-xl font-semibold text-red-600">
-          Erreur !
-        </h3>
-      </div>
-      <p className="text-sm text-gray-700 mb-4 font-medium">
-        {errorMessage || "Une erreur s'est produite. Veuillez vérifier les informations et réessayer."}
-      </p>
-      <button
-        onClick={onClose}
-        className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors"
+  <AnimatePresence>
+    <motion.div 
+      className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div 
+        className="bg-gray-900 border border-red-500/20 rounded-2xl p-8 w-[420px] shadow-2xl"
+        initial={{ scale: 0.8, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
       >
-        Fermer
-      </button>
-    </div>
-  </div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-red-500/10 rounded-full">
+            <XCircle className="w-6 h-6 text-red-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-white">
+            💥 Erreur !
+          </h3>
+        </div>
+        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6">
+          <p className="text-sm text-gray-300 font-medium">
+            {errorMessage || "Une erreur s'est produite. Veuillez vérifier les informations et réessayer."}
+          </p>
+        </div>
+        <motion.button
+          onClick={onClose}
+          className="w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-3 rounded-xl hover:from-red-500 hover:to-red-400 transition-all duration-200 font-semibold"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          Fermer
+        </motion.button>
+      </motion.div>
+    </motion.div>
+  </AnimatePresence>
 );
 
 const ShipmentSuccessModal = ({
@@ -163,51 +210,130 @@ const ShipmentSuccessModal = ({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 z-50">
-      <div className="bg-white rounded-xl p-8 w-[450px] shadow-2xl border-l-4 border-green-500 animate-fade-in">
-        <div className="flex items-center gap-3 mb-4">
-          <svg
-            className="w-8 h-8 text-green-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-          <h3 className="text-xl font-semibold text-gray-800">
-            {isTransfer ? "Transfert effectué avec succès !" : "Requête enregistrée !"}
-          </h3>
-        </div>
-        {isTransfer ? (
-          <div className="text-sm text-gray-600 mb-6">
-            <p className="font-medium">
-              Nous avons vérifié que le colis avec le numéro <span className="font-bold">{trackingNumber}</span> existe dans notre système.
-            </p>
-            <ul className="list-disc pl-5 mt-2 space-y-1">
-              <li>Il est maintenant attribué à votre compte ({userName}).</li>
-              <li>Vous recevrez des notifications pour chaque mise à jour du statut.</li>
-              <li>Suivez votre colis directement sur notre application.</li>
-            </ul>
-          </div>
-        ) : (
-          <p className="text-sm text-gray-600 mb-6 font-medium">
-            Votre requête pour le colis avec le numéro <span className="font-bold">{trackingNumber}</span> a été enregistrée.
-            Une fois reçu dans nos locaux, nous validerons le processus. Suivez les mises à jour sur l’application.
-          </p>
-        )}
-        <button
-          onClick={onClose}
-          className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+    <AnimatePresence>
+      <motion.div 
+        className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div 
+          className="bg-gray-900 border border-green-500/20 rounded-2xl p-8 w-[480px] shadow-2xl relative overflow-hidden"
+          initial={{ scale: 0.8, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.8, opacity: 0, y: 20 }}
         >
-          Fermer
-        </button>
-      </div>
-    </div>
+          {/* Particles de succès */}
+          <div className="absolute inset-0 pointer-events-none">
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-green-400 rounded-full"
+                initial={{ 
+                  x: "50%", 
+                  y: "50%",
+                  scale: 0,
+                  opacity: 0 
+                }}
+                animate={{ 
+                  x: `${Math.random() * 100}%`,
+                  y: `${Math.random() * 100}%`,
+                  scale: [0, 1, 0],
+                  opacity: [0, 1, 0]
+                }}
+                transition={{
+                  duration: 2,
+                  delay: i * 0.2,
+                  repeat: Infinity,
+                  repeatDelay: 3
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3 mb-6">
+            <motion.div 
+              className="p-2 bg-green-500/10 rounded-full"
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, -5, 0] 
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                repeatDelay: 1
+              }}
+            >
+              <CheckCircle className="w-8 h-8 text-green-400" />
+            </motion.div>
+            <h3 className="text-xl font-semibold text-white">
+              {isTransfer ? "🎉 Transfert effectué avec succès !" : "📝 Requête enregistrée !"}
+            </h3>
+          </div>
+
+          {isTransfer ? (
+            <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-4 mb-6">
+              <p className="font-medium text-gray-300 mb-3">
+                ✅ Nous avons vérifié que le colis avec le numéro{" "}
+                <span className="font-bold text-green-400 bg-green-500/10 px-2 py-1 rounded">
+                  {trackingNumber}
+                </span>{" "}
+                existe dans notre système.
+              </p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <motion.li 
+                  className="flex items-center gap-2"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+                  Il est maintenant attribué à votre compte ({userName}).
+                </motion.li>
+                <motion.li 
+                  className="flex items-center gap-2"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+                  Vous recevrez des notifications pour chaque mise à jour du statut.
+                </motion.li>
+                <motion.li 
+                  className="flex items-center gap-2"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+                  Suivez votre colis directement sur notre application.
+                </motion.li>
+              </ul>
+            </div>
+          ) : (
+            <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 mb-6">
+              <p className="text-sm text-gray-300 font-medium">
+                📦 Votre requête pour le colis avec le numéro{" "}
+                <span className="font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
+                  {trackingNumber}
+                </span>{" "}
+                a été enregistrée. Une fois reçu dans nos locaux, nous validerons le processus. 
+                Suivez les mises à jour sur l'application.
+              </p>
+            </div>
+          )}
+
+          <motion.button
+            onClick={onClose}
+            className="w-full py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl hover:from-green-500 hover:to-green-400 transition-all duration-200 font-semibold"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Fermer
+          </motion.button>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
@@ -255,7 +381,6 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
     setLoading(true);
 
     try {
-      // Vérification des données utilisateur
       if (!user?.id || !user?.emailAddresses?.[0]?.emailAddress) {
         console.error("Données utilisateur manquantes :", {
           userId: user?.id,
@@ -277,14 +402,12 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
         location: `Soumise en ligne par ${userName}`,
       };
 
-      // Étape 1 : Vérifier si le colis existe
       const existingShipments = await findByTrackingNumber(trackingNumber);
       console.log("Résultat de findByTrackingNumber :", existingShipments);
 
       if (existingShipments.length > 0) {
         const shipment = existingShipments[0];
 
-        // Étape 2 : Vérifier si le colis est déjà livré
         if (shipment.status === "Livré✅") {
           console.log("Colis déjà livré :", shipment.trackingNumber);
           setExistingShipment(shipment);
@@ -293,7 +416,6 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
           return;
         }
 
-        // Étape 3 : Vérifier si le colis appartient à l’entreprise
         if (shipment.ownerId !== COMPANY_USER_ID) {
           console.log("Colis revendiqué par un autre client :", {
             trackingNumber: trackingNumber,
@@ -305,7 +427,6 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
           return;
         }
 
-        // Étape 4 : Transférer le colis
         const updatedData = {
           ownerId: user.id,
           fullName: userName,
@@ -317,7 +438,6 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
 
         console.log("Données de mise à jour pour le transfert :", { ...updatedData, status: shipment.status });
 
-        // Ajouter l’entrée de requête à statusDates
         const currentStatusDates = Array.isArray(shipment.statusDates) ? shipment.statusDates : [];
         const updatedStatusDates = [...currentStatusDates, requestStatusEntry];
 
@@ -326,14 +446,12 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
           .set({ ...updatedData, statusDates: updatedStatusDates })
           .where(sql`${shipmentListing.trackingNumber} = ${shipment.trackingNumber}`);
 
-        // Ajouter une entrée pour le transfert
         await updateShipmentStatus(
           shipment.id,
           shipment.status,
           `Transféré à l'utilisateur ${updatedData.fullName}`
         );
 
-        // Envoyer un email de confirmation
         await sendStatusEmail(
           "En attente⏳",
           updatedData.fullName,
@@ -348,7 +466,6 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
         setRefreshShipments(true);
         resetForm();
       } else {
-        // Étape 5 : Créer une nouvelle requête
         const statusDates = [
           requestStatusEntry,
           {
@@ -368,14 +485,13 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
           status: "En attente⏳",
           ownerId: user.id,
           destination: destination || "non spécifié",
-          estimatedDelivery: addDays(new Date(), 7), // Date par défaut valide
+          estimatedDelivery: addDays(new Date(), 7),
           phone: user.phoneNumbers?.[0]?.phoneNumber || "inconnu",
           statusDates,
         };
 
         console.log("Données pour la nouvelle requête :", data);
 
-        // Envoyer un email
         await sendStatusEmail(
           "En attente⏳",
           data.fullName,
@@ -414,70 +530,146 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
   const destinationOptions = destinationField?.options || [];
 
   return (
-    <div className="px-4 md:px-20 py-10">
-      <div className="flex justify-between">
-        <h2 className="font-bold text-2xl">Ajouter un colis en attente</h2>
-      </div>
-      <form
-        onSubmit={onFormSubmit}
-        className="p-6 md:p-10 border rounded-xl mt-4 bg-white shadow-sm"
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4 md:px-20 py-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
       >
-        <h2 className="font-medium text-xl mb-6">Détails du colis</h2>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">
-            Numéro de suivi
-          </label>
-          <input
-            type="text"
-            value={trackingNumber}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-            disabled={loading}
-            placeholder="Entrez votre numéro de suivi"
+        <div className="flex items-center justify-between mb-8">
+          <motion.div 
+            className="flex items-center gap-3"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+              <Package className="w-8 h-8 text-blue-400" />
+            </div>
+            <div>
+              <h2 className="font-bold text-3xl text-white mb-1">
+                📦 Ajouter un colis en attente
+              </h2>
+              <p className="text-gray-400 text-sm">
+                Transférez ou créez une nouvelle demande de colis ✨
+              </p>
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.form
+          onSubmit={onFormSubmit}
+          className="bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 shadow-2xl relative overflow-hidden"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+        >
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none" />
+          
+          <motion.div 
+            className="flex items-center gap-3 mb-8 relative z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Sparkles className="w-6 h-6 text-blue-400" />
+            <h3 className="font-semibold text-xl text-white">
+              Détails du colis
+            </h3>
+          </motion.div>
+
+          <div className="space-y-6 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <label className="flex items-center gap-2 text-gray-300 font-medium mb-3">
+                <Package className="w-4 h-4 text-blue-400" />
+                Numéro de suivi
+              </label>
+              <motion.input
+                type="text"
+                value={trackingNumber}
+                onChange={handleInputChange}
+                className="w-full p-4 bg-gray-800/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 text-white placeholder-gray-400"
+                required
+                disabled={loading}
+                placeholder="Entrez votre numéro de suivi..."
+                whileFocus={{ scale: 1.01 }}
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <label className="flex items-center gap-2 text-gray-300 font-medium mb-3">
+                <MapPin className="w-4 h-4 text-green-400" />
+                Destination
+              </label>
+              <motion.select
+                value={destination}
+                onChange={handleDestinationChange}
+                className="w-full p-4 bg-gray-800/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-all duration-200 text-white"
+                required
+                disabled={loading}
+                whileFocus={{ scale: 1.01 }}
+              >
+                <option value="" className="bg-gray-800">
+                  Sélectionnez une destination 🌍
+                </option>
+                {destinationOptions.map((option) => (
+                  <option key={option} value={option} className="bg-gray-800">
+                    {option}
+                  </option>
+                ))}
+              </motion.select>
+            </motion.div>
+          </div>
+
+          <motion.div 
+            className="my-8 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.7, duration: 0.8 }}
           />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">
-            Destination
-          </label>
-          <select
-            value={destination}
-            onChange={handleDestinationChange}
-            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-            disabled={loading}
+
+          <motion.div 
+            className="flex justify-center relative z-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
           >
-            <option value="">Sélectionnez une destination</option>
-            {destinationOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="my-6 h-px bg-gray-200" />
-        <div className="mt-6 flex justify-center">
-          <button
-            type="submit"
-            className={`px-6 py-2 text-lg rounded-lg text-white transition flex items-center gap-2 ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader />
-                <span>Envoi en cours...</span>
-              </>
-            ) : (
-              "Soumettre"
-            )}
-          </button>
-        </div>
-      </form>
+            <motion.button
+              type="submit"
+              className={`px-8 py-4 text-lg rounded-xl text-white font-semibold transition-all duration-200 flex items-center gap-3 ${
+                loading
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-lg hover:shadow-xl"
+              }`}
+              disabled={loading}
+              whileHover={!loading ? { scale: 1.05 } : {}}
+              whileTap={!loading ? { scale: 0.95 } : {}}
+            >
+              {loading ? (
+                <>
+                  <Loader />
+                  <span>Envoi en cours...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-5 h-5" />
+                  <span>🚀 Soumettre</span>
+                </>
+              )}
+            </motion.button>
+          </motion.div>
+        </motion.form>
+      </motion.div>
+
       {showSuccessModal && (
         <ShipmentSuccessModal
           isTransfer={isTransfer}
