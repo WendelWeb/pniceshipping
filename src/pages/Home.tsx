@@ -11,6 +11,7 @@ import ShippingModel from "@/components/ShippingModel";
 import HaitiShippingInfo from "@/components/HaitiShippingInfo";
 import ContactSection from "@/components/ContactForConditions";
 import Footer from "@/components/Footer";
+import ServiceCard from "@/components/ServiceCard";
 
 const services = [
   {
@@ -158,33 +159,7 @@ const Home = () => {
       <HaitiShippingInfo />
 
       <GetAQuote />
-      <section className="py-12 px-4" id="services">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center">
-            Nous Sommes Reconnus pour Nos Services
-          </h2>
-
-          <div
-            className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6"
-            id="services"
-          >
-            {services.map((service, i) => (
-              <div
-                key={i}
-                className="p-6 bg-white shadow-lg rounded-2xl flex flex-col"
-              >
-                <div className="text-4xl mb-4">{service.icon}</div>
-                <h3 className="text-xl font-semibold">{service.title}</h3>
-                <p className="text-gray-500 mt-2">{service.description}</p>
-                <button className="text-blue-600 mt-4 flex items-center cursor-pointer">
-                  En savoir plus <ArrowRight className="ml-2" size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-        <ContactSection />
-      </section>
+      <ServiceCard />
 
       {/* Nouvelle section Conditions Générales d'Expédition */}
       <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-indigo-100" id="conditions">
