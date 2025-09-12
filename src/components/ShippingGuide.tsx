@@ -50,7 +50,7 @@ const scaleOnHover = {
 };
 
 // Item Card Component
-const ItemCard = ({ item, index }: { item: any, index: number }) => {
+const ItemCard = ({ item,  }: { item: any }) => {
   const [isHovered, setIsHovered] = useState(false);
   const Icon = item.icon;
 
@@ -391,8 +391,8 @@ export default function ShippingGuide() {
               animate={isInView ? "visible" : "hidden"}
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {items.map((item, index) => (
-                  <ItemCard key={item.name} item={item} index={index} />
+                {items.map((item) => (
+                  <ItemCard key={item.name} item={item} />
                 ))}
               </div>
             </motion.div>

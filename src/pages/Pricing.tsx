@@ -1,254 +1,380 @@
+import { motion } from 'framer-motion';
+import { Monitor, Laptop, Smartphone, Tv, Check, Calculator, MessageCircle, Sparkles, Zap, Shield } from 'lucide-react';
 import PricingCalculator from "../components/PricingCalculator";
-// import { findByEmail } from "@/utils/shipmentQueries";
-// import { useEffect,useState } from "react";
-// interface Shipment {
-//   id: number;
-//   fullName: string;
-//   userName: string;
-//   category: string;
-//   emailAdress: string;
-//   trackingNumber: string;
-//   weight: string;
-//   status: string;
-// }
 
 const Pricing = () => {
-  // const [shipments, setShipments] = useState<Shipment[]>([]);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
 
-  // // const allShipments = await findByEmail('');
-  // console.log(shipments);
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const data = await findByEmail("stanleywendeljoseph@gmail.com");
-  //     setShipments(data);
-  //     console.log(data); // Affichera directement les résultats
-  //   };
+  const cardVariants = {
+    hidden: { y: 50, opacity: 0, scale: 0.9 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
 
-  //   fetchData();
-  // }, []);
+  const pricingFeatures = [
+    { icon: <Check size={16} />, text: "Traitement de commande" },
+    { icon: <Check size={16} />, text: "Suivi en ligne" },
+    { icon: <Check size={16} />, text: "Service client" }
+  ];
+
+  const weightFeatures = [
+    { icon: <Check size={16} />, text: "Pesée précise" },
+    { icon: <Check size={16} />, text: "Tarification transparente" },
+    { icon: <Check size={16} />, text: "Sans frais cachés" }
+  ];
+
+  const electronicDevices = [
+    {
+      icon: <Monitor className="w-8 h-8" />,
+      title: "Ordinateurs 🖥️",
+      price: "Contactez Nous",
+      description: "Protection spéciale et emballage sécurisé",
+      link: "https://wa.me/50931970548",
+      gradient: "from-blue-500/20 to-cyan-500/20",
+      borderGradient: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: <Laptop className="w-8 h-8" />,
+      title: "Ordinateurs Portables 💻",
+      price: "+90$",
+      description: "Emballage sécurisé avec protection contre les chocs",
+      gradient: "from-purple-500/20 to-pink-500/20",
+      borderGradient: "from-purple-500 to-pink-500"
+    },
+    {
+      icon: <Smartphone className="w-8 h-8" />,
+      title: "Téléphones 📱",
+      price: "+60$",
+      description: "Protection spécialisée pour appareils mobiles",
+      gradient: "from-green-500/20 to-emerald-500/20",
+      borderGradient: "from-green-500 to-emerald-500"
+    },
+    {
+      icon: <Tv className="w-8 h-8" />,
+      title: "Télévisions 📺",
+      price: "Contactez Nous",
+      description: "Emballage renforcé et manipulation spéciale",
+      link: "https://wa.me/50931970548",
+      gradient: "from-orange-500/20 to-red-500/20",
+      borderGradient: "from-orange-500 to-red-500"
+    }
+  ];
+
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12" id="pricings">
-      <h1 className="text-4xl font-bold text-center mb-8">Nos Tarifs</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white" id="pricings">
+      <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
+      </div>
+      
+      <div className="relative max-w-7xl mx-auto px-4 py-16">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-center mb-20"
+        >
+          <motion.div variants={itemVariants} className="flex justify-center items-center gap-2 mb-6">
+            <Sparkles className="w-8 h-8 text-blue-400" />
+            <span className="text-blue-400 font-medium text-lg">Nos Tarifs</span>
+            <Sparkles className="w-8 h-8 text-blue-400" />
+          </motion.div>
+          
+          <motion.h1 
+            variants={itemVariants}
+            className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent mb-6"
+          >
+            Tarification 🚀
+          </motion.h1>
+          
+          <motion.p 
+            variants={itemVariants}
+            className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed"
+          >
+            Des solutions d'expédition transparentes et abordables pour tous vos besoins ✨
+          </motion.p>
+        </motion.div>
 
-      {/* Image responsive ajoutée en dessous du titre */}
-      <div className="w-full mb-10 flex justify-center">
-        <div className="relative w-full max-w-3xl overflow-hidden rounded-xl shadow-lg">
-          <img 
-            src="/tarif.jpg" 
-            alt="Pnice Shipping Services" 
-            className="w-full h-auto object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-            <div className="p-6 text-white">
-              <h2 className="text-2xl font-bold mb-2">Expédition Fiable et Abordable</h2>
-              <p className="text-sm md:text-base">Des solutions d'expédition adaptées à tous vos besoins</p>
+        {/* Hero Image Section */}
+        <motion.div 
+          variants={itemVariants}
+          className="relative mb-20 group"
+        >
+          <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 z-10"></div>
+            <img 
+              src="/tarif.jpg" 
+              alt="Pnice Shipping Services" 
+              className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent z-20 flex items-end">
+              <motion.div 
+                className="p-8 text-white"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+              >
+                <h2 className="text-3xl font-bold mb-3 flex items-center gap-2">
+                  <Shield className="w-8 h-8 text-blue-400" />
+                  Expédition Fiable et Abordable
+                </h2>
+                <p className="text-lg text-slate-200">Des solutions d'expédition adaptées à tous vos besoins</p>
+              </motion.div>
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Banner */}
-      <div className="bg-gray-100 rounded-lg p-8 text-center mb-12">
-        <h2 className="text-2xl font-semibold text-blue-600 mb-4">
-          Tarification Simple et Transparente
-        </h2>
-        <p className="text-lg">
-          Chez Pnice Shipping, nous croyons en une tarification claire sans
-          frais cachés.
-        </p>
-      </div>
-
-      {/* Main pricing cards */}
-      <div className="grid md:grid-cols-2 gap-6 mb-16">
-        {/* Service Fee Card */}
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <div className="text-5xl font-bold text-blue-600 mb-4">10$</div>
-          <h3 className="text-xl font-bold mb-3">Frais de Service</h3>
-          <p className="text-gray-600 mb-6">
-            Frais de traitement standard appliqués à chaque expédition
-          </p>
-          <hr className="my-6" />
-          <ul className="text-left">
-            <li className="flex items-center py-2">
-              <span className="text-blue-600 mr-2">✓</span> Traitement de
-              commande
-            </li>
-            <li className="flex items-center py-2">
-              <span className="text-blue-600 mr-2">✓</span> Suivi en ligne
-            </li>
-            <li className="flex items-center py-2">
-              <span className="text-blue-600 mr-2">✓</span> Service client
-            </li>
-          </ul>
-        </div>
-
-        {/* Per pound pricing Card */}
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <div className="text-5xl font-bold text-blue-600 mb-4">4.5$</div>
-          <h3 className="text-xl font-bold mb-3">Par Livre (lbs)</h3>
-          <p className="text-gray-600 mb-6">
-            Tarif standard basé sur le poids de votre colis
-          </p>
-          <hr className="my-6" />
-          <ul className="text-left">
-            <li className="flex items-center py-2">
-              <span className="text-blue-600 mr-2">✓</span> Pesée précise
-            </li>
-            <li className="flex items-center py-2">
-              <span className="text-blue-600 mr-2">✓</span> Tarification
-              transparente
-            </li>
-            <li className="flex items-center py-2">
-              <span className="text-blue-600 mr-2">✓</span> Sans frais cachés
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Special fees section */}
-      <h2 className="text-2xl font-bold text-center mb-8">
-        Frais Spéciaux pour Appareils Électroniques
-      </h2>
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        {/* PC */}
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold mb-2">Ordinateurs</h3>
-          <p className="text-xl font-bold text-blue-600 mb-2">
-            <a
-              href="https://wa.me/50931970548"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-              >
-              Contactez Nous
-            </a>
-            .
-          </p>
-          <p className="text-gray-600">
-            Protection spéciale et emballage sécurisé
-          </p>
-        </div>
-
-        {/* Laptop */}
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold mb-2">Ordinateurs Portables</h3>
-          <p className="text-xl font-bold text-blue-600 mb-2">+90$</p>
-          <p className="text-gray-600">
-            Emballage sécurisé avec protection contre les chocs
-          </p>
-        </div>
-
-        {/* Phone */}
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold mb-2">Téléphones</h3>
-          <p className="text-xl font-bold text-blue-600 mb-2">+60$</p>
-          <p className="text-gray-600">
-            Protection spécialisée pour appareils mobiles
-          </p>
-        </div>
-
-        {/* TV */}
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold mb-2">Télévisions</h3>
-          <p className="text-xl font-bold text-blue-600 mb-2">
-          <a
-              href="https://wa.me/50931970548"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-              >
-              Contactez Nous
-            </a>
-          </p>
-          <p className="text-gray-600">
-            Emballage renforcé et manipulation spéciale
-          </p>
-        </div>
-      </div>
-
-      <PricingCalculator />
-
-      {/* Contact section */}
-      <div className="text-center">
-        <h3 className="text-xl font-bold mb-3">
-          Des Questions sur nos Tarifs?
-        </h3>
-        <p className="mb-4">
-          Notre équipe est disponible pour répondre à toutes vos questions
-        </p>
-        <a
-          target="_blank"
-          href="https://wa.me/50948812652?text=Bonjour,%20je%20souhaite%20obtenir%20plus%20d%27informations%20sur%20vos%20services%20de%20livraison.%20Pouvez-vous%20m%27aider%20%3F"
-          className="text-blue-600 font-bold hover:underline"
+        {/* Banner */}
+        <motion.div 
+          variants={cardVariants}
+          className="relative bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-3xl p-8 text-center mb-20 border border-slate-700/50 overflow-hidden"
         >
-          Contactez-nous
-        </a>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
+          <div className="relative z-10">
+            <motion.div 
+              className="flex justify-center mb-4"
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <Zap className="w-12 h-12 text-blue-400" />
+            </motion.div>
+            <h2 className="text-3xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text mb-4">
+              Tarification Simple et Transparente ⚡
+            </h2>
+            <p className="text-lg text-slate-300">
+              Chez Pnice Shipping, nous croyons en une tarification claire sans frais cachés. 💯
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Main Pricing Cards */}
+        <motion.div 
+          variants={containerVariants}
+          className="grid md:grid-cols-2 gap-8 mb-24"
+        >
+          {/* Service Fee Card */}
+          <motion.div 
+            variants={cardVariants}
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="relative group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-3xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-700/50 h-full">
+              <div className="text-center mb-6">
+                <motion.div 
+                  className="text-7xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text mb-4"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  10$
+                </motion.div>
+                <h3 className="text-2xl font-bold mb-3 flex items-center justify-center gap-2">
+                  <Calculator className="w-6 h-6 text-blue-400" />
+                  Frais de Service 💰
+                </h3>
+                <p className="text-slate-300">
+                  Frais de traitement standard appliqués à chaque expédition
+                </p>
+              </div>
+              
+              <div className="h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent my-6"></div>
+              
+              <ul className="space-y-3">
+                {pricingFeatures.map((feature, index) => (
+                  <motion.li 
+                    key={index}
+                    className="flex items-center gap-3 text-slate-200"
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: index * 0.1 + 0.5 }}
+                  >
+                    <span className="text-blue-400">{feature.icon}</span>
+                    {feature.text}
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+
+          {/* Per Pound Card */}
+          <motion.div 
+            variants={cardVariants}
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="relative group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-700/50 h-full">
+              <div className="text-center mb-6">
+                <motion.div 
+                  className="text-7xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text mb-4"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  4.5$
+                </motion.div>
+                <h3 className="text-2xl font-bold mb-3 flex items-center justify-center gap-2">
+                  <Sparkles className="w-6 h-6 text-purple-400" />
+                  Par Livre (lbs) ⚖️
+                </h3>
+                <p className="text-slate-300">
+                  Tarif standard basé sur le poids de votre colis
+                </p>
+              </div>
+              
+              <div className="h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent my-6"></div>
+              
+              <ul className="space-y-3">
+                {weightFeatures.map((feature, index) => (
+                  <motion.li 
+                    key={index}
+                    className="flex items-center gap-3 text-slate-200"
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: index * 0.1 + 0.7 }}
+                  >
+                    <span className="text-purple-400">{feature.icon}</span>
+                    {feature.text}
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Special Fees Section */}
+        <motion.div 
+          variants={containerVariants}
+          className="mb-20"
+        >
+          <motion.div variants={itemVariants} className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-transparent bg-gradient-to-r from-white to-slate-300 bg-clip-text mb-4">
+              Frais Spéciaux pour Appareils Électroniques 🔌
+            </h2>
+            <p className="text-slate-400 text-lg">Protection premium pour vos appareils high-tech</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {electronicDevices.map((device, index) => (
+              <motion.div 
+                key={index}
+                variants={cardVariants}
+                whileHover={{ y: -8, scale: 1.05 }}
+                className="relative group cursor-pointer"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-r ${device.gradient} rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                <div className="relative bg-slate-800/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 h-full text-center">
+                  <motion.div 
+                    className={`w-16 h-16 bg-gradient-to-r ${device.borderGradient} rounded-2xl flex items-center justify-center mx-auto mb-4 text-white`}
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {device.icon}
+                  </motion.div>
+                  
+                  <h3 className="text-lg font-bold mb-3 text-white">{device.title}</h3>
+                  
+                  <div className="text-xl font-bold mb-3">
+                    {device.link ? (
+                      <motion.a
+                        href={device.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`text-transparent bg-gradient-to-r ${device.borderGradient} bg-clip-text hover:underline inline-flex items-center gap-2`}
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <MessageCircle size={16} />
+                        {device.price}
+                      </motion.a>
+                    ) : (
+                      <span className={`text-transparent bg-gradient-to-r ${device.borderGradient} bg-clip-text`}>
+                        {device.price}
+                      </span>
+                    )}
+                  </div>
+                  
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    {device.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Pricing Calculator */}
+        <motion.div 
+          variants={itemVariants}
+          className="mb-20"
+        >
+          <PricingCalculator />
+        </motion.div>
+
+        {/* Contact Section */}
+        <motion.div 
+          variants={itemVariants}
+          className="text-center"
+        >
+          <div className="relative bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-3xl p-12 border border-slate-700/50 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5"></div>
+            <div className="relative z-10">
+              <motion.div 
+                className="flex justify-center mb-6"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <MessageCircle className="w-12 h-12 text-blue-400" />
+              </motion.div>
+              
+              <h3 className="text-3xl font-bold mb-4 text-white">
+                Des Questions sur nos Tarifs? 🤔
+              </h3>
+              
+              <p className="text-lg text-slate-300 mb-8 max-w-md mx-auto">
+                Notre équipe est disponible pour répondre à toutes vos questions 24/7
+              </p>
+              
+              <motion.a
+                target="_blank"
+                href="https://wa.me/50948812652?text=Bonjour,%20je%20souhaite%20obtenir%20plus%20d%27informations%20sur%20vos%20services%20de%20livraison.%20Pouvez-vous%20m%27aider%20%3F"
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <MessageCircle className="w-5 h-5" />
+                Contactez-nous 💬
+              </motion.a>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
