@@ -15,7 +15,6 @@ import {
   ArrowUpRight, 
   Sparkles,
   Globe,
-  Star,
   Shield,
   CheckCircle
 } from "lucide-react";
