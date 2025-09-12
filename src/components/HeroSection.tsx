@@ -18,7 +18,6 @@ import {
   Globe,
   Truck
 } from "lucide-react";
-import style from "./HeroSection.module.css";
 
 // Animation variants
 const fadeInUp = {
