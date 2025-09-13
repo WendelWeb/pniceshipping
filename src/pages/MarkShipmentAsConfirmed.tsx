@@ -1,4 +1,20 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Search, 
+  Package, 
+  User, 
+  Mail, 
+  Weight, 
+  Check, 
+  Edit3, 
+  X, 
+  Loader2,
+  Clock,
+  AlertCircle,
+  Sparkles,
+  Truck
+} from "lucide-react";
 import {
   getAllShipments,
   updateShipmentStatus,
@@ -8,18 +24,14 @@ import { sendConfirmedEmail } from "../services/emailServices";
 import { Shipment } from "@/types/shipment";
 
 const MarkShipmentAsConfirmed = () => {
-  const [shipments, setShipments] = useState<Shipment[]>([]); // Typage explicite
-  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(
-    null
-  ); // Typage explicite
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
   const [weight, setWeight] = useState("");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [weightErrors, setWeightErrors] = useState<Record<string, boolean>>({}); // Typage explicite
-  const [updatingShipments, setUpdatingShipments] = useState<
-    Record<string, boolean>
-  >({}); // Typage explicite
+  const [weightErrors, setWeightErrors] = useState<Record<string, boolean>>({});
+  const [updatingShipments, setUpdatingShipments] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchPendingShipments();
@@ -43,10 +55,7 @@ const MarkShipmentAsConfirmed = () => {
       setUpdatingShipments(updatingState);
       setShipments(pendingShipments as Shipment[]);
     } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des colis en attente:",
-        error
-      );
+      console.error("Erreur lors de la récupération des colis en attente:", error);
     } finally {
       setLoading(false);
     }
@@ -63,7 +72,7 @@ const MarkShipmentAsConfirmed = () => {
     try {
       setUpdatingShipments((prev) => ({ ...prev, [trackingNumber]: true }));
       await updateShipmentStatus(
-        shipment.id, // Utiliser l'id (number) au lieu de trackingNumber (string)
+        shipment.id,
         "Recu📦",
         "Confirmation de reception du colis dans notre entrepot a Pnice Miami, FL Warehouse"
       );
@@ -87,7 +96,6 @@ const MarkShipmentAsConfirmed = () => {
   };
 
   const handleEditShipment = (shipment: Shipment) => {
-    // Typage explicite
     setSelectedShipment(shipment);
     setWeight(shipment.weight || "");
     setShowModal(true);
@@ -116,7 +124,7 @@ const MarkShipmentAsConfirmed = () => {
 
       const updatedShipment = {
         ...selectedShipment,
-        weight: parseFloat(weight).toString(), // Conversion en string pour correspondre à Shipment
+        weight: parseFloat(weight).toString(),
       };
 
       setShipments((prev) =>
@@ -151,293 +159,406 @@ const MarkShipmentAsConfirmed = () => {
       shipment.emailAdress.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: [0.25, 0.46, 0.45, 0.94]
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.9,
+      transition: { duration: 0.3 }
+    }
+  };
+
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-6xl mx-auto p-6">
-        <header className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">
-            Confirmation des colis
-          </h2>
-          <p className="text-gray-600 mt-2">
-            Gérez et confirmez les colis en attente
-          </p>
-        </header>
-
-        <div className="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-64">
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            />
-            <svg
-              className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <motion.div 
+        className="max-w-7xl mx-auto p-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Header */}
+        <motion.header 
+          className="mb-8"
+          variants={itemVariants}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <motion.div
+              whileHover={{ rotate: 180, scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+              className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg shadow-blue-500/25"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-          <div className="text-gray-600">
-            {filteredShipments.length} colis en attente
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : filteredShipments.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-              />
-            </svg>
-            <p className="mt-4 text-lg text-gray-500">
-              {searchTerm
-                ? "Aucun résultat trouvé pour votre recherche."
-                : "Aucun colis en attente de confirmation."}
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredShipments.map((shipment) => (
-              <div
-                key={shipment.trackingNumber}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-              >
-                <div className="bg-blue-500 px-4 py-2 text-white flex justify-between items-center">
-                  <h3 className="font-medium">#{shipment.trackingNumber}</h3>
-                  <span className="bg-yellow-400 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">
-                    En attente
-                  </span>
-                </div>
-                <div className="p-4">
-                  <div className="mb-4 space-y-2">
-                    <div className="flex items-center">
-                      <svg
-                        className="h-5 w-5 text-gray-500 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                      <p className="text-gray-700">{shipment.userName}</p>
-                    </div>
-                    <div className="flex items-center">
-                      <svg
-                        className="h-5 w-5 text-gray-500 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                      <p className="text-gray-700 text-sm">
-                        {shipment.emailAdress}
-                      </p>
-                    </div>
-                    <div className="flex items-center">
-                      <svg
-                        className="h-5 w-5 text-gray-500 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2M6 7H3m15 0h3M6 7H3m15 0h3"
-                        />
-                      </svg>
-                      {shipment.weight ? (
-                        <p className="text-gray-700">{shipment.weight} lbs</p>
-                      ) : (
-                        <p className="text-red-500 font-medium text-sm">
-                          Poids requis avant confirmation
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-6 flex gap-2">
-                    <button
-                      onClick={() => confirmShipment(shipment.trackingNumber)}
-                      disabled={
-                        !shipment.weight ||
-                        updatingShipments[shipment.trackingNumber]
-                      }
-                      className={`flex-1 px-4 py-2 cursor-pointer rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
-                        shipment.weight &&
-                        !updatingShipments[shipment.trackingNumber]
-                          ? "bg-green-600 text-white hover:bg-green-700"
-                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      }`}
-                    >
-                      {updatingShipments[shipment.trackingNumber] ? (
-                        <div className="animate-spin h-4 w-4 border-t-2 border-b-2 border-white rounded-full"></div>
-                      ) : (
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
-                      Confirmer
-                    </button>
-                    <button
-                      onClick={() => handleEditShipment(shipment)}
-                      disabled={updatingShipments[shipment.trackingNumber]}
-                      className={`flex-1 bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 ${
-                        !shipment.weight ? "animate-pulse" : ""
-                      } ${
-                        updatingShipments[shipment.trackingNumber]
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      {!shipment.weight ? "Ajouter poids" : "Modifier poids"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-gray-800">
-                  {selectedShipment?.weight
-                    ? `Modifier le poids du colis #${selectedShipment?.trackingNumber}`
-                    : `Ajouter le poids du colis #${selectedShipment?.trackingNumber}`}
-                </h3>
-                <button
-                  onClick={() => setShowModal(false)}
-                  disabled={updatingShipments[selectedShipment!.trackingNumber]}
-                  className="text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-700 mb-2" htmlFor="weight">
-                    Poids (lbs) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="weight"
-                    type="number"
-                    value={weight}
-                    onChange={(e) => setWeight(e.target.value)}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
-                      selectedShipment &&
-                      weightErrors[selectedShipment.trackingNumber]
-                        ? "border-red-500"
-                        : ""
-                    }`}
-                    placeholder="Entrez le poids"
-                    step="0.1"
-                    min="0"
-                    disabled={
-                      !!selectedShipment &&
-                      updatingShipments[selectedShipment.trackingNumber]
-                    }
-                  />
-                  {selectedShipment &&
-                    weightErrors[selectedShipment.trackingNumber] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        Le poids est obligatoire pour confirmer ce colis
-                      </p>
-                    )}
-                </div>
-
-                <div className="flex justify-between gap-4 mt-6">
-                  <button
-                    onClick={() => setShowModal(false)}
-                    disabled={!!selectedShipment && updatingShipments[selectedShipment.trackingNumber]}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200 flex-1 disabled:opacity-50"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    onClick={handleUpdateShipment}
-                    disabled={!!selectedShipment && updatingShipments[selectedShipment.trackingNumber]}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 flex-1 disabled:opacity-50 flex items-center justify-center"
-                  >
-                    {selectedShipment && updatingShipments[selectedShipment.trackingNumber] ? (
-                      <>
-                        <div className="animate-spin h-4 w-4 border-t-2 border-b-2 border-white rounded-full mr-2"></div>
-                        Enregistrement...
-                      </>
-                    ) : (
-                      "Enregistrer"
-                    )}
-                  </button>
-                </div>
-              </div>
+              <Package className="h-8 w-8 text-white" />
+            </motion.div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                Confirmation des colis ✨
+              </h1>
+              <p className="text-slate-400 text-lg mt-1">
+                Gérez et confirmez vos colis en attente avec style 🚀
+              </p>
             </div>
           </div>
-        )}
-      </div>
+        </motion.header>
+
+        {/* Search Bar & Stats */}
+        <motion.div 
+          className="mb-8 flex flex-col md:flex-row items-center justify-between gap-6"
+          variants={itemVariants}
+        >
+          <motion.div 
+            className="relative w-full md:w-96"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Rechercher par numéro, nom ou email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all duration-300 hover:bg-slate-800/70"
+            />
+          </motion.div>
+          
+          <motion.div 
+            className="flex items-center gap-3 px-6 py-3 bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/30"
+            whileHover={{ scale: 1.05, backgroundColor: "rgba(51, 65, 85, 0.5)" }}
+            transition={{ duration: 0.2 }}
+          >
+            <Clock className="h-5 w-5 text-amber-400" />
+            <span className="text-slate-300 font-medium">
+              {filteredShipments.length} colis en attente
+            </span>
+          </motion.div>
+        </motion.div>
+
+        {/* Content */}
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div 
+              className="flex justify-center items-center h-64"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+              >
+                <Loader2 className="h-8 w-8 text-white" />
+              </motion.div>
+            </motion.div>
+          ) : filteredShipments.length === 0 ? (
+            <motion.div 
+              className="bg-slate-800/30 backdrop-blur-sm rounded-2xl border border-slate-700/30 p-12 text-center"
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ duration: 0.3 }}
+                className="mx-auto mb-6 p-4 bg-slate-700/50 rounded-full w-fit"
+              >
+                <Truck className="h-12 w-12 text-slate-400" />
+              </motion.div>
+              <h3 className="text-2xl font-bold text-white mb-3">
+                {searchTerm ? "Aucun résultat trouvé 🔍" : "Tout est à jour ! 🎉"}
+              </h3>
+              <p className="text-slate-400 text-lg">
+                {searchTerm
+                  ? "Essayez avec d'autres termes de recherche."
+                  : "Aucun colis en attente de confirmation pour le moment."}
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {filteredShipments.map((shipment) => (
+                <motion.div
+                  key={shipment.trackingNumber}
+                  variants={cardVariants}
+                  layout
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  className="bg-slate-800/40 backdrop-blur-sm rounded-2xl border border-slate-700/30 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300"
+                >
+                  {/* Card Header */}
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+                    <div className="flex justify-between items-center">
+                      <motion.div 
+                        className="flex items-center gap-2"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <Package className="h-5 w-5 text-white" />
+                        <h3 className="font-bold text-white">#{shipment.trackingNumber}</h3>
+                      </motion.div>
+                      <motion.span 
+                        className="bg-amber-400/90 text-amber-900 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1"
+                        whileHover={{ scale: 1.1 }}
+                        animate={{ 
+                          boxShadow: ["0 0 0 0 rgba(245, 158, 11, 0.4)", "0 0 0 8px rgba(245, 158, 11, 0)", "0 0 0 0 rgba(245, 158, 11, 0)"] 
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <Clock className="h-3 w-3" />
+                        En attente
+                      </motion.span>
+                    </div>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-6">
+                    <div className="space-y-4 mb-6">
+                      <motion.div 
+                        className="flex items-center gap-3"
+                        whileHover={{ x: 4 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="p-2 bg-emerald-500/20 rounded-lg">
+                          <User className="h-4 w-4 text-emerald-400" />
+                        </div>
+                        <p className="text-slate-200 font-medium">{shipment.userName}</p>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="flex items-center gap-3"
+                        whileHover={{ x: 4 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="p-2 bg-blue-500/20 rounded-lg">
+                          <Mail className="h-4 w-4 text-blue-400" />
+                        </div>
+                        <p className="text-slate-300 text-sm truncate">{shipment.emailAdress}</p>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="flex items-center gap-3"
+                        whileHover={{ x: 4 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className={`p-2 rounded-lg ${shipment.weight ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                          <Weight className={`h-4 w-4 ${shipment.weight ? 'text-green-400' : 'text-red-400'}`} />
+                        </div>
+                        {shipment.weight ? (
+                          <p className="text-slate-200 font-medium">{shipment.weight} lbs</p>
+                        ) : (
+                          <motion.p 
+                            className="text-red-400 font-medium text-sm flex items-center gap-1"
+                            animate={{ opacity: [0.7, 1, 0.7] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            <AlertCircle className="h-4 w-4" />
+                            Poids requis avant confirmation
+                          </motion.p>
+                        )}
+                      </motion.div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                      <motion.button
+                        onClick={() => confirmShipment(shipment.trackingNumber)}
+                        disabled={!shipment.weight || updatingShipments[shipment.trackingNumber]}
+                        className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+                          shipment.weight && !updatingShipments[shipment.trackingNumber]
+                            ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
+                            : "bg-slate-700/50 text-slate-500 cursor-not-allowed"
+                        }`}
+                        whileHover={shipment.weight && !updatingShipments[shipment.trackingNumber] ? { scale: 1.05, y: -2 } : {}}
+                        whileTap={shipment.weight && !updatingShipments[shipment.trackingNumber] ? { scale: 0.98 } : {}}
+                      >
+                        {updatingShipments[shipment.trackingNumber] ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          >
+                            <Loader2 className="h-4 w-4" />
+                          </motion.div>
+                        ) : (
+                          <Check className="h-4 w-4" />
+                        )}
+                        Confirmer ✅
+                      </motion.button>
+                      
+                      <motion.button
+                        onClick={() => handleEditShipment(shipment)}
+                        disabled={updatingShipments[shipment.trackingNumber]}
+                        className={`flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-3 rounded-xl font-bold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 ${
+                          !shipment.weight ? "animate-pulse ring-2 ring-blue-400/50" : ""
+                        } ${
+                          updatingShipments[shipment.trackingNumber] ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                        whileHover={!updatingShipments[shipment.trackingNumber] ? { scale: 1.05, y: -2 } : {}}
+                        whileTap={!updatingShipments[shipment.trackingNumber] ? { scale: 0.98 } : {}}
+                      >
+                        <Edit3 className="h-4 w-4" />
+                        {!shipment.weight ? "Ajouter poids ⚡" : "Modifier poids ✏️"}
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Modal */}
+        <AnimatePresence>
+          {showModal && (
+            <motion.div 
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !updatingShipments[selectedShipment!.trackingNumber] && setShowModal(false)}
+            >
+              <motion.div 
+                className="bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700/50"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-3">
+                      <motion.div
+                        whileHover={{ rotate: 180 }}
+                        transition={{ duration: 0.3 }}
+                        className="p-2 bg-blue-500/20 rounded-lg"
+                      >
+                        <Weight className="h-5 w-5 text-blue-400" />
+                      </motion.div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white">
+                          {selectedShipment?.weight ? "Modifier le poids 📝" : "Ajouter le poids ⚖️"}
+                        </h3>
+                        <p className="text-slate-400 text-sm">#{selectedShipment?.trackingNumber}</p>
+                      </div>
+                    </div>
+                    <motion.button
+                      onClick={() => setShowModal(false)}
+                      disabled={updatingShipments[selectedShipment!.trackingNumber]}
+                      className="text-slate-400 hover:text-white disabled:opacity-50 p-2 hover:bg-slate-700/50 rounded-lg transition-all duration-200"
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <X className="h-5 w-5" />
+                    </motion.button>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-slate-300 mb-3 font-medium" htmlFor="weight">
+                        Poids (lbs) <span className="text-red-400">*</span>
+                      </label>
+                      <motion.input
+                        id="weight"
+                        type="number"
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                        className={`w-full px-4 py-3 bg-slate-700/50 backdrop-blur-sm border rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all duration-300 ${
+                          selectedShipment && weightErrors[selectedShipment.trackingNumber]
+                            ? "border-red-500/50 ring-2 ring-red-500/20"
+                            : "border-slate-600/50"
+                        }`}
+                        placeholder="Entrez le poids..."
+                        step="0.1"
+                        min="0"
+                        disabled={!!selectedShipment && updatingShipments[selectedShipment.trackingNumber]}
+                        whileFocus={{ scale: 1.02 }}
+                      />
+                      {selectedShipment && weightErrors[selectedShipment.trackingNumber] && (
+                        <motion.p 
+                          className="text-red-400 text-sm mt-2 flex items-center gap-1"
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                        >
+                          <AlertCircle className="h-4 w-4" />
+                          Le poids est obligatoire pour confirmer ce colis
+                        </motion.p>
+                      )}
+                    </div>
+
+                    <div className="flex justify-between gap-4">
+                      <motion.button
+                        onClick={() => setShowModal(false)}
+                        disabled={!!selectedShipment && updatingShipments[selectedShipment.trackingNumber]}
+                        className="px-6 py-3 border border-slate-600 rounded-xl text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex-1 disabled:opacity-50 font-medium"
+                        whileHover={{ scale: 1.02, y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        Annuler
+                      </motion.button>
+                      <motion.button
+                        onClick={handleUpdateShipment}
+                        disabled={!!selectedShipment && updatingShipments[selectedShipment.trackingNumber]}
+                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 flex-1 disabled:opacity-50 flex items-center justify-center gap-2 font-bold shadow-lg shadow-blue-500/25"
+                        whileHover={{ scale: 1.02, y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {selectedShipment && updatingShipments[selectedShipment.trackingNumber] ? (
+                          <>
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            >
+                              <Loader2 className="h-4 w-4" />
+                            </motion.div>
+                            Enregistrement...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4" />
+                            Enregistrer ✨
+                          </>
+                        )}
+                      </motion.button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };
