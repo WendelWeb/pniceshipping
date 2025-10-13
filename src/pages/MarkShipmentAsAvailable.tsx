@@ -79,7 +79,13 @@ const MarkShipmentAsAvailable = () => {
 
       setShipments((prev) => prev.filter((s) => s.id !== parseInt(shipmentId)));
 
-      await sendAvailableEmail(shipment.fullName, shipment.emailAdress, shipment.trackingNumber);
+      // Tentative d'envoi d'email (n'arrête pas le processus en cas d'échec)
+      try {
+        await sendAvailableEmail(shipment.fullName, shipment.emailAdress, shipment.trackingNumber);
+        console.log("✅ Email de disponibilité envoyé avec succès");
+      } catch (emailError: any) {
+        console.error("⚠️ Erreur lors de l'envoi de l'email (le colis est disponible quand même) :", emailError.message);
+      }
     } catch (error) {
       console.error('Erreur lors du passage à disponible:', error);
     } finally {

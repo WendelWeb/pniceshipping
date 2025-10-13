@@ -70,7 +70,13 @@ const MarkShipmentAsTransit = () => {
         'Colis En cours de transit vers sa destination finale'
       );
 
-      await sendTransitEmail(`${shipment.fullName}`, `${shipment.emailAdress}`, `${shipment.trackingNumber}`);
+      // Tentative d'envoi d'email (n'arrête pas le processus en cas d'échec)
+      try {
+        await sendTransitEmail(`${shipment.fullName}`, `${shipment.emailAdress}`, `${shipment.trackingNumber}`);
+        console.log("✅ Email de transit envoyé avec succès");
+      } catch (emailError: any) {
+        console.error("⚠️ Erreur lors de l'envoi de l'email (le colis est passé en transit quand même) :", emailError.message);
+      }
       setShipments((prev) => prev.filter((s) => s.id !== id));
     } catch (error) {
       console.error('Erreur lors du passage en transit:', error);

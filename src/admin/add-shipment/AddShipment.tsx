@@ -312,12 +312,12 @@ const AddShipment = () => {
   ): Promise<boolean> => {
     try {
       await sendStatusEmail(status, userName, userEmail, packageId);
-      console.log(`Email envoyé pour le statut ${status} à ${userEmail}`);
+      console.log(`✅ Email envoyé avec succès pour le statut ${status} à ${userEmail}`);
       return true;
     } catch (error: any) {
-      console.error("Erreur lors de l'envoi de l'email :", error.message);
-      setErrorMessage("Erreur lors de l'envoi de l'email. Veuillez réessayer.");
-      return false;
+      console.error("⚠️ Erreur lors de l'envoi de l'email (le colis sera tout de même enregistré) :", error.message);
+      // On ne bloque plus le processus, on retourne true pour continuer
+      return true;
     }
   };
 
@@ -342,6 +342,7 @@ const AddShipment = () => {
       console.log("Résultat de findByTrackingNumber :", existingShipments);
 
       let emailSent = false;
+      console.log(emailSent)
       let emailRecipient = formData.emailAdress || "";
       let recipientName = formData.userName || formData.fullName || "Client";
       let shipmentData: any = {};
@@ -382,18 +383,13 @@ const AddShipment = () => {
             return;
           }
 
+          // Tentative d'envoi d'email (n'arrête pas le processus en cas d'échec)
           emailSent = await sendEmailByStatus(
             shipmentData.status,
             recipientName,
             emailRecipient,
             shipmentData.trackingNumber
           );
-
-          if (!emailSent) {
-            setShowUserDataErrorCard(true);
-            setLoading(false);
-            return;
-          }
 
           console.log("Données de mise à jour pour le colis :", shipmentData);
 
@@ -466,18 +462,13 @@ const AddShipment = () => {
         return;
       }
 
+      // Tentative d'envoi d'email (n'arrête pas le processus en cas d'échec)
       emailSent = await sendEmailByStatus(
         shipmentData.status,
         recipientName,
         emailRecipient,
         shipmentData.trackingNumber
       );
-
-      if (!emailSent) {
-        setShowUserDataErrorCard(true);
-        setLoading(false);
-        return;
-      }
 
       const now = new Date();
       const formattedDate = now.toISOString().split("T")[0];

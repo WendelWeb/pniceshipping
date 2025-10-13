@@ -93,8 +93,14 @@ const ConfirmDeliveryPage = () => {
       // Nous devons nous assurer que le backend applique un seul frais de service
       // Si nécessaire, implémenter cette logique côté serveur
 
+      // Tentative d'envoi d'emails (n'arrête pas le processus en cas d'échec)
       for (const shipment of deliveredShipments) {
-        await sendDeliveredEmail(shipment.fullName, shipment.emailAdress, shipment.trackingNumber);
+        try {
+          await sendDeliveredEmail(shipment.fullName, shipment.emailAdress, shipment.trackingNumber);
+          console.log(`✅ Email de livraison envoyé avec succès à ${shipment.emailAdress}`);
+        } catch (emailError: any) {
+          console.error(`⚠️ Erreur lors de l'envoi de l'email pour ${shipment.trackingNumber} (le colis a été marqué comme livré quand même) :`, emailError.message);
+        }
       }
 
       navigate("/admin/available-shipments", { state: { success: true } });
