@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Loader from "@/components/Loader";
-import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
+import { useSettings } from "@/contexts/SettingsContext";
 
 // Chart.js
 import {
@@ -148,19 +148,6 @@ const formatWeight = (weight: number | undefined) => {
   return `${Number(weight ?? 0).toFixed(2)} lbs`;
 };
 
-// Mappage des catégories normalisées aux clés de FIXED_ITEM_RATES
-const categoryMapping: Record<string, string> = {
-  telephone: "telephones",
-  telephones: "telephones",
-  téléphone: "telephones",
-  téléphones: "telephones",
-  ordinateurportbable: "ordinateurs_portables",
-  ordinateurportable: "ordinateurs_portables",
-  ordinateursportables: "ordinateurs_portables",
-  ordinateurportables: "ordinateurs_portables",
-  starlink: "starlink",
-};
-
 // Composant BatchCard séparé
 const BatchCard = ({ batch }: { batch: DeliveryBatch }) => {
   const navigate = useNavigate();
@@ -232,6 +219,7 @@ const BatchCard = ({ batch }: { batch: DeliveryBatch }) => {
 // Composant principal
 const DeliveryDashboard = () => {
   const navigate = useNavigate();
+  const { shippingRates, getRate, getSpecialItemPrice } = useSettings();
   const [batches, setBatches] = useState<DeliveryBatch[]>([]);
   const [filteredBatches, setFilteredBatches] = useState<DeliveryBatch[]>([]);
   const [loading, setLoading] = useState(true);
@@ -289,32 +277,23 @@ const DeliveryDashboard = () => {
       const results = await getDeliveredShipments();
       const formattedBatches: DeliveryBatch[] = results.map((batch: any) => {
         const shipments = batch.shipments.map((s: any) => {
-          const shippingRate = getShippingRate(s.destination);
           const weight = parseFloat(s.details?.weight || "0");
-          const normalizedCategory = s.category
-            ?.toLowerCase()
-            .replace(/[\s-]/g, "")
-            .replace("portbable", "portables")
-            .replace(/[éèê]/g, "e");
           let shippingCost = 0;
           let isFixedRate = false;
           let fixedRateCategory: string | undefined;
 
-          if (normalizedCategory) {
-            const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
-            if (mappedCategory in FIXED_ITEM_RATES) {
-              shippingCost = FIXED_ITEM_RATES[mappedCategory]; // Sans SERVICE_FEE
-              isFixedRate = true;
-              fixedRateCategory = mappedCategory
-                .charAt(0)
-                .toUpperCase()
-                + mappedCategory.slice(1).replace("_", " ");
-            } else {
-              shippingCost = weight * shippingRate; // Sans SERVICE_FEE
-              isFixedRate = false;
-            }
+          // Try to get special item price first
+          const specialPrice = getSpecialItemPrice(s.category);
+
+          if (specialPrice !== null) {
+            // This is a special item with fixed price
+            shippingCost = specialPrice;
+            isFixedRate = true;
+            fixedRateCategory = s.category;
           } else {
-            shippingCost = weight * shippingRate; // Sans SERVICE_FEE
+            // Regular weight-based calculation
+            const shippingRate = getRate(s.destination);
+            shippingCost = weight * shippingRate;
             isFixedRate = false;
           }
 
@@ -338,7 +317,7 @@ const DeliveryDashboard = () => {
 
         const totalWeight = shipments.reduce((sum: number, s: ShipmentInBatch) => sum + s.details.weight, 0);
         const shippingCost = shipments.reduce((sum: number, s: ShipmentInBatch) => sum + s.details.shippingCost, 0);
-        const serviceFee = SERVICE_FEE; // Un seul frais de service par lot
+        const serviceFee = shippingRates.serviceFee; // Un seul frais de service par lot (dynamique)
         const totalCost = shippingCost + serviceFee;
 
         return {

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion,  } from "framer-motion";
 import { Shipment, StatusDates } from "@/types/shipment";
 import { findById } from "@/utils/shipmentQueries";
-import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
+import { useSettings } from "@/contexts/SettingsContext";
 import {
   CheckCircleIcon,
   InformationCircleIcon,
@@ -35,30 +35,23 @@ const ShipmentView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mappage des catégories normalisées aux clés de FIXED_ITEM_RATES
-  const categoryMapping: Record<string, string> = {
-    telephone: "telephones",
-    telephones: "telephones",
-    téléphone: "telephones",
-    téléphones: "telephones",
-    ordinateurportbable: "ordinateurs_portables", // Gère la typo
-    ordinateurportable: "ordinateurs_portables",
-    ordinateursportables: "ordinateurs_portables",
-    ordinateurportables: "ordinateurs_portables",
-    starlink: "starlink",
-  };
+  // Get settings from global context
+  const { shippingRates, specialItems } = useSettings();
 
   useEffect(() => {
-    const fetchShipment = async () => {
+    const fetchData = async () => {
       if (!id) return;
       try {
         setLoading(true);
-        const result = await findById(parseInt(id));
-        if (!result) throw new Error("Colis non trouvé");
+
+        const shipmentResult = await findById(parseInt(id));
+
+        if (!shipmentResult) throw new Error("Colis non trouvé");
+
         setShipment({
-          ...result,
-          statusDates: (result.statusDates as StatusDates[]) || [],
-          phone: result.phone || "Non disponible",
+          ...shipmentResult,
+          statusDates: (shipmentResult.statusDates as StatusDates[]) || [],
+          phone: shipmentResult.phone || "Non disponible",
         });
       } catch (err) {
         setError("Erreur lors de la récupération du colis");
@@ -67,7 +60,7 @@ const ShipmentView = () => {
         setLoading(false);
       }
     };
-    fetchShipment();
+    fetchData();
   }, [id]);
 
   if (loading) {
@@ -147,9 +140,15 @@ const ShipmentView = () => {
     );
   }
 
-  // Calcul des frais
+  // Calcul des frais dynamiques
   const poids = parseFloat(shipment.weight || "0");
-  const rate = getShippingRate(shipment.destination || "");
+
+  // Déterminer le tarif par lb selon la destination
+  const destination = shipment.destination?.toLowerCase() || "";
+  const perLbRate = destination.includes("port-au-prince")
+    ? shippingRates.ratePortAuPrince
+    : shippingRates.rateCapHaitien;
+
   let shippingCost = 0;
   let totalCost = 0;
   let isFixedRate = false;
@@ -162,35 +161,36 @@ const ShipmentView = () => {
     .replace("portbable", "portables")
     .replace(/[éèê]/g, "e");
 
-  if (normalizedCategory) {
-    const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
-    if (mappedCategory in FIXED_ITEM_RATES) {
-      // Item spécial : tarif fixe + frais de service
-      shippingCost = FIXED_ITEM_RATES[mappedCategory];
-      totalCost = shippingCost + SERVICE_FEE;
-      isFixedRate = true;
-      fixedRateCategory = mappedCategory
-        .charAt(0)
-        .toUpperCase()
-        + mappedCategory.slice(1).replace("_", " ");
-    } else {
-      // Standard ou inconnu : tarif par livre + frais de service
-      shippingCost = poids * rate;
-      totalCost = shippingCost + SERVICE_FEE;
-      isFixedRate = false;
-    }
+  // Chercher si la catégorie correspond à un article spécial
+  const matchingSpecialItem = specialItems.items.find(item => {
+    const itemId = item.id.toLowerCase();
+    const itemName = item.name.toLowerCase();
+    return normalizedCategory && (
+      itemId.includes(normalizedCategory) ||
+      normalizedCategory.includes(itemId) ||
+      itemName.includes(normalizedCategory) ||
+      normalizedCategory.includes(itemName)
+    );
+  });
+
+  if (matchingSpecialItem) {
+    // Item spécial : tarif fixe + frais de service
+    shippingCost = matchingSpecialItem.price;
+    totalCost = shippingCost + shippingRates.serviceFee;
+    isFixedRate = true;
+    fixedRateCategory = matchingSpecialItem.name;
   } else {
-    // Pas de catégorie : tarif par livre + frais de service
-    shippingCost = poids * rate;
-    totalCost = shippingCost + SERVICE_FEE;
+    // Standard : tarif par livre + frais de service
+    shippingCost = poids * perLbRate;
+    totalCost = shippingCost + shippingRates.serviceFee;
     isFixedRate = false;
   }
 
   const getFraisExplanation = () => {
     if (isFixedRate) {
-      return `Tarif fixe de $${shippingCost.toFixed(2)} pour ${fixedRateCategory} + $${SERVICE_FEE.toFixed(2)} de frais de service.`;
+      return `Tarif fixe de $${shippingCost.toFixed(2)} pour ${fixedRateCategory} + $${shippingRates.serviceFee.toFixed(2)} de frais de service.`;
     }
-    return `Frais calculés à $${rate.toFixed(2)}/lb pour ${poids} lbs = $${shippingCost.toFixed(2)} + $${SERVICE_FEE.toFixed(2)} de frais de service.`;
+    return `Frais calculés à $${perLbRate.toFixed(2)}/lb pour ${poids} lbs = $${shippingCost.toFixed(2)} + $${shippingRates.serviceFee.toFixed(2)} de frais de service.`;
   };
 
   const statusSteps = ["En attente⏳", "Recu📦", "En Transit✈️", "Disponible🟢", "Livré✅"];
@@ -563,9 +563,9 @@ const ShipmentView = () => {
                   <div className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 p-4 rounded-2xl">
                     <h4 className="text-emerald-400 font-semibold mb-2">💰 Détail des frais</h4>
                     <div className="space-y-1 text-slate-300">
-                      <p>💵 Frais d'expédition : <span className="text-emerald-400 font-semibold">${shippingCost.toFixed(2)}</span> 
-                      {isFixedRate ? ` (Tarif fixe pour ${fixedRateCategory})` : ` (Calculé à ${rate.toFixed(2)}/lb pour ${poids} lbs)`}</p>
-                      <p>🔧 Frais de service : <span className="text-emerald-400 font-semibold">${SERVICE_FEE.toFixed(2)}</span></p>
+                      <p>💵 Frais d'expédition : <span className="text-emerald-400 font-semibold">${shippingCost.toFixed(2)}</span>
+                      {isFixedRate ? ` (Tarif fixe pour ${fixedRateCategory})` : ` (Calculé à ${perLbRate.toFixed(2)}/lb pour ${poids} lbs)`}</p>
+                      <p>🔧 Frais de service : <span className="text-emerald-400 font-semibold">${shippingRates.serviceFee.toFixed(2)}</span></p>
                       <p className="text-lg font-bold">💎 Total : <span className="text-emerald-400">${totalCost.toFixed(2)}</span></p>
                     </div>
                   </div>
@@ -634,7 +634,7 @@ const ShipmentView = () => {
                       </motion.div>
                       <div>
                         <p className="text-slate-300 text-sm">
-                          {isFixedRate ? `Tarif fixe (${fixedRateCategory})` : `Poids (${poids} lbs × ${rate}/lb)`}
+                          {isFixedRate ? `Tarif fixe (${fixedRateCategory})` : `Poids (${poids} lbs × ${perLbRate}/lb)`}
                         </p>
                         <p className="text-xs text-slate-400">Expédition</p>
                       </div>
@@ -663,7 +663,7 @@ const ShipmentView = () => {
                         <p className="text-xs text-slate-400">Traitement</p>
                       </div>
                     </div>
-                    <p className="font-bold text-white text-lg">${SERVICE_FEE.toFixed(2)}</p>
+                    <p className="font-bold text-white text-lg">${shippingRates.serviceFee.toFixed(2)}</p>
                   </motion.div>
                   
                   {/* Total avec effet spécial */}

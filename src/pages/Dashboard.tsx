@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import AddShipmentByUser from "./AddShipmentByUser.tsx";
 import { useUser } from "@clerk/clerk-react";
 import LoginPrompt from "./LoginPrompts.tsx";
-import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
+import { useSettings } from "@/contexts/SettingsContext";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -44,6 +44,7 @@ interface Colis {
 
 const Dashboard = () => {
   const { user, isSignedIn } = useUser();
+  const { shippingRates, getRate, getSpecialItemPrice } = useSettings();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tous");
   const [selectedColis, setSelectedColis] = useState<Colis | null>(null);
@@ -85,39 +86,23 @@ const Dashboard = () => {
     const dateCreation =
       shipment.statusDates?.find((statusDate) => statusDate.status === "Recu📦")?.date || "Non spécifiée";
     const poids = shipment.weight ? parseFloat(shipment.weight) : 0;
-    const rate = getShippingRate(shipment.destination);
     let frais = 0;
     let isFixedRate = false;
     let fixedRateCategory: string | undefined;
 
-    const normalizedCategory = shipment.category
-      ?.toLowerCase()
-      .replace(/[\s-]/g, "")
-      .replace("portbable", "portables")
-      .replace(/[éèê]/g, "e");
+    // Try to get special item price first (dynamique)
+    const specialPrice = getSpecialItemPrice(shipment.category);
 
-    if (normalizedCategory) {
-      const mappedCategory = {
-        telephone: "telephones",
-        telephones: "telephones",
-        téléphone: "telephones",
-        téléphones: "telephones",
-        ordinateurportbable: "ordinateurs_portables",
-        ordinateurportable: "ordinateurs_portables",
-        ordinateursportables: "ordinateurs_portables",
-        ordinateurportables: "ordinateurs_portables",
-        starlink: "starlink",
-      }[normalizedCategory] || normalizedCategory;
-      if (mappedCategory in FIXED_ITEM_RATES) {
-        frais = FIXED_ITEM_RATES[mappedCategory] + SERVICE_FEE;
-        isFixedRate = true;
-        fixedRateCategory = mappedCategory
-          .charAt(0)
-          .toUpperCase()
-          + mappedCategory.slice(1).replace("_", " ");
-      } else if (normalizedCategory === "standard") {
-        frais = poids * rate + SERVICE_FEE;
-        isFixedRate = false;
+    if (specialPrice !== null) {
+      // This is a special item with fixed price
+      frais = specialPrice + shippingRates.serviceFee;
+      isFixedRate = true;
+      fixedRateCategory = shipment.category;
+    } else {
+      // Regular weight-based calculation (dynamique)
+      const rate = getRate(shipment.destination);
+      frais = poids * rate + shippingRates.serviceFee;
+      isFixedRate = false;
       } else {
         frais = poids * rate + SERVICE_FEE;
         isFixedRate = false;

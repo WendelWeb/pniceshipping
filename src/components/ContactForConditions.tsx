@@ -182,7 +182,7 @@ const ContactInfoCard = () => {
     {
       icon: MapPin,
       title: "Adresse",
-      value: "8298 Northwest 68th Street Miami FL, 33166",
+      value: "8298 Northwest 68th Street Miami FL, 33195",
       color: "from-blue-500 to-indigo-600",
       emoji: "📍"
     },

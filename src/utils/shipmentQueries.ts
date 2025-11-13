@@ -421,7 +421,7 @@ export const markMultipleShipmentsAsDelivered = async (
         {
           date: formattedDate,
           status: "Livré✅",
-          location: "Colis récupéré avec succès chez Pnice shipping services",
+          location: "Colis récupéré avec succès chez Pnice Shipping Services",
         },
       ];
 

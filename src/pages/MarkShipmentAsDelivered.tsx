@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { getAllShipments } from "../utils/shipmentQueries";
 import { Shipment } from "@/types/shipment";
-import { getShippingRate, SERVICE_FEE, FIXED_ITEM_RATES } from "@/constants/shippingRates";
+import { useSettings } from "@/contexts/SettingsContext";
 import { useNavigate } from "react-router-dom";
 
 interface User {
@@ -21,6 +21,7 @@ interface User {
 const CATEGORIES = ["Telephone", "Ordinateur Portbable", "Starlink", "Standard", "Other"];
 
 const MarkShipmentAsDelivered = () => {
+  const { shippingRates, getRate, getSpecialItemPrice } = useSettings();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -33,19 +34,6 @@ const MarkShipmentAsDelivered = () => {
   const [isUserListOpen, setIsUserListOpen] = useState(false);
   const userSearchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
-  // Mappage des catégories normalisées aux clés de FIXED_ITEM_RATES
-  const categoryMapping: Record<string, string> = {
-    telephone: "telephones",
-    telephones: "telephones",
-    téléphone: "telephones",
-    téléphones: "telephones",
-    ordinateurportbable: "ordinateurs_portables",
-    ordinateurportable: "ordinateurs_portables",
-    ordinateursportables: "ordinateurs_portables",
-    ordinateurportables: "ordinateurs_portables",
-    starlink: "starlink",
-  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -113,26 +101,23 @@ const MarkShipmentAsDelivered = () => {
     );
   };
 
-  // Nouvelle fonction pour calculer le coût total avec un seul SERVICE_FEE
+  // Nouvelle fonction pour calculer le coût total avec un seul SERVICE_FEE (dynamique)
   const calculateTotalCost = (selectedShipments: Shipment[]) => {
     let totalCost = 0;
     selectedShipments.forEach((shipment) => {
-      const shippingRate = getShippingRate(shipment.destination);
       const poids = parseFloat(shipment.weight || "0");
-      const normalizedCategory = shipment.category
-        ?.toLowerCase()
-        .replace(/[\s-]/g, "")
-        .replace("portbable", "portables")
-        .replace(/[éèê]/g, "e");
-      const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
 
-      if (mappedCategory in FIXED_ITEM_RATES) {
-        totalCost += FIXED_ITEM_RATES[mappedCategory]; // Sans SERVICE_FEE
+      // Try to get special item price first
+      const specialPrice = getSpecialItemPrice(shipment.category);
+
+      if (specialPrice !== null) {
+        totalCost += specialPrice; // Sans SERVICE_FEE
       } else {
+        const shippingRate = getRate(shipment.destination);
         totalCost += poids * shippingRate; // Sans SERVICE_FEE
       }
     });
-    totalCost += SERVICE_FEE; // Ajouter un seul SERVICE_FEE
+    totalCost += shippingRates.serviceFee; // Ajouter un seul SERVICE_FEE (dynamique)
     return totalCost;
   };
 
@@ -371,7 +356,7 @@ const MarkShipmentAsDelivered = () => {
               {calculateTotalCost(
                 shipments.filter((s) => selectedShipmentIds.includes(s.id)),
               ).toFixed(2)}{" "}
-              (inclut un seul frais de service de ${SERVICE_FEE.toFixed(2)})
+              (inclut un seul frais de service de ${shippingRates.serviceFee.toFixed(2)})
             </p>
           </div>
         )}
@@ -394,34 +379,22 @@ const MarkShipmentAsDelivered = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredShipments.map((shipment) => {
-              const shippingRate = getShippingRate(shipment.destination);
               const poids = parseFloat(shipment.weight || "0");
               let cost = 0;
               let isFixedRate = false;
               let fixedRateCategory: string | undefined;
 
-              // Normalisation de la catégorie
-              const normalizedCategory = shipment.category
-                ?.toLowerCase()
-                .replace(/[\s-]/g, "")
-                .replace("portbable", "portables")
-                .replace(/[éèê]/g, "e");
+              // Try to get special item price first (dynamique)
+              const specialPrice = getSpecialItemPrice(shipment.category);
 
-              // Calcul des frais sans SERVICE_FEE
-              if (normalizedCategory) {
-                const mappedCategory = categoryMapping[normalizedCategory] || normalizedCategory;
-                if (mappedCategory in FIXED_ITEM_RATES) {
-                  cost = FIXED_ITEM_RATES[mappedCategory]; // Sans SERVICE_FEE
-                  isFixedRate = true;
-                  fixedRateCategory = mappedCategory
-                    .charAt(0)
-                    .toUpperCase()
-                    + mappedCategory.slice(1).replace("_", " ");
-                } else {
-                  cost = poids * shippingRate; // Sans SERVICE_FEE
-                  isFixedRate = false;
-                }
+              if (specialPrice !== null) {
+                // This is a special item with fixed price
+                cost = specialPrice; // Sans SERVICE_FEE
+                isFixedRate = true;
+                fixedRateCategory = shipment.category;
               } else {
+                // Regular weight-based calculation (dynamique)
+                const shippingRate = getRate(shipment.destination);
                 cost = poids * shippingRate; // Sans SERVICE_FEE
                 isFixedRate = false;
               }

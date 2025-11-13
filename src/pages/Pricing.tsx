@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { Monitor, Laptop, Smartphone, Tv, Check, Calculator, MessageCircle, Sparkles, Zap, Shield } from 'lucide-react';
 import PricingCalculator from "../components/PricingCalculator";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const Pricing = () => {
+  // Get dynamic settings
+  const { shippingRates, specialItems } = useSettings();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -51,6 +54,10 @@ const Pricing = () => {
     { icon: <Check size={16} />, text: "Sans frais cachés" }
   ];
 
+  // Find dynamic prices for laptops and phones from specialItems
+  const laptopItem = specialItems.items.find(item => item.category === 'computer');
+  const phoneItem = specialItems.items.find(item => item.category === 'phone');
+
   const electronicDevices = [
     {
       icon: <Monitor className="w-8 h-8" />,
@@ -64,7 +71,7 @@ const Pricing = () => {
     {
       icon: <Laptop className="w-8 h-8" />,
       title: "Ordinateurs Portables 💻",
-      price: "+90$",
+      price: laptopItem ? `+${laptopItem.price}$` : "+90$",
       description: "Emballage sécurisé avec protection contre les chocs",
       gradient: "from-purple-500/20 to-pink-500/20",
       borderGradient: "from-purple-500 to-pink-500"
@@ -72,7 +79,7 @@ const Pricing = () => {
     {
       icon: <Smartphone className="w-8 h-8" />,
       title: "Téléphones 📱",
-      price: "+60$",
+      price: phoneItem ? `+${phoneItem.price}$` : "+60$",
       description: "Protection spécialisée pour appareils mobiles",
       gradient: "from-green-500/20 to-emerald-500/20",
       borderGradient: "from-green-500 to-emerald-500"
@@ -195,7 +202,7 @@ const Pricing = () => {
                   whileHover={{ scale: 1.1 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  10$
+                  {shippingRates.serviceFee}$
                 </motion.div>
                 <h3 className="text-2xl font-bold mb-3 flex items-center justify-center gap-2">
                   <Calculator className="w-6 h-6 text-blue-400" />
@@ -234,19 +241,19 @@ const Pricing = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-700/50 h-full">
               <div className="text-center mb-6">
-                <motion.div 
+                <motion.div
                   className="text-7xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text mb-4"
                   whileHover={{ scale: 1.1 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  4.5$
+                  {shippingRates.rateCapHaitien}$ - {shippingRates.ratePortAuPrince}$
                 </motion.div>
                 <h3 className="text-2xl font-bold mb-3 flex items-center justify-center gap-2">
                   <Sparkles className="w-6 h-6 text-purple-400" />
                   Par Livre (lbs) ⚖️
                 </h3>
                 <p className="text-slate-300">
-                  Tarif standard basé sur le poids de votre colis
+                  Cap-Haïtien: ${shippingRates.rateCapHaitien}/lbs | Port-au-Prince: ${shippingRates.ratePortAuPrince}/lbs
                 </p>
               </div>
               

@@ -452,18 +452,20 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
           `Transféré à l'utilisateur ${updatedData.fullName}`
         );
 
+        // 🚫 ENVOI D'EMAIL TEMPORAIREMENT DÉSACTIVÉ
         // Tentative d'envoi d'email (n'arrête pas le processus en cas d'échec)
-        try {
-          await sendStatusEmail(
-            "En attente⏳",
-            updatedData.fullName,
-            updatedData.emailAdress,
-            trackingNumber
-          );
-          console.log("✅ Email de transfert envoyé avec succès");
-        } catch (emailError: any) {
-          console.error("⚠️ Erreur lors de l'envoi de l'email (le colis a été transféré quand même) :", emailError.message);
-        }
+        // try {
+        //   await sendStatusEmail(
+        //     "En attente⏳",
+        //     updatedData.fullName,
+        //     updatedData.emailAdress,
+        //     trackingNumber
+        //   );
+        //   console.log("✅ Email de transfert envoyé avec succès");
+        // } catch (emailError: any) {
+        //   console.error("⚠️ Erreur lors de l'envoi de l'email (le colis a été transféré quand même) :", emailError.message);
+        // }
+        console.log("📧 Email désactivé temporairement - Migration en cours");
 
         console.log("Transfert réussi :", { trackingNumber: trackingNumber, status: shipment.status });
 
@@ -498,18 +500,20 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
 
         console.log("Données pour la nouvelle requête :", data);
 
+        // 🚫 ENVOI D'EMAIL TEMPORAIREMENT DÉSACTIVÉ
         // Tentative d'envoi d'email (n'arrête pas le processus en cas d'échec)
-        try {
-          await sendStatusEmail(
-            "En attente⏳",
-            data.fullName,
-            data.emailAdress,
-            trackingNumber
-          );
-          console.log("✅ Email de nouvelle requête envoyé avec succès");
-        } catch (emailError: any) {
-          console.error("⚠️ Erreur lors de l'envoi de l'email (la requête a été enregistrée quand même) :", emailError.message);
-        }
+        // try {
+        //   await sendStatusEmail(
+        //     "En attente⏳",
+        //     data.fullName,
+        //     data.emailAdress,
+        //     trackingNumber
+        //   );
+        //   console.log("✅ Email de nouvelle requête envoyé avec succès");
+        // } catch (emailError: any) {
+        //   console.error("⚠️ Erreur lors de l'envoi de l'email (la requête a été enregistrée quand même) :", emailError.message);
+        // }
+        console.log("📧 Email désactivé temporairement - Migration en cours");
 
         const result = await db
           .insert(shipmentListing)

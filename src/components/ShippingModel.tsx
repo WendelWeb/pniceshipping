@@ -47,7 +47,7 @@ const ShippingModel: React.FC = () => {
     { label: "Appartement, Suite, etc. (optionnel)", value: "PQ-067054", id: "apt", highlight: true },
     { label: "Ville *", value: "Miami", id: "city", highlight: false },
     { label: "État *", value: "Florida", id: "state", highlight: false },
-    { label: "Code Postal *", value: "33166", id: "zip", highlight: false }
+    { label: "Code Postal *", value: "33195", id: "zip", highlight: false }
   ];
 
   return (
@@ -123,7 +123,7 @@ const ShippingModel: React.FC = () => {
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <span className="flex-shrink-0 w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 font-bold">3</span>
-                  <span><span className="text-indigo-400 font-semibold">Vous devez envoyer votre colis à l'adresse indiquée dans ce modèle | 8298 Northwest 68th Street Miami Fl, 33166</span></span>
+                  <span><span className="text-indigo-400 font-semibold">Vous devez envoyer votre colis à l'adresse indiquée dans ce modèle | 8298 Northwest 68th Street Miami Fl, 33195</span></span>
                 </motion.span>
               </p>
             </motion.div>

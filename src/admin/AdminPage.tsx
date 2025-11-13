@@ -1,7 +1,7 @@
 import Button from "@/components/Button";
 import { Link } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
-import { Users, Warehouse, Clock, Package, CheckCircle, Inbox, Plane, Plus, Sparkles } from "lucide-react";
+import { Users, Warehouse, Clock, Package, CheckCircle, Inbox, Plane, Plus, Sparkles, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 
 const cards = [
@@ -48,12 +48,19 @@ const cards = [
     gradient: "from-yellow-500/20 to-amber-500/20",
     glowColor: "shadow-yellow-500/20"
   },
-  { 
-    title: "Colis livrés ✅", 
-    icon: <CheckCircle className="w-10 h-10 text-green-400" />, 
+  {
+    title: "Colis livrés ✅",
+    icon: <CheckCircle className="w-10 h-10 text-green-400" />,
     link: '/admin/delivered-shipments',
     gradient: "from-green-500/20 to-emerald-500/20",
     glowColor: "shadow-green-500/20"
+  },
+  {
+    title: "Paramètres ⚙️",
+    icon: <Settings className="w-10 h-10 text-cyan-400" />,
+    link: '/admin/settings',
+    gradient: "from-cyan-500/20 to-blue-500/20",
+    glowColor: "shadow-cyan-500/20"
   },
 ];
 

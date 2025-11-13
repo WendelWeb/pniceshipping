@@ -1,42 +1,34 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calculator, MapPin, Package, Weight, Zap, DollarSign, Sparkles, Info } from 'lucide-react';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export default function PricingCalculator() {
   const [weight, setWeight] = useState(1);
   const [itemType, setItemType] = useState("standard");
   const [destination, setDestination] = useState("cap-haitien");
 
-  // Tarifs spéciaux pour les appareils électroniques
-  const specialRates: Record<string, { price: number; description: string }> = {
-    ordinateurs_portables: { price: 90, description: "Emballage sécurisé avec protection contre les chocs" },
-    telephones: { price: 60, description: "Protection spécialisée pour appareils mobiles" },
-    starlink: { price: 120, description: "Frais Douane Supplementaire pour kit Starlink" }
-  };
+  // Get settings from global context
+  const {
+    shippingRates,
+    specialItems,
+    isLoading: loading,
+    getRate,
+  } = useSettings();
 
   // Tarifs de base selon la destination
-  const getBaseRates = () => {
-    if (destination === "port-au-prince") {
-      return {
-        serviceFee: 15,
-        perLbsRate: 5
-      };
-    } else {
-      return {
-        serviceFee: 10,
-        perLbsRate: 4.5
-      };
-    }
-  };
+  const serviceFee = shippingRates.serviceFee;
+  const perLbsRate = getRate(destination);
 
-  const { serviceFee, perLbsRate } = getBaseRates();
-  
   // Vérifier si c'est un article à tarif spécial
   const isSpecialItem = itemType !== "standard";
-  
+
+  // Trouver l'article spécial sélectionné
+  const selectedSpecialItem = specialItems.items.find(item => item.id === itemType);
+
   // Frais supplémentaires pour le type d'article sélectionné
-  const specialFee = isSpecialItem ? specialRates[itemType]?.price || 0 : 0;
-  
+  const specialFee = isSpecialItem && selectedSpecialItem ? selectedSpecialItem.price : 0;
+
   // Calcul du coût total
   const weightCost = isSpecialItem ? 0 : weight * perLbsRate;
   const totalCost = serviceFee + weightCost + specialFee;
@@ -137,7 +129,7 @@ export default function PricingCalculator() {
               <option value="port-au-prince" className="bg-slate-800">Port-au-Prince</option>
             </motion.select>
             
-            <motion.div 
+            <motion.div
               className="mt-3 p-3 bg-slate-700/30 rounded-xl border border-slate-600/30"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -146,9 +138,9 @@ export default function PricingCalculator() {
               <div className="flex items-center gap-2 text-slate-200">
                 <Info className="w-4 h-4 text-blue-400" />
                 <span className="text-sm">
-                  {destination === "port-au-prince" ? 
-                    "📍 Port-au-Prince: $15 frais de service, $5/lbs" : 
-                    "📍 Cap-Haïtien: $10 frais de service, $4.5/lbs"}
+                  {destination === "port-au-prince"
+                    ? `📍 Port-au-Prince: $${shippingRates.serviceFee} frais de service, $${shippingRates.ratePortAuPrince}/lbs`
+                    : `📍 Cap-Haïtien: $${shippingRates.serviceFee} frais de service, $${shippingRates.rateCapHaitien}/lbs`}
                 </span>
               </div>
             </motion.div>
@@ -208,18 +200,19 @@ export default function PricingCalculator() {
                 onChange={(e) => setItemType(e.target.value)}
                 className="w-full p-4 rounded-2xl bg-slate-700/50 text-white border-2 border-slate-600/50 focus:border-green-400 focus:outline-none transition-all duration-300 text-lg backdrop-blur-sm"
                 whileFocus={{ scale: 1.02 }}
+                disabled={loading}
               >
                 <option value="standard" className="bg-slate-800">📦 Standard</option>
-                {Object.keys(specialRates).map((key) => (
-                  <option key={key} value={key} className="bg-slate-800">
-                    {key === 'ordinateurs_portables' ? '💻' : key === 'telephones' ? '📱' : '🛰️'} {formatItemName(key)}
+                {specialItems.items.map((item) => (
+                  <option key={item.id} value={item.id} className="bg-slate-800">
+                    {item.category === 'computer' ? '💻' : item.category === 'phone' ? '📱' : '🛰️'} {item.name}
                   </option>
                 ))}
               </motion.select>
               
               <AnimatePresence>
-                {isSpecialItem && (
-                  <motion.div 
+                {isSpecialItem && selectedSpecialItem && (
+                  <motion.div
                     className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-xl"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -228,7 +221,7 @@ export default function PricingCalculator() {
                   >
                     <div className="flex items-center gap-2 text-green-300 text-sm">
                       <DollarSign className="w-4 h-4" />
-                      Prix fixe: ${specialRates[itemType].price} + frais de service ⚡
+                      Prix fixe: ${selectedSpecialItem.price} + frais de service ⚡
                     </div>
                   </motion.div>
                 )}
@@ -278,8 +271,8 @@ export default function PricingCalculator() {
                   </motion.div>
                 )}
                 
-                {isSpecialItem && (
-                  <motion.div 
+                {isSpecialItem && selectedSpecialItem && (
+                  <motion.div
                     className="flex justify-between items-center py-2 border-b border-slate-700/50"
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
@@ -287,7 +280,7 @@ export default function PricingCalculator() {
                   >
                     <span className="text-slate-300 flex items-center gap-2">
                       <Package className="w-4 h-4 text-green-400" />
-                      Prix fixe ({formatItemName(itemType)}):
+                      Prix fixe ({selectedSpecialItem.name}):
                     </span>
                     <span className="text-white font-semibold">${specialFee.toFixed(2)}</span>
                   </motion.div>

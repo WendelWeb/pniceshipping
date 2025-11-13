@@ -16,6 +16,7 @@ import MarkShipmentAsTransit from "@/pages/MarkShipmentAsTransit";
 import NotFound from "@/pages/NotFound";
 import Pricing from "@/pages/Pricing";
 import UserList from "@/pages/UserList";
+import AdminSettings from "@/pages/AdminSettings";
 import { RouteObject } from "react-router-dom";
 
 // Définition des routes sous forme de tableau d'objets RouteObject
@@ -100,9 +101,13 @@ export const routes: RouteObject[] = [
         path: "delivered-shipments",
         element: <DeliveredShipments />
       },
-      
-     
-      
+      {
+        path: "settings",
+        element: <AdminSettings />
+      },
+
+
+
     ],
   },
 

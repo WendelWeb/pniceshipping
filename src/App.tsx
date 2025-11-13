@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 // import { getAllShipments } from "./utils/shipmentQueries";
 // import { useEffect } from "react";
 import { UserProvider } from "./contexts/UserContext";
+import { SettingsProvider } from "./contexts/SettingsContext";
 import { routes } from "./router/routes"; // Importation des routes
 
 // Composant pour rendre les routes
@@ -32,12 +33,14 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <UserProvider>
-        <div className="min-h-screen bg-gray-100">
-          <Navbar />
-          <main className="container py-8 pt-20">
-            <RouteRenderer /> {/* Utilisation du composant pour rendre les routes */}
-          </main>
-        </div>
+        <SettingsProvider autoRefreshInterval={30000}>
+          <div className="min-h-screen bg-gray-100">
+            <Navbar />
+            <main className="container py-8 pt-20">
+              <RouteRenderer /> {/* Utilisation du composant pour rendre les routes */}
+            </main>
+          </div>
+        </SettingsProvider>
       </UserProvider>
     </BrowserRouter>
   );

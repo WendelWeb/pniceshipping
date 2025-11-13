@@ -79,17 +79,19 @@ const MarkShipmentAsConfirmed = () => {
       setShipments((prev) =>
         prev.filter((s) => s.trackingNumber !== trackingNumber)
       );
+      // 🚫 ENVOI D'EMAIL TEMPORAIREMENT DÉSACTIVÉ
       // Tentative d'envoi d'email (n'arrête pas le processus en cas d'échec)
-      try {
-        await sendConfirmedEmail(
-          `${shipment.fullName},`,
-          `${shipment.emailAdress}`,
-          `${shipment.trackingNumber}`
-        );
-        console.log("✅ Email de confirmation envoyé avec succès");
-      } catch (emailError: any) {
-        console.error("⚠️ Erreur lors de l'envoi de l'email (le colis a été confirmé quand même) :", emailError.message);
-      }
+      // try {
+      //   await sendConfirmedEmail(
+      //     `${shipment.fullName},`,
+      //     `${shipment.emailAdress}`,
+      //     `${shipment.trackingNumber}`
+      //   );
+      //   console.log("✅ Email de confirmation envoyé avec succès");
+      // } catch (emailError: any) {
+      //   console.error("⚠️ Erreur lors de l'envoi de l'email (le colis a été confirmé quand même) :", emailError.message);
+      // }
+      console.log("📧 Email désactivé temporairement - Migration en cours");
       if (selectedShipment?.trackingNumber === trackingNumber) {
         setSelectedShipment(null);
         setShowModal(false);

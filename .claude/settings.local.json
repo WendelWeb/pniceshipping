@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install expo-notifications --legacy-peer-deps)",
+      "Bash(npm install -g eas-cli)",
+      "Bash(eas whoami)",
+      "Bash(npm install i18next react-i18next)",
+      "Bash(npm install i18next react-i18next --legacy-peer-deps)",
+      "Bash(npm install @react-native-async-storage/async-storage --legacy-peer-deps)",
+      "Bash(npx expo start --port 8082)",
+      "Bash(npx expo start --port 8083)",
+      "Read(//c/Users/stanl/Desktop/Personal Projects/**)",
+      "Bash(npm install @aws-sdk/client-ses)",
+      "Bash(npm install node-fetch@2)",
+      "Bash(npm install expo-image-picker)",
+      "Bash(npm install expo-image-picker --legacy-peer-deps)",
+      "Bash(eas --version)",
+      "Bash(eas project:info)",
+      "Bash(eas init)",
+      "Bash(npx expo start:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

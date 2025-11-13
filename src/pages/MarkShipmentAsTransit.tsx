@@ -67,16 +67,18 @@ const MarkShipmentAsTransit = () => {
       await updateShipmentStatus(
         shipment.id,
         'En Transit✈️',
-        'Colis En cours de transit vers sa destination finale'
+        'En route vers Haiti'
       );
 
+      // 🚫 ENVOI D'EMAIL TEMPORAIREMENT DÉSACTIVÉ
       // Tentative d'envoi d'email (n'arrête pas le processus en cas d'échec)
-      try {
-        await sendTransitEmail(`${shipment.fullName}`, `${shipment.emailAdress}`, `${shipment.trackingNumber}`);
-        console.log("✅ Email de transit envoyé avec succès");
-      } catch (emailError: any) {
-        console.error("⚠️ Erreur lors de l'envoi de l'email (le colis est passé en transit quand même) :", emailError.message);
-      }
+      // try {
+      //   await sendTransitEmail(`${shipment.fullName}`, `${shipment.emailAdress}`, `${shipment.trackingNumber}`);
+      //   console.log("✅ Email de transit envoyé avec succès");
+      // } catch (emailError: any) {
+      //   console.error("⚠️ Erreur lors de l'envoi de l'email (le colis est passé en transit quand même) :", emailError.message);
+      // }
+      console.log("📧 Email désactivé temporairement - Migration en cours");
       setShipments((prev) => prev.filter((s) => s.id !== id));
     } catch (error) {
       console.error('Erreur lors du passage en transit:', error);

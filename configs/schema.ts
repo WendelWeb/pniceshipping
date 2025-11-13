@@ -64,3 +64,23 @@ export const userWhatsappPhoneNumbers = pgTable('user_whatsapp_phone_numbers', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+// Table de paramètres pour les tarifs dynamiques
+export const settings = pgTable('settings', {
+  id: serial('id').primaryKey(),
+  key: varchar('key').notNull().unique(), // 'shipping_rates', 'special_items', etc.
+  value: json('value').notNull(), // JSON avec les valeurs
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedBy: varchar('updated_by'), // Clerk user ID de l'admin qui a modifié
+});
+
+// Table pour les tokens de notifications push
+export const pushTokens = pgTable('push_tokens', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').notNull(), // Clerk user ID
+  pushToken: varchar('push_token').notNull().unique(), // Expo push token
+  deviceInfo: json('device_info'), // Optional: device model, OS version, etc.
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  isActive: varchar('is_active').notNull().default('true'), // 'true' or 'false' as string
+});

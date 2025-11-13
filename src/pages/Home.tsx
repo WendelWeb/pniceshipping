@@ -1,15 +1,15 @@
 import { motion } from 'framer-motion';
 import HeroSection from "../components/HeroSection";
 import ParcelTracker from "../components/ParcelTrackerComponent";
-import { 
-  Mail, 
-  Package, 
-  DollarSign, 
-  Scale, 
-  Ban, 
-  Smartphone, 
-  Eye, 
-  CheckCircle, 
+import {
+  Mail,
+  Package,
+  DollarSign,
+  Scale,
+  Ban,
+  Smartphone,
+  Eye,
+  CheckCircle,
   MessageCircle,
   ArrowUpRight,
   Send,
@@ -28,6 +28,7 @@ import ShippingModel from "@/components/ShippingModel";
 import HaitiShippingInfo from "@/components/HaitiShippingInfo";
 import Footer from "@/components/Footer";
 import ServiceCard from "@/components/ServiceCard";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const services = [
   {
@@ -81,17 +82,18 @@ const features = [
   },
 ];
 
-// Conditions générales d'expédition
-const shippingTerms = [
+// Conditions générales d'expédition (à rendre dynamique dans le composant)
+const getShippingTerms = (shippingRates: any, specialItems: any) => [
   {
     icon: <DollarSign className="w-8 h-8" />,
     title: "Tarification",
     items: [
-      "Frais de service : 10 $",
-      "Tarif au poids : 4,50 $ par livre (lbs)",
-      "Téléphones : 60 $",
-      "Laptops : 90 $",
-      "Starlink : 120 $"
+      `Frais de service : ${shippingRates.serviceFee} $`,
+      `Cap-Haïtien : ${shippingRates.rateCapHaitien} $/lbs`,
+      `Port-au-Prince : ${shippingRates.ratePortAuPrince} $/lbs`,
+      ...specialItems.items
+        .filter((item: any) => item.price > 0)
+        .map((item: any) => `${item.name} : ${item.price} $`)
     ],
     gradient: "from-emerald-500 to-teal-500"
   },
@@ -218,6 +220,12 @@ const glowEffect = {
 };
 
 const Home = () => {
+  // Get dynamic settings
+  const { shippingRates, specialItems } = useSettings();
+
+  // Generate dynamic shipping terms
+  const shippingTerms = getShippingTerms(shippingRates, specialItems);
+
   return (
     <div className="bg-slate-950 text-white overflow-hidden">
       <HeroSection />
@@ -225,7 +233,7 @@ const Home = () => {
       <ParcelTracker />
       <HaitiShippingInfo />
       <GetAQuote />
-      
+
       {/* Services Section */}
       <ServiceCard services={services} />
       
@@ -903,7 +911,7 @@ const Home = () => {
                 whileHover={{ x: 5 }}
               >
                 <span className="mr-2">📍</span>
-                8298 Northwest 68th Street Miami Fl, 33166
+                8298 Northwest 68th Street Miami Fl, 33195
               </motion.p>
               <motion.p 
                 className="flex items-center justify-center"

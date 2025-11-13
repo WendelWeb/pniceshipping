@@ -310,15 +310,18 @@ const AddShipment = () => {
     userEmail: string,
     packageId: string
   ): Promise<boolean> => {
-    try {
-      await sendStatusEmail(status, userName, userEmail, packageId);
-      console.log(`✅ Email envoyé avec succès pour le statut ${status} à ${userEmail}`);
-      return true;
-    } catch (error: any) {
-      console.error("⚠️ Erreur lors de l'envoi de l'email (le colis sera tout de même enregistré) :", error.message);
-      // On ne bloque plus le processus, on retourne true pour continuer
-      return true;
-    }
+    // 🚫 ENVOI D'EMAIL TEMPORAIREMENT DÉSACTIVÉ
+    // try {
+    //   await sendStatusEmail(status, userName, userEmail, packageId);
+    //   console.log(`✅ Email envoyé avec succès pour le statut ${status} à ${userEmail}`);
+    //   return true;
+    // } catch (error: any) {
+    //   console.error("⚠️ Erreur lors de l'envoi de l'email (le colis sera tout de même enregistré) :", error.message);
+    //   // On ne bloque plus le processus, on retourne true pour continuer
+    //   return true;
+    // }
+    console.log(`📧 Email désactivé temporairement - Migration en cours (${status} pour ${userEmail})`);
+    return true;
   };
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
