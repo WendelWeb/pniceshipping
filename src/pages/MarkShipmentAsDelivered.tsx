@@ -18,7 +18,13 @@ interface User {
   twoFactorEnabled: boolean;
 }
 
-const CATEGORIES = ["Telephone", "Ordinateur Portbable", "Starlink", "Standard", "Other"];
+const CATEGORIES = [
+  "Telephone",
+  "Ordinateur Portbable",
+  "Starlink",
+  "Standard",
+  "Other",
+];
 
 const MarkShipmentAsDelivered = () => {
   const { shippingRates, getRate, getSpecialItemPrice } = useSettings();
@@ -39,8 +45,11 @@ const MarkShipmentAsDelivered = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://pniceshippingbackend-2.onrender.com/api/users");
-        if (!response.ok) throw new Error("Échec de la récupération des utilisateurs");
+        const response = await fetch(
+          "https://pniceshippingbackend-2.onrender.com/api/users"
+        );
+        if (!response.ok)
+          throw new Error("Échec de la récupération des utilisateurs");
         const data = await response.json();
         setUsers(data.data);
         setFilteredUsers(data.data);
@@ -55,16 +64,16 @@ const MarkShipmentAsDelivered = () => {
 
   useEffect(() => {
     const filtered = users.filter(
-      (
-        user,
-      ) =>
+      (user) =>
         `${user.firstName} ${user.lastName}`
           .toLowerCase()
           .includes(searchTermUsers.toLowerCase()) ||
         user.username.toLowerCase().includes(searchTermUsers.toLowerCase()) ||
         user.emailAddresses.some((email) =>
-          email.emailAddress.toLowerCase().includes(searchTermUsers.toLowerCase()),
-        ),
+          email.emailAddress
+            .toLowerCase()
+            .includes(searchTermUsers.toLowerCase())
+        )
     );
     setFilteredUsers(filtered);
     setIsUserListOpen(searchTermUsers.length > 0 && filtered.length > 0);
@@ -79,15 +88,21 @@ const MarkShipmentAsDelivered = () => {
         const userShipments = results
           .filter(
             (shipment) =>
-              shipment.ownerId === selectedUserId && shipment.status === "Disponible🟢",
+              shipment.ownerId === selectedUserId &&
+              shipment.status === "Disponible🟢"
           )
           .map((shipment) => ({
             ...shipment,
-            statusDates: Array.isArray(shipment.statusDates) ? shipment.statusDates : [],
+            statusDates: Array.isArray(shipment.statusDates)
+              ? shipment.statusDates
+              : [],
           })) as Shipment[];
         setShipments(userShipments);
       } catch (error) {
-        console.error("Erreur lors de la récupération des colis disponibles:", error);
+        console.error(
+          "Erreur lors de la récupération des colis disponibles:",
+          error
+        );
       } finally {
         setLoading(false);
       }
@@ -97,7 +112,7 @@ const MarkShipmentAsDelivered = () => {
 
   const handleSelectShipment = (id: number) => {
     setSelectedShipmentIds((prev) =>
-      prev.includes(id) ? prev.filter((sId) => sId !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((sId) => sId !== id) : [...prev, id]
     );
   };
 
@@ -123,7 +138,9 @@ const MarkShipmentAsDelivered = () => {
 
   const handleDeliver = () => {
     if (selectedShipmentIds.length === 0 || !selectedUserId) return;
-    const selectedShipments = shipments.filter((s) => selectedShipmentIds.includes(s.id));
+    const selectedShipments = shipments.filter((s) =>
+      selectedShipmentIds.includes(s.id)
+    );
     const totalCost = calculateTotalCost(selectedShipments);
     navigate("/admin/confirm-delivery", {
       state: { selectedShipments, selectedUserId, totalCost },
@@ -132,11 +149,19 @@ const MarkShipmentAsDelivered = () => {
 
   const filteredShipments = shipments.filter(
     (shipment) =>
-      (shipment.trackingNumber.toLowerCase().includes(searchTermShipments.toLowerCase()) ||
-        shipment.fullName.toLowerCase().includes(searchTermShipments.toLowerCase()) ||
-        shipment.userName.toLowerCase().includes(searchTermShipments.toLowerCase()) ||
-        shipment.emailAdress.toLowerCase().includes(searchTermShipments.toLowerCase())) &&
-      (selectedCategory ? shipment.category === selectedCategory : true),
+      (shipment.trackingNumber
+        .toLowerCase()
+        .includes(searchTermShipments.toLowerCase()) ||
+        shipment.fullName
+          .toLowerCase()
+          .includes(searchTermShipments.toLowerCase()) ||
+        shipment.userName
+          .toLowerCase()
+          .includes(searchTermShipments.toLowerCase()) ||
+        shipment.emailAdress
+          .toLowerCase()
+          .includes(searchTermShipments.toLowerCase())) &&
+      (selectedCategory ? shipment.category === selectedCategory : true)
   );
 
   return (
@@ -146,7 +171,9 @@ const MarkShipmentAsDelivered = () => {
           <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">
             Marquer comme Livré
           </h2>
-          <p className="text-gray-600 mt-2 text-lg">Sélectionnez vos colis avec élégance</p>
+          <p className="text-gray-600 mt-2 text-lg">
+            Sélectionnez vos colis avec élégance
+          </p>
         </header>
 
         {/* Sélection des utilisateurs */}
@@ -215,7 +242,9 @@ const MarkShipmentAsDelivered = () => {
                         <p className="text-lg font-semibold text-gray-800">
                           {user.firstName} {user.lastName}
                         </p>
-                        <p className="text-sm text-gray-600">@{user.username}</p>
+                        <p className="text-sm text-gray-600">
+                          @{user.username}
+                        </p>
                         <p className="text-sm text-gray-500">
                           {user.emailAddresses[0]?.emailAddress}
                         </p>
@@ -238,7 +267,11 @@ const MarkShipmentAsDelivered = () => {
             >
               <option value="">-- Choisir un utilisateur --</option>
               {users.map((user) => (
-                <option className="cursor-pointer" key={user.id} value={user.id}>
+                <option
+                  className="cursor-pointer"
+                  key={user.id}
+                  value={user.id}
+                >
                   {user.firstName} {user.lastName} (@{user.username})
                 </option>
               ))}
@@ -335,7 +368,12 @@ const MarkShipmentAsDelivered = () => {
                   : "bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:from-indigo-700 hover:to-blue-700 hover:shadow-xl"
               }`}
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -354,9 +392,10 @@ const MarkShipmentAsDelivered = () => {
             <p className="text-lg font-semibold text-gray-800">
               Coût total : $
               {calculateTotalCost(
-                shipments.filter((s) => selectedShipmentIds.includes(s.id)),
+                shipments.filter((s) => selectedShipmentIds.includes(s.id))
               ).toFixed(2)}{" "}
-              (inclut un seul frais de service de ${shippingRates.serviceFee.toFixed(2)})
+              (inclut un seul frais de service de $
+              {shippingRates.serviceFee.toFixed(2)})
             </p>
           </div>
         )}
@@ -383,6 +422,7 @@ const MarkShipmentAsDelivered = () => {
               let cost = 0;
               let isFixedRate = false;
               let fixedRateCategory: string | undefined;
+              let shippingRate = 0;
 
               // Try to get special item price first (dynamique)
               const specialPrice = getSpecialItemPrice(shipment.category);
@@ -394,7 +434,7 @@ const MarkShipmentAsDelivered = () => {
                 fixedRateCategory = shipment.category;
               } else {
                 // Regular weight-based calculation (dynamique)
-                const shippingRate = getRate(shipment.destination);
+                shippingRate = getRate(shipment.destination);
                 cost = poids * shippingRate; // Sans SERVICE_FEE
                 isFixedRate = false;
               }
@@ -403,11 +443,15 @@ const MarkShipmentAsDelivered = () => {
                 <div
                   key={shipment.id}
                   className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${
-                    selectedShipmentIds.includes(shipment.id) ? "ring-2 ring-indigo-500" : ""
+                    selectedShipmentIds.includes(shipment.id)
+                      ? "ring-2 ring-indigo-500"
+                      : ""
                   }`}
                 >
                   <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-3 text-white rounded-t-lg flex justify-between items-center">
-                    <h3 className="font-semibold text-lg">#{shipment.trackingNumber}</h3>
+                    <h3 className="font-semibold text-lg">
+                      #{shipment.trackingNumber}
+                    </h3>
                     <span className="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">
                       Disponible
                     </span>
@@ -420,7 +464,9 @@ const MarkShipmentAsDelivered = () => {
                         onChange={() => handleSelectShipment(shipment.id)}
                         className="mr-2 h-5 w-5 cursor-pointer text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                       />
-                      <p className="text-gray-800 font-semibold">{shipment.fullName}</p>
+                      <p className="text-gray-800 font-semibold">
+                        {shipment.fullName}
+                      </p>
                     </div>
                     <p className="text-sm text-gray-600 flex items-center">
                       <svg

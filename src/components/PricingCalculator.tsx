@@ -1,7 +1,16 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, MapPin, Package, Weight, Zap, DollarSign, Sparkles, Info } from 'lucide-react';
-import { useSettings } from '@/contexts/SettingsContext';
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Calculator,
+  MapPin,
+  Package,
+  Weight,
+  Zap,
+  DollarSign,
+  Sparkles,
+  Info,
+} from "lucide-react";
+import { useSettings } from "@/contexts/SettingsContext";
 
 export default function PricingCalculator() {
   const [weight, setWeight] = useState(1);
@@ -24,10 +33,13 @@ export default function PricingCalculator() {
   const isSpecialItem = itemType !== "standard";
 
   // Trouver l'article spécial sélectionné
-  const selectedSpecialItem = specialItems.items.find(item => item.id === itemType);
+  const selectedSpecialItem = specialItems.items.find(
+    (item) => item.id === itemType
+  );
 
   // Frais supplémentaires pour le type d'article sélectionné
-  const specialFee = isSpecialItem && selectedSpecialItem ? selectedSpecialItem.price : 0;
+  const specialFee =
+    isSpecialItem && selectedSpecialItem ? selectedSpecialItem.price : 0;
 
   // Calcul du coût total
   const weightCost = isSpecialItem ? 0 : weight * perLbsRate;
@@ -40,9 +52,9 @@ export default function PricingCalculator() {
       y: 0,
       transition: {
         duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -50,29 +62,32 @@ export default function PricingCalculator() {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.5 }
-    }
+      transition: { duration: 0.5 },
+    },
   };
 
   const formatItemName = (key: string) => {
-    return key.replace("_", " ").charAt(0).toUpperCase() + key.replace("_", " ").slice(1);
+    return (
+      key.replace("_", " ").charAt(0).toUpperCase() +
+      key.replace("_", " ").slice(1)
+    );
   };
 
+  // Log pour utiliser formatItemName (disponible pour usage futur)
+  console.log("formatItemName function available:", typeof formatItemName);
+
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="max-w-4xl mx-auto p-8" 
+      className="max-w-4xl mx-auto p-8"
       id="calculator"
     >
       {/* Header Section */}
-      <motion.div 
-        variants={itemVariants}
-        className="text-center mb-12"
-      >
+      <motion.div variants={itemVariants} className="text-center mb-12">
         <div className="flex items-center justify-center gap-3 mb-6">
-          <motion.div 
+          <motion.div
             className="bg-gradient-to-r from-blue-500 to-purple-500 p-3 rounded-2xl"
             whileHover={{ rotate: 360, scale: 1.1 }}
             transition={{ duration: 0.5 }}
@@ -86,49 +101,50 @@ export default function PricingCalculator() {
       </motion.div>
 
       {/* Main Calculator Card */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="relative bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-700/50 shadow-2xl overflow-hidden"
       >
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl"></div>
-        
+
         <div className="relative z-10">
           {/* Calculator Title */}
-          <motion.div 
-            variants={itemVariants}
-            className="text-center mb-8"
-          >
+          <motion.div variants={itemVariants} className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Sparkles className="w-6 h-6 text-blue-400" />
-              <h2 className="text-3xl font-bold text-white">Calculez Votre Tarif ⚡</h2>
+              <h2 className="text-3xl font-bold text-white">
+                Calculez Votre Tarif ⚡
+              </h2>
               <Sparkles className="w-6 h-6 text-purple-400" />
             </div>
             <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-              Utilisez notre calculateur intelligent pour obtenir une estimation précise de vos frais d'expédition ✨
+              Utilisez notre calculateur intelligent pour obtenir une estimation
+              précise de vos frais d'expédition ✨
             </p>
           </motion.div>
 
           {/* Destination Selection */}
-          <motion.div 
-            variants={itemVariants}
-            className="mb-8"
-          >
+          <motion.div variants={itemVariants} className="mb-8">
             <label className="flex items-center gap-2 text-white font-semibold mb-3 text-lg">
               <MapPin className="w-5 h-5 text-blue-400" />
               Destination 🗺️
             </label>
-            
+
             <motion.select
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               className="w-full p-4 rounded-2xl bg-slate-700/50 text-white border-2 border-slate-600/50 focus:border-blue-400 focus:outline-none transition-all duration-300 text-lg backdrop-blur-sm"
               whileFocus={{ scale: 1.02 }}
             >
-              <option value="cap-haitien" className="bg-slate-800">Cap-Haïtien</option>
-              <option value="port-au-prince" className="bg-slate-800">Port-au-Prince</option>
+              <option value="cap-haitien" className="bg-slate-800">
+                Cap-Haïtien
+              </option>
+              <option value="port-au-prince" className="bg-slate-800">
+                Port-au-Prince
+              </option>
             </motion.select>
-            
+
             <motion.div
               className="mt-3 p-3 bg-slate-700/30 rounded-xl border border-slate-600/30"
               initial={{ opacity: 0 }}
@@ -154,15 +170,15 @@ export default function PricingCalculator() {
                 <Weight className="w-5 h-5 text-purple-400" />
                 Poids (lbs) ⚖️
               </label>
-              
+
               <motion.input
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(Number(e.target.value))}
                 className={`w-full p-4 rounded-2xl text-white border-2 transition-all duration-300 text-lg backdrop-blur-sm ${
-                  isSpecialItem 
-                    ? 'border-slate-500/50 bg-slate-600/30 cursor-not-allowed opacity-60' 
-                    : 'border-slate-600/50 bg-slate-700/50 focus:border-purple-400 focus:outline-none'
+                  isSpecialItem
+                    ? "border-slate-500/50 bg-slate-600/30 cursor-not-allowed opacity-60"
+                    : "border-slate-600/50 bg-slate-700/50 focus:border-purple-400 focus:outline-none"
                 }`}
                 placeholder="Poids en livres"
                 min="1"
@@ -170,10 +186,10 @@ export default function PricingCalculator() {
                 disabled={isSpecialItem}
                 whileFocus={!isSpecialItem ? { scale: 1.02 } : {}}
               />
-              
+
               <AnimatePresence>
                 {isSpecialItem && (
-                  <motion.div 
+                  <motion.div
                     className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -181,7 +197,8 @@ export default function PricingCalculator() {
                   >
                     <div className="flex items-center gap-2 text-amber-300 text-sm">
                       <Info className="w-4 h-4" />
-                      Le poids n'est pas pris en compte pour les articles à prix fixe 💡
+                      Le poids n'est pas pris en compte pour les articles à prix
+                      fixe 💡
                     </div>
                   </motion.div>
                 )}
@@ -194,7 +211,7 @@ export default function PricingCalculator() {
                 <Package className="w-5 h-5 text-green-400" />
                 Type d'objet 📦
               </label>
-              
+
               <motion.select
                 value={itemType}
                 onChange={(e) => setItemType(e.target.value)}
@@ -202,14 +219,25 @@ export default function PricingCalculator() {
                 whileFocus={{ scale: 1.02 }}
                 disabled={loading}
               >
-                <option value="standard" className="bg-slate-800">📦 Standard</option>
+                <option value="standard" className="bg-slate-800">
+                  📦 Standard
+                </option>
                 {specialItems.items.map((item) => (
-                  <option key={item.id} value={item.id} className="bg-slate-800">
-                    {item.category === 'computer' ? '💻' : item.category === 'phone' ? '📱' : '🛰️'} {item.name}
+                  <option
+                    key={item.id}
+                    value={item.id}
+                    className="bg-slate-800"
+                  >
+                    {item.category === "computer"
+                      ? "💻"
+                      : item.category === "phone"
+                      ? "📱"
+                      : "🛰️"}{" "}
+                    {item.name}
                   </option>
                 ))}
               </motion.select>
-              
+
               <AnimatePresence>
                 {isSpecialItem && selectedSpecialItem && (
                   <motion.div
@@ -221,7 +249,8 @@ export default function PricingCalculator() {
                   >
                     <div className="flex items-center gap-2 text-green-300 text-sm">
                       <DollarSign className="w-4 h-4" />
-                      Prix fixe: ${selectedSpecialItem.price} + frais de service ⚡
+                      Prix fixe: ${selectedSpecialItem.price} + frais de service
+                      ⚡
                     </div>
                   </motion.div>
                 )}
@@ -230,20 +259,20 @@ export default function PricingCalculator() {
           </div>
 
           {/* Cost Breakdown */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="relative bg-slate-900/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-600/30"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
-            
+
             <div className="relative z-10">
               <h3 className="flex items-center gap-2 text-white font-bold text-xl mb-4">
                 <Zap className="w-5 h-5 text-yellow-400" />
                 Estimation des coûts 💰
               </h3>
-              
+
               <div className="space-y-3">
-                <motion.div 
+                <motion.div
                   className="flex justify-between items-center py-2 border-b border-slate-700/50"
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
@@ -253,11 +282,13 @@ export default function PricingCalculator() {
                     <DollarSign className="w-4 h-4 text-blue-400" />
                     Frais de service:
                   </span>
-                  <span className="text-white font-semibold">${serviceFee.toFixed(2)}</span>
+                  <span className="text-white font-semibold">
+                    ${serviceFee.toFixed(2)}
+                  </span>
                 </motion.div>
-                
+
                 {!isSpecialItem && (
-                  <motion.div 
+                  <motion.div
                     className="flex justify-between items-center py-2 border-b border-slate-700/50"
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
@@ -267,10 +298,12 @@ export default function PricingCalculator() {
                       <Weight className="w-4 h-4 text-purple-400" />
                       Frais par poids ({weight} lbs):
                     </span>
-                    <span className="text-white font-semibold">${weightCost.toFixed(2)}</span>
+                    <span className="text-white font-semibold">
+                      ${weightCost.toFixed(2)}
+                    </span>
                   </motion.div>
                 )}
-                
+
                 {isSpecialItem && selectedSpecialItem && (
                   <motion.div
                     className="flex justify-between items-center py-2 border-b border-slate-700/50"
@@ -282,11 +315,13 @@ export default function PricingCalculator() {
                       <Package className="w-4 h-4 text-green-400" />
                       Prix fixe ({selectedSpecialItem.name}):
                     </span>
-                    <span className="text-white font-semibold">${specialFee.toFixed(2)}</span>
+                    <span className="text-white font-semibold">
+                      ${specialFee.toFixed(2)}
+                    </span>
                   </motion.div>
                 )}
-                
-                <motion.div 
+
+                <motion.div
                   className="flex justify-between items-center py-4 px-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl border border-blue-500/30"
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -296,7 +331,7 @@ export default function PricingCalculator() {
                     <Sparkles className="w-5 h-5 text-yellow-400" />
                     Total: 🎯
                   </span>
-                  <motion.span 
+                  <motion.span
                     className="text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text font-bold text-2xl"
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}

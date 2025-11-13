@@ -7,23 +7,23 @@ import LoginPrompt from "./LoginPrompts.tsx";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Package, 
-  Plane, 
-  CheckCircle, 
-  Truck, 
-  Clock, 
-  Eye, 
-  X, 
-  MapPin, 
-  User, 
+import {
+  Package,
+  Plane,
+  CheckCircle,
+  Truck,
+  Clock,
+  Eye,
+  X,
+  MapPin,
+  User,
   Calendar,
   Weight,
   DollarSign,
   Filter,
   ArrowRight,
   TrendingUp,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 
 interface Colis {
@@ -49,7 +49,8 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("tous");
   const [selectedColis, setSelectedColis] = useState<Colis | null>(null);
   const [shipments, setShipments] = useState<Shipment[]>([]);
-  const [asToRefreshShipments, setAsToRefreshShipments] = useState<boolean>(false);
+  const [asToRefreshShipments, setAsToRefreshShipments] =
+    useState<boolean>(false);
 
   // Récupérer les colis
   useEffect(() => {
@@ -84,7 +85,8 @@ const Dashboard = () => {
 
   const colis = shipments.map((shipment: Shipment) => {
     const dateCreation =
-      shipment.statusDates?.find((statusDate) => statusDate.status === "Recu📦")?.date || "Non spécifiée";
+      shipment.statusDates?.find((statusDate) => statusDate.status === "Recu📦")
+        ?.date || "Non spécifiée";
     const poids = shipment.weight ? parseFloat(shipment.weight) : 0;
     let frais = 0;
     let isFixedRate = false;
@@ -102,13 +104,6 @@ const Dashboard = () => {
       // Regular weight-based calculation (dynamique)
       const rate = getRate(shipment.destination);
       frais = poids * rate + shippingRates.serviceFee;
-      isFixedRate = false;
-      } else {
-        frais = poids * rate + SERVICE_FEE;
-        isFixedRate = false;
-      }
-    } else {
-      frais = poids * rate + SERVICE_FEE;
       isFixedRate = false;
     }
 
@@ -202,23 +197,28 @@ const Dashboard = () => {
 
   const getFraisExplanation = (colis: Colis) => {
     if (colis.isFixedRate) {
-      const baseFrais = colis.frais - SERVICE_FEE;
+      const baseFrais = colis.frais - shippingRates.serviceFee;
       return (
         <div className="space-y-1">
           <p className="font-semibold text-sm text-white">
-            ${colis.frais.toFixed(2)} <span className="text-emerald-400">✨</span>
+            ${colis.frais.toFixed(2)}{" "}
+            <span className="text-emerald-400">✨</span>
           </p>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Tarif fixe ${baseFrais.toFixed(2)} + ${SERVICE_FEE.toFixed(2)} frais de service 🚀
+            Tarif fixe ${baseFrais.toFixed(2)} + $
+            {shippingRates.serviceFee.toFixed(2)} frais de service 🚀
           </p>
         </div>
       );
     }
     return (
       <div className="space-y-1">
-        <p className="font-semibold text-sm text-white">${colis.frais.toFixed(2)}</p>
+        <p className="font-semibold text-sm text-white">
+          ${colis.frais.toFixed(2)}
+        </p>
         <p className="text-xs text-gray-400 leading-relaxed">
-          ${getShippingRate(colis.destination).toFixed(2)}/lbs × {colis.poids}lbs + ${SERVICE_FEE.toFixed(2)} service 📊
+          ${getRate(colis.destination).toFixed(2)}/lbs × {colis.poids}
+          lbs + ${shippingRates.serviceFee.toFixed(2)} service 📊
         </p>
       </div>
     );
@@ -234,26 +234,26 @@ const Dashboard = () => {
       opacity: 1,
       transition: {
         duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <motion.div 
+      <motion.div
         className="flex flex-col min-h-screen"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
         <AddShipmentByUser setRefreshShipments={setAsToRefreshShipments} />
-        
+
         <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <AnimatePresence mode="wait">
             {!selectedColis ? (
@@ -266,16 +266,22 @@ const Dashboard = () => {
                 className="space-y-8"
               >
                 {/* Header */}
-                <motion.div variants={itemVariants} className="flex items-center justify-between">
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
                       <Package className="h-6 w-6 text-white" />
                     </div>
                     <div>
                       <h1 className="text-2xl sm:text-3xl font-bold text-white">
-                        Mes Colis <Sparkles className="inline h-6 w-6 text-yellow-400 ml-2" />
+                        Mes Colis{" "}
+                        <Sparkles className="inline h-6 w-6 text-yellow-400 ml-2" />
                       </h1>
-                      <p className="text-gray-400 mt-1">Gérez vos expéditions en temps réel 🚀</p>
+                      <p className="text-gray-400 mt-1">
+                        Gérez vos expéditions en temps réel 🚀
+                      </p>
                     </div>
                   </div>
                   <motion.div
@@ -288,65 +294,69 @@ const Dashboard = () => {
                 </motion.div>
 
                 {/* Stats Cards */}
-                <motion.div 
+                <motion.div
                   variants={itemVariants}
                   className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6"
                 >
                   {[
-                    { 
-                      label: 'Total', 
-                      value: stats.total, 
-                      tab: 'tous', 
-                      gradient: 'from-blue-500 to-cyan-500',
+                    {
+                      label: "Total",
+                      value: stats.total,
+                      tab: "tous",
+                      gradient: "from-blue-500 to-cyan-500",
                       icon: Package,
-                      emoji: '📦'
+                      emoji: "📦",
                     },
-                    { 
-                      label: 'Reçus', 
-                      value: stats.recu, 
-                      tab: 'recu', 
-                      gradient: 'from-indigo-500 to-blue-500',
+                    {
+                      label: "Reçus",
+                      value: stats.recu,
+                      tab: "recu",
+                      gradient: "from-indigo-500 to-blue-500",
                       icon: Package,
-                      emoji: '📥'
+                      emoji: "📥",
                     },
-                    { 
-                      label: 'En Transit', 
-                      value: stats.transit, 
-                      tab: 'transit', 
-                      gradient: 'from-purple-500 to-pink-500',
+                    {
+                      label: "En Transit",
+                      value: stats.transit,
+                      tab: "transit",
+                      gradient: "from-purple-500 to-pink-500",
                       icon: Plane,
-                      emoji: '✈️'
+                      emoji: "✈️",
                     },
-                    { 
-                      label: 'Disponibles', 
-                      value: stats.disponible, 
-                      tab: 'disponible', 
-                      gradient: 'from-emerald-500 to-teal-500',
+                    {
+                      label: "Disponibles",
+                      value: stats.disponible,
+                      tab: "disponible",
+                      gradient: "from-emerald-500 to-teal-500",
                       icon: Truck,
-                      emoji: '🚚'
+                      emoji: "🚚",
                     },
-                    { 
-                      label: 'Livrés', 
-                      value: stats.livré, 
-                      tab: 'livré', 
-                      gradient: 'from-green-500 to-emerald-500',
+                    {
+                      label: "Livrés",
+                      value: stats.livré,
+                      tab: "livré",
+                      gradient: "from-green-500 to-emerald-500",
                       icon: CheckCircle,
-                      emoji: '✅'
+                      emoji: "✅",
                     },
                   ].map((stat) => (
                     <motion.div
                       key={stat.tab}
                       variants={itemVariants}
-                      whileHover={{ 
+                      whileHover={{
                         scale: 1.02,
                         y: -4,
-                        transition: { duration: 0.2 }
+                        transition: { duration: 0.2 },
                       }}
                       whileTap={{ scale: 0.98 }}
                       className={`relative group cursor-pointer overflow-hidden
                         bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
                         rounded-2xl p-4 sm:p-6 transition-all duration-300
-                        ${activeTab === stat.tab ? 'ring-2 ring-blue-500/50 bg-gray-800/70' : 'hover:bg-gray-800/70'}
+                        ${
+                          activeTab === stat.tab
+                            ? "ring-2 ring-blue-500/50 bg-gray-800/70"
+                            : "hover:bg-gray-800/70"
+                        }
                       `}
                       onClick={() => setActiveTab(stat.tab)}
                     >
@@ -354,9 +364,11 @@ const Dashboard = () => {
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
                             <span className="text-lg">{stat.emoji}</span>
-                            <p className="text-xs sm:text-sm text-gray-400 font-medium">{stat.label}</p>
+                            <p className="text-xs sm:text-sm text-gray-400 font-medium">
+                              {stat.label}
+                            </p>
                           </div>
-                          <motion.p 
+                          <motion.p
                             className="text-2xl sm:text-3xl font-bold text-white"
                             key={stat.value}
                             initial={{ scale: 1.2, opacity: 0 }}
@@ -366,13 +378,17 @@ const Dashboard = () => {
                             {stat.value}
                           </motion.p>
                         </div>
-                        <div className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-lg opacity-80 group-hover:opacity-100 transition-opacity`}>
+                        <div
+                          className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-lg opacity-80 group-hover:opacity-100 transition-opacity`}
+                        >
                           <stat.icon className="h-5 w-5 text-white" />
                         </div>
                       </div>
-                      
+
                       {/* Gradient overlay on hover */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl`} />
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl`}
+                      />
                     </motion.div>
                   ))}
                 </motion.div>
@@ -382,11 +398,15 @@ const Dashboard = () => {
                   <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-2">
                     <nav className="flex space-x-2">
                       {[
-                        { key: 'tous', label: 'Tous les colis', icon: Package },
-                        { key: 'recu', label: 'Reçus', icon: Package },
-                        { key: 'transit', label: 'En Transit', icon: Plane },
-                        { key: 'disponible', label: 'Disponibles', icon: Truck },
-                        { key: 'livré', label: 'Livrés', icon: CheckCircle }
+                        { key: "tous", label: "Tous les colis", icon: Package },
+                        { key: "recu", label: "Reçus", icon: Package },
+                        { key: "transit", label: "En Transit", icon: Plane },
+                        {
+                          key: "disponible",
+                          label: "Disponibles",
+                          icon: Truck,
+                        },
+                        { key: "livré", label: "Livrés", icon: CheckCircle },
                       ].map((tab) => (
                         <motion.button
                           key={tab.key}
@@ -395,8 +415,8 @@ const Dashboard = () => {
                           whileTap={{ scale: 0.98 }}
                           className={`flex items-center space-x-2 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                             activeTab === tab.key
-                              ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                              : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                              ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
+                              : "text-gray-400 hover:text-white hover:bg-gray-700/50"
                           }`}
                         >
                           <tab.icon className="h-4 w-4" />
@@ -460,10 +480,13 @@ const Dashboard = () => {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 20 }}
-                                transition={{ duration: 0.3, delay: index * 0.05 }}
-                                whileHover={{ 
+                                transition={{
+                                  duration: 0.3,
+                                  delay: index * 0.05,
+                                }}
+                                whileHover={{
                                   backgroundColor: "rgba(55, 65, 81, 0.3)",
-                                  transition: { duration: 0.2 }
+                                  transition: { duration: 0.2 },
                                 }}
                                 className="cursor-pointer transition-colors"
                                 onClick={() => handleColisClick(colis)}
@@ -471,25 +494,33 @@ const Dashboard = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center space-x-3">
                                     <Package className="h-4 w-4 text-gray-400" />
-                                    <span className="text-sm font-mono text-white">{colis.tracking}</span>
+                                    <span className="text-sm font-mono text-white">
+                                      {colis.tracking}
+                                    </span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center space-x-2">
                                     <Weight className="h-4 w-4 text-gray-400" />
-                                    <span className="text-sm text-gray-300">{colis.poids} lbs</span>
+                                    <span className="text-sm text-gray-300">
+                                      {colis.poids} lbs
+                                    </span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center space-x-2">
                                     <MapPin className="h-4 w-4 text-gray-400" />
-                                    <span className="text-sm text-gray-300">{colis.destination}</span>
+                                    <span className="text-sm text-gray-300">
+                                      {colis.destination}
+                                    </span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <motion.div
                                     whileHover={{ scale: 1.05 }}
-                                    className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${getStatusColor(colis.statut)}`}
+                                    className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${getStatusColor(
+                                      colis.statut
+                                    )}`}
                                   >
                                     {getStatusIcon(colis.statut)}
                                     <span>{colis.statut}</span>
@@ -523,7 +554,10 @@ const Dashboard = () => {
                 </motion.div>
 
                 {/* Cards - Mobile/Tablet */}
-                <motion.div variants={itemVariants} className="lg:hidden space-y-4">
+                <motion.div
+                  variants={itemVariants}
+                  className="lg:hidden space-y-4"
+                >
                   <AnimatePresence>
                     {getFilteredColis().map((colis, index) => (
                       <motion.div
@@ -542,33 +576,45 @@ const Dashboard = () => {
                             <div className="flex items-center space-x-3">
                               <Package className="h-5 w-5 text-blue-400" />
                               <div>
-                                <h3 className="font-mono text-lg font-semibold text-white">{colis.tracking}</h3>
-                                <p className="text-sm text-gray-400">{colis.description}</p>
+                                <h3 className="font-mono text-lg font-semibold text-white">
+                                  {colis.tracking}
+                                </h3>
+                                <p className="text-sm text-gray-400">
+                                  {colis.description}
+                                </p>
                               </div>
                             </div>
                             <motion.div
                               whileHover={{ scale: 1.05 }}
-                              className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusColor(colis.statut)}`}
+                              className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
+                                colis.statut
+                              )}`}
                             >
                               {getStatusIcon(colis.statut)}
                               <span>{colis.statut}</span>
                             </motion.div>
                           </div>
-                          
+
                           <div className="grid grid-cols-2 gap-4 mb-4">
                             <div className="space-y-3">
                               <div className="flex items-center space-x-2">
                                 <MapPin className="h-4 w-4 text-gray-400" />
                                 <div>
-                                  <p className="text-xs text-gray-500">Destination</p>
-                                  <p className="text-sm font-medium text-white">{colis.destination}</p>
+                                  <p className="text-xs text-gray-500">
+                                    Destination
+                                  </p>
+                                  <p className="text-sm font-medium text-white">
+                                    {colis.destination}
+                                  </p>
                                 </div>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Weight className="h-4 w-4 text-gray-400" />
                                 <div>
                                   <p className="text-xs text-gray-500">Poids</p>
-                                  <p className="text-sm font-medium text-white">{colis.poids} lbs</p>
+                                  <p className="text-sm font-medium text-white">
+                                    {colis.poids} lbs
+                                  </p>
                                 </div>
                               </div>
                             </div>
@@ -576,8 +622,12 @@ const Dashboard = () => {
                               <div className="flex items-center space-x-2">
                                 <User className="h-4 w-4 text-gray-400" />
                                 <div>
-                                  <p className="text-xs text-gray-500">Expéditeur</p>
-                                  <p className="text-sm font-medium text-white">{colis.expediteur}</p>
+                                  <p className="text-xs text-gray-500">
+                                    Expéditeur
+                                  </p>
+                                  <p className="text-sm font-medium text-white">
+                                    {colis.expediteur}
+                                  </p>
                                 </div>
                               </div>
                               <div className="flex items-center space-x-2">
@@ -589,7 +639,7 @@ const Dashboard = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="flex justify-between items-center pt-4 border-t border-gray-700/50">
                             <div className="flex items-center space-x-2 text-xs text-gray-400">
                               <Calendar className="h-3 w-3" />
@@ -630,7 +680,9 @@ const Dashboard = () => {
                         <h3 className="text-xl font-bold text-white">
                           Colis {selectedColis.tracking} 📦
                         </h3>
-                        <p className="text-gray-400">Détails complets de votre expédition</p>
+                        <p className="text-gray-400">
+                          Détails complets de votre expédition
+                        </p>
                       </div>
                     </div>
                     <motion.button
@@ -656,60 +708,62 @@ const Dashboard = () => {
                       <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl">
                         <Sparkles className="h-5 w-5 text-white" />
                       </div>
-                      <h4 className="text-lg font-semibold text-white">Informations du colis ✨</h4>
+                      <h4 className="text-lg font-semibold text-white">
+                        Informations du colis ✨
+                      </h4>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {[
-                        { 
-                          label: "N° Tracking", 
-                          value: selectedColis.tracking, 
+                        {
+                          label: "N° Tracking",
+                          value: selectedColis.tracking,
                           icon: Package,
-                          emoji: "🏷️"
+                          emoji: "🏷️",
                         },
-                        { 
-                          label: "Statut", 
-                          value: selectedColis.statut, 
+                        {
+                          label: "Statut",
+                          value: selectedColis.statut,
                           icon: getStatusIcon(selectedColis.statut).type,
                           emoji: "📊",
-                          isStatus: true
+                          isStatus: true,
                         },
-                        { 
-                          label: "Date de création", 
-                          value: selectedColis.dateCreation, 
+                        {
+                          label: "Date de création",
+                          value: selectedColis.dateCreation,
                           icon: Calendar,
-                          emoji: "📅"
+                          emoji: "📅",
                         },
-                        { 
-                          label: "Date estimée", 
-                          value: selectedColis.dateEstimee, 
+                        {
+                          label: "Date estimée",
+                          value: selectedColis.dateEstimee,
                           icon: Calendar,
-                          emoji: "⏰"
+                          emoji: "⏰",
                         },
-                        { 
-                          label: "Destination", 
-                          value: selectedColis.destination, 
+                        {
+                          label: "Destination",
+                          value: selectedColis.destination,
                           icon: MapPin,
-                          emoji: "🌍"
+                          emoji: "🌍",
                         },
-                        { 
-                          label: "Expéditeur", 
-                          value: selectedColis.expediteur, 
+                        {
+                          label: "Expéditeur",
+                          value: selectedColis.expediteur,
                           icon: User,
-                          emoji: "👤"
+                          emoji: "👤",
                         },
-                        { 
-                          label: "Poids", 
-                          value: `${selectedColis.poids} lbs`, 
+                        {
+                          label: "Poids",
+                          value: `${selectedColis.poids} lbs`,
                           icon: Weight,
-                          emoji: "⚖️"
+                          emoji: "⚖️",
                         },
-                        { 
-                          label: "Description", 
-                          value: selectedColis.description, 
+                        {
+                          label: "Description",
+                          value: selectedColis.description,
                           icon: Package,
                           emoji: "📝",
-                          fullWidth: true
+                          fullWidth: true,
                         },
                       ].map((item, index) => (
                         <motion.div
@@ -717,27 +771,35 @@ const Dashboard = () => {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.2 + index * 0.05 }}
-                          className={`space-y-2 ${item.fullWidth ? 'sm:col-span-2 lg:col-span-3' : ''}`}
+                          className={`space-y-2 ${
+                            item.fullWidth ? "sm:col-span-2 lg:col-span-3" : ""
+                          }`}
                         >
                           <div className="flex items-center space-x-2">
                             <span className="text-sm">{item.emoji}</span>
                             <item.icon className="h-4 w-4 text-gray-400" />
-                            <p className="text-xs text-gray-400 font-medium">{item.label}</p>
+                            <p className="text-xs text-gray-400 font-medium">
+                              {item.label}
+                            </p>
                           </div>
                           {item.isStatus ? (
                             <motion.div
                               whileHover={{ scale: 1.02 }}
-                              className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-semibold border ${getStatusColor(item.value)}`}
+                              className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-semibold border ${getStatusColor(
+                                item.value
+                              )}`}
                             >
                               {getStatusIcon(item.value)}
                               <span>{item.value}</span>
                             </motion.div>
                           ) : (
-                            <p className="text-sm font-semibold text-white">{item.value}</p>
+                            <p className="text-sm font-semibold text-white">
+                              {item.value}
+                            </p>
                           )}
                         </motion.div>
                       ))}
-                      
+
                       {/* Frais - Section spéciale */}
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -748,7 +810,9 @@ const Dashboard = () => {
                         <div className="flex items-center space-x-2">
                           <span className="text-sm">💰</span>
                           <DollarSign className="h-4 w-4 text-gray-400" />
-                          <p className="text-xs text-gray-400 font-medium">Frais</p>
+                          <p className="text-xs text-gray-400 font-medium">
+                            Frais
+                          </p>
                         </div>
                         <div className="bg-gray-900/50 rounded-xl p-3 border border-gray-600/30">
                           {getFraisExplanation(selectedColis)}
@@ -768,9 +832,11 @@ const Dashboard = () => {
                       <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
                         <Clock className="h-5 w-5 text-white" />
                       </div>
-                      <h4 className="text-lg font-semibold text-white">Suivi du colis 🚚</h4>
+                      <h4 className="text-lg font-semibold text-white">
+                        Suivi du colis 🚚
+                      </h4>
                     </div>
-                    
+
                     <div className="space-y-6">
                       {selectedColis.historique.map((evenement, index) => (
                         <motion.div
@@ -782,12 +848,12 @@ const Dashboard = () => {
                         >
                           {/* Timeline dot */}
                           <div className="flex items-center h-full mr-4">
-                            <motion.div 
+                            <motion.div
                               whileHover={{ scale: 1.2 }}
                               className={`flex-shrink-0 h-4 w-4 rounded-full border-2 ${
-                                index === 0 
-                                  ? 'bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-400' 
-                                  : 'bg-blue-500 border-blue-400'
+                                index === 0
+                                  ? "bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-400"
+                                  : "bg-blue-500 border-blue-400"
                               } shadow-lg`}
                             >
                               {index === 0 && (
@@ -802,18 +868,27 @@ const Dashboard = () => {
                               <div className="ml-1.5 w-0.5 bg-gradient-to-b from-gray-600 to-gray-700 h-full absolute top-6" />
                             )}
                           </div>
-                          
+
                           {/* Event content */}
                           <motion.div
-                            whileHover={{ x: 4, backgroundColor: "rgba(55, 65, 81, 0.3)" }}
+                            whileHover={{
+                              x: 4,
+                              backgroundColor: "rgba(55, 65, 81, 0.3)",
+                            }}
                             className="flex-1 bg-gray-900/30 rounded-xl p-4 border border-gray-700/30 group-hover:border-gray-600/50 transition-all duration-300"
                           >
                             <div className="flex items-start justify-between">
                               <div className="space-y-1">
                                 <div className="flex items-center space-x-2">
                                   {getStatusIcon(evenement.statut)}
-                                  <p className="text-sm font-semibold text-white">{evenement.statut}</p>
-                                  {index === 0 && <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">Actuel ✨</span>}
+                                  <p className="text-sm font-semibold text-white">
+                                    {evenement.statut}
+                                  </p>
+                                  {index === 0 && (
+                                    <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">
+                                      Actuel ✨
+                                    </span>
+                                  )}
                                 </div>
                                 <div className="flex items-center space-x-2 text-xs text-gray-400">
                                   <Calendar className="h-3 w-3" />
@@ -828,7 +903,7 @@ const Dashboard = () => {
                                 whileHover={{ rotate: 15 }}
                                 className="text-2xl opacity-70"
                               >
-                                {index === 0 ? '🔥' : '📍'}
+                                {index === 0 ? "🔥" : "📍"}
                               </motion.div>
                             </div>
                           </motion.div>

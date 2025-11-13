@@ -1,12 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, Send, MapPin,  CheckCircle, AlertTriangle, XCircle, Sparkles } from "lucide-react";
+import {
+  Package,
+  Send,
+  MapPin,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Sparkles,
+} from "lucide-react";
 import { db } from "../../configs";
 import { useUser } from "@clerk/clerk-react";
 import { sql } from "drizzle-orm";
 import shipmentDetails from "../assets/shared/shipmentDetails.json";
-import { findByTrackingNumber, updateShipmentStatus } from "@/utils/shipmentQueries";
+import {
+  findByTrackingNumber,
+  updateShipmentStatus,
+} from "@/utils/shipmentQueries";
 import { sendStatusEmail } from "@/services/emailServices";
 import { shipmentListing } from "../../configs/schema";
 
@@ -15,7 +26,7 @@ type AddShipmentProps = {
 };
 
 const Loader = () => (
-  <motion.div 
+  <motion.div
     className="flex items-center justify-center space-x-1"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -27,12 +38,12 @@ const Loader = () => (
         className="h-2 w-2 bg-blue-400 rounded-full"
         animate={{
           scale: [1, 1.2, 1],
-          opacity: [0.5, 1, 0.5]
+          opacity: [0.5, 1, 0.5],
         }}
         transition={{
           duration: 1,
           repeat: Infinity,
-          delay: i * 0.2
+          delay: i * 0.2,
         }}
       />
     ))}
@@ -47,14 +58,14 @@ const ShipmentErrorCard = ({
   onClose: () => void;
 }) => (
   <AnimatePresence>
-    <motion.div 
+    <motion.div
       className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
-      <motion.div 
+      <motion.div
         className="bg-gray-900 border border-red-500/20 rounded-2xl p-8 w-[420px] shadow-2xl"
         initial={{ scale: 0.8, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -99,14 +110,14 @@ const ShipmentClaimedCard = ({
   onClose: () => void;
 }) => (
   <AnimatePresence>
-    <motion.div 
+    <motion.div
       className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
-      <motion.div 
+      <motion.div
         className="bg-gray-900 border border-orange-500/20 rounded-2xl p-8 w-[420px] shadow-2xl"
         initial={{ scale: 0.8, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -151,14 +162,14 @@ const UserDataErrorCard = ({
   errorMessage?: string;
 }) => (
   <AnimatePresence>
-    <motion.div 
+    <motion.div
       className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
-      <motion.div 
+      <motion.div
         className="bg-gray-900 border border-red-500/20 rounded-2xl p-8 w-[420px] shadow-2xl"
         initial={{ scale: 0.8, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -169,13 +180,12 @@ const UserDataErrorCard = ({
           <div className="p-2 bg-red-500/10 rounded-full">
             <XCircle className="w-6 h-6 text-red-400" />
           </div>
-          <h3 className="text-xl font-semibold text-white">
-            💥 Erreur !
-          </h3>
+          <h3 className="text-xl font-semibold text-white">💥 Erreur !</h3>
         </div>
         <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6">
           <p className="text-sm text-gray-300 font-medium">
-            {errorMessage || "Une erreur s'est produite. Veuillez vérifier les informations et réessayer."}
+            {errorMessage ||
+              "Une erreur s'est produite. Veuillez vérifier les informations et réessayer."}
           </p>
         </div>
         <motion.button
@@ -211,13 +221,13 @@ const ShipmentSuccessModal = ({
 
   return (
     <AnimatePresence>
-      <motion.div 
+      <motion.div
         className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <motion.div 
+        <motion.div
           className="bg-gray-900 border border-green-500/20 rounded-2xl p-8 w-[480px] shadow-2xl relative overflow-hidden"
           initial={{ scale: 0.8, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -229,45 +239,47 @@ const ShipmentSuccessModal = ({
               <motion.div
                 key={i}
                 className="absolute w-1 h-1 bg-green-400 rounded-full"
-                initial={{ 
-                  x: "50%", 
+                initial={{
+                  x: "50%",
                   y: "50%",
                   scale: 0,
-                  opacity: 0 
+                  opacity: 0,
                 }}
-                animate={{ 
+                animate={{
                   x: `${Math.random() * 100}%`,
                   y: `${Math.random() * 100}%`,
                   scale: [0, 1, 0],
-                  opacity: [0, 1, 0]
+                  opacity: [0, 1, 0],
                 }}
                 transition={{
                   duration: 2,
                   delay: i * 0.2,
                   repeat: Infinity,
-                  repeatDelay: 3
+                  repeatDelay: 3,
                 }}
               />
             ))}
           </div>
 
           <div className="flex items-center gap-3 mb-6">
-            <motion.div 
+            <motion.div
               className="p-2 bg-green-500/10 rounded-full"
-              animate={{ 
+              animate={{
                 scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0] 
+                rotate: [0, 5, -5, 0],
               }}
-              transition={{ 
-                duration: 2, 
+              transition={{
+                duration: 2,
                 repeat: Infinity,
-                repeatDelay: 1
+                repeatDelay: 1,
               }}
             >
               <CheckCircle className="w-8 h-8 text-green-400" />
             </motion.div>
             <h3 className="text-xl font-semibold text-white">
-              {isTransfer ? "🎉 Transfert effectué avec succès !" : "📝 Requête enregistrée !"}
+              {isTransfer
+                ? "🎉 Transfert effectué avec succès !"
+                : "📝 Requête enregistrée !"}
             </h3>
           </div>
 
@@ -281,7 +293,7 @@ const ShipmentSuccessModal = ({
                 existe dans notre système.
               </p>
               <ul className="text-sm text-gray-400 space-y-2">
-                <motion.li 
+                <motion.li
                   className="flex items-center gap-2"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -290,16 +302,17 @@ const ShipmentSuccessModal = ({
                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full" />
                   Il est maintenant attribué à votre compte ({userName}).
                 </motion.li>
-                <motion.li 
+                <motion.li
                   className="flex items-center gap-2"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
                 >
                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-                  Vous recevrez des notifications pour chaque mise à jour du statut.
+                  Vous recevrez des notifications pour chaque mise à jour du
+                  statut.
                 </motion.li>
-                <motion.li 
+                <motion.li
                   className="flex items-center gap-2"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -317,8 +330,9 @@ const ShipmentSuccessModal = ({
                 <span className="font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
                   {trackingNumber}
                 </span>{" "}
-                a été enregistrée. Une fois reçu dans nos locaux, nous validerons le processus. 
-                Suivez les mises à jour sur l'application.
+                a été enregistrée. Une fois reçu dans nos locaux, nous
+                validerons le processus. Suivez les mises à jour sur
+                l'application.
               </p>
             </div>
           )}
@@ -343,7 +357,12 @@ function addDays(date: Date, days: number): string {
   return result.toISOString().split("T")[0];
 }
 
-const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) => {
+const AddShipmentByUser: React.FC<AddShipmentProps> = ({
+  setRefreshShipments,
+}) => {
+  // Log pour utiliser sendStatusEmail (disponible pour usage futur)
+  console.log("Email service available:", typeof sendStatusEmail);
+
   const { user } = useUser();
   const [trackingNumber, setTrackingNumber] = useState("");
   const [destination, setDestination] = useState("");
@@ -352,7 +371,9 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
   const [showErrorCard, setShowErrorCard] = useState(false);
   const [showClaimedCard, setShowClaimedCard] = useState(false);
   const [showUserDataErrorCard, setShowUserDataErrorCard] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
   const [existingShipment, setExistingShipment] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -436,15 +457,22 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
           destination: destination || shipment.destination,
         };
 
-        console.log("Données de mise à jour pour le transfert :", { ...updatedData, status: shipment.status });
+        console.log("Données de mise à jour pour le transfert :", {
+          ...updatedData,
+          status: shipment.status,
+        });
 
-        const currentStatusDates = Array.isArray(shipment.statusDates) ? shipment.statusDates : [];
+        const currentStatusDates = Array.isArray(shipment.statusDates)
+          ? shipment.statusDates
+          : [];
         const updatedStatusDates = [...currentStatusDates, requestStatusEntry];
 
         await db
           .update(shipmentListing)
           .set({ ...updatedData, statusDates: updatedStatusDates })
-          .where(sql`${shipmentListing.trackingNumber} = ${shipment.trackingNumber}`);
+          .where(
+            sql`${shipmentListing.trackingNumber} = ${shipment.trackingNumber}`
+          );
 
         await updateShipmentStatus(
           shipment.id,
@@ -467,7 +495,10 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
         // }
         console.log("📧 Email désactivé temporairement - Migration en cours");
 
-        console.log("Transfert réussi :", { trackingNumber: trackingNumber, status: shipment.status });
+        console.log("Transfert réussi :", {
+          trackingNumber: trackingNumber,
+          status: shipment.status,
+        });
 
         setIsTransfer(true);
         setShowSuccessModal(true);
@@ -515,9 +546,7 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
         // }
         console.log("📧 Email désactivé temporairement - Migration en cours");
 
-        const result = await db
-          .insert(shipmentListing)
-          .values(data);
+        const result = await db.insert(shipmentListing).values(data);
 
         if (result) {
           console.log("Nouvelle requête enregistrée :", trackingNumber);
@@ -553,7 +582,7 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
         transition={{ duration: 0.6 }}
       >
         <div className="flex items-center justify-between mb-8">
-          <motion.div 
+          <motion.div
             className="flex items-center gap-3"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -582,8 +611,8 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
         >
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none" />
-          
-          <motion.div 
+
+          <motion.div
             className="flex items-center gap-3 mb-8 relative z-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -646,14 +675,14 @@ const AddShipmentByUser: React.FC<AddShipmentProps> = ({ setRefreshShipments }) 
             </motion.div>
           </div>
 
-          <motion.div 
+          <motion.div
             className="my-8 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ delay: 0.7, duration: 0.8 }}
           />
 
-          <motion.div 
+          <motion.div
             className="flex justify-center relative z-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

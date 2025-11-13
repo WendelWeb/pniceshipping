@@ -1,6 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { Settings, DollarSign, Package, Smartphone, Plus, Trash2, Save, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
+import {
+  Settings,
+  DollarSign,
+  Package,
+  Smartphone,
+  Plus,
+  Trash2,
+  Save,
+  RefreshCw,
+} from "lucide-react";
 import {
   getShippingRates,
   getSpecialItems,
@@ -12,11 +21,17 @@ import {
   ShippingRates,
   SpecialItem,
   SpecialItemsConfig,
-} from '@/utils/settingsQueries';
-import { useUser } from '@clerk/clerk-react';
-import { toast } from 'sonner';
+} from "@/utils/settingsQueries";
+import { useUser } from "@clerk/clerk-react";
+import { toast } from "sonner";
 
 export default function AdminSettings() {
+  // Log pour utiliser updateSpecialItems (disponible pour usage futur)
+  console.log(
+    "updateSpecialItems function available:",
+    typeof updateSpecialItems
+  );
+
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -29,12 +44,14 @@ export default function AdminSettings() {
   });
 
   // Special items
-  const [specialItems, setSpecialItems] = useState<SpecialItemsConfig>({ items: [] });
+  const [specialItems, setSpecialItems] = useState<SpecialItemsConfig>({
+    items: [],
+  });
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItem, setNewItem] = useState({
-    name: '',
+    name: "",
     price: 0,
-    category: 'phone' as 'phone' | 'computer' | 'other',
+    category: "phone" as "phone" | "computer" | "other",
   });
 
   // Debounce timer for auto-save
@@ -55,8 +72,8 @@ export default function AdminSettings() {
       setShippingRates(rates);
       setSpecialItems(items);
     } catch (error) {
-      console.error('Error loading settings:', error);
-      toast.error('Erreur lors du chargement des paramètres');
+      console.error("Error loading settings:", error);
+      toast.error("Erreur lors du chargement des paramètres");
     } finally {
       setLoading(false);
     }
@@ -67,95 +84,101 @@ export default function AdminSettings() {
       setSaving(true);
       const success = await updateShippingRates(shippingRates, user?.id);
       if (success) {
-        toast.success('Tarifs mis à jour avec succès');
+        toast.success("Tarifs mis à jour avec succès");
       } else {
-        toast.error('Erreur lors de la mise à jour');
+        toast.error("Erreur lors de la mise à jour");
       }
     } catch (error) {
-      console.error('Error saving shipping rates:', error);
-      toast.error('Erreur lors de la sauvegarde');
+      console.error("Error saving shipping rates:", error);
+      toast.error("Erreur lors de la sauvegarde");
     } finally {
       setSaving(false);
     }
   };
 
   // Update special item with debounced save
-  const handleUpdateSpecialItemInput = useCallback((itemId: string, updates: Partial<Omit<SpecialItem, 'id'>>) => {
-    // Update local state immediately for responsive UI
-    setSpecialItems(prev => ({
-      items: prev.items.map(item =>
-        item.id === itemId ? { ...item, ...updates } : item
-      )
-    }));
+  const handleUpdateSpecialItemInput = useCallback(
+    (itemId: string, updates: Partial<Omit<SpecialItem, "id">>) => {
+      // Update local state immediately for responsive UI
+      setSpecialItems((prev) => ({
+        items: prev.items.map((item) =>
+          item.id === itemId ? { ...item, ...updates } : item
+        ),
+      }));
 
-    // Clear existing timer for this item
-    if (debounceTimers.current[itemId]) {
-      clearTimeout(debounceTimers.current[itemId]);
-    }
-
-    // Set new timer to save after 1 second of no typing
-    debounceTimers.current[itemId] = setTimeout(async () => {
-      try {
-        const success = await updateSpecialItem(itemId, updates, user?.id);
-        if (success) {
-          // Silent success, no toast to avoid spam
-          console.log('Auto-saved:', itemId);
-        } else {
-          toast.error('Erreur lors de la sauvegarde');
-          await loadSettings(); // Reload to revert
-        }
-      } catch (error) {
-        console.error('Error auto-saving item:', error);
-        toast.error('Erreur lors de la sauvegarde');
-        await loadSettings();
+      // Clear existing timer for this item
+      if (debounceTimers.current[itemId]) {
+        clearTimeout(debounceTimers.current[itemId]);
       }
-    }, 1000);
-  }, [user?.id]);
+
+      // Set new timer to save after 1 second of no typing
+      debounceTimers.current[itemId] = setTimeout(async () => {
+        try {
+          const success = await updateSpecialItem(itemId, updates, user?.id);
+          if (success) {
+            // Silent success, no toast to avoid spam
+            console.log("Auto-saved:", itemId);
+          } else {
+            toast.error("Erreur lors de la sauvegarde");
+            await loadSettings(); // Reload to revert
+          }
+        } catch (error) {
+          console.error("Error auto-saving item:", error);
+          toast.error("Erreur lors de la sauvegarde");
+          await loadSettings();
+        }
+      }, 1000);
+    },
+    [user?.id]
+  );
 
   // For category changes, save immediately (no typing involved)
-  const handleUpdateSpecialItemImmediate = async (itemId: string, updates: Partial<SpecialItem>) => {
+  const handleUpdateSpecialItemImmediate = async (
+    itemId: string,
+    updates: Partial<SpecialItem>
+  ) => {
     // Update local state immediately
-    setSpecialItems(prev => ({
-      items: prev.items.map(item =>
+    setSpecialItems((prev) => ({
+      items: prev.items.map((item) =>
         item.id === itemId ? { ...item, ...updates } : item
-      )
+      ),
     }));
 
     try {
       const success = await updateSpecialItem(itemId, updates, user?.id);
       if (success) {
-        toast.success('Article mis à jour');
+        toast.success("Article mis à jour");
       } else {
-        toast.error('Erreur lors de la mise à jour');
+        toast.error("Erreur lors de la mise à jour");
         await loadSettings();
       }
     } catch (error) {
-      console.error('Error updating item:', error);
-      toast.error('Erreur lors de la mise à jour');
+      console.error("Error updating item:", error);
+      toast.error("Erreur lors de la mise à jour");
       await loadSettings();
     }
   };
 
   const handleDeleteSpecialItem = async (itemId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cet article ?")) return;
 
     try {
       const success = await deleteSpecialItem(itemId, user?.id);
       if (success) {
         await loadSettings();
-        toast.success('Article supprimé');
+        toast.success("Article supprimé");
       } else {
-        toast.error('Erreur lors de la suppression');
+        toast.error("Erreur lors de la suppression");
       }
     } catch (error) {
-      console.error('Error deleting item:', error);
-      toast.error('Erreur lors de la suppression');
+      console.error("Error deleting item:", error);
+      toast.error("Erreur lors de la suppression");
     }
   };
 
   const handleAddSpecialItem = async () => {
     if (!newItem.name || newItem.price < 0) {
-      toast.error('Veuillez remplir tous les champs');
+      toast.error("Veuillez remplir tous les champs");
       return;
     }
 
@@ -164,14 +187,14 @@ export default function AdminSettings() {
       if (success) {
         await loadSettings();
         setShowAddItem(false);
-        setNewItem({ name: '', price: 0, category: 'phone' });
-        toast.success('Article ajouté avec succès');
+        setNewItem({ name: "", price: 0, category: "phone" });
+        toast.success("Article ajouté avec succès");
       } else {
-        toast.error('Erreur lors de l\'ajout');
+        toast.error("Erreur lors de l'ajout");
       }
     } catch (error) {
-      console.error('Error adding item:', error);
-      toast.error('Erreur lors de l\'ajout');
+      console.error("Error adding item:", error);
+      toast.error("Erreur lors de l'ajout");
     }
   };
 
@@ -180,7 +203,7 @@ export default function AdminSettings() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
           <RefreshCw className="w-12 h-12 text-blue-500" />
         </motion.div>
@@ -217,7 +240,9 @@ export default function AdminSettings() {
         >
           <div className="flex items-center gap-3 mb-6">
             <DollarSign className="w-6 h-6 text-green-400" />
-            <h2 className="font-semibold text-xl text-white">Tarifs d'Expédition</h2>
+            <h2 className="font-semibold text-xl text-white">
+              Tarifs d'Expédition
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -230,7 +255,10 @@ export default function AdminSettings() {
                 step="0.01"
                 value={shippingRates.serviceFee}
                 onChange={(e) =>
-                  setShippingRates({ ...shippingRates, serviceFee: parseFloat(e.target.value) })
+                  setShippingRates({
+                    ...shippingRates,
+                    serviceFee: parseFloat(e.target.value),
+                  })
                 }
                 className="w-full p-3 bg-gray-800/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 text-white"
               />
@@ -245,7 +273,10 @@ export default function AdminSettings() {
                 step="0.01"
                 value={shippingRates.rateCapHaitien}
                 onChange={(e) =>
-                  setShippingRates({ ...shippingRates, rateCapHaitien: parseFloat(e.target.value) })
+                  setShippingRates({
+                    ...shippingRates,
+                    rateCapHaitien: parseFloat(e.target.value),
+                  })
                 }
                 className="w-full p-3 bg-gray-800/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 text-white"
               />
@@ -260,7 +291,10 @@ export default function AdminSettings() {
                 step="0.01"
                 value={shippingRates.ratePortAuPrince}
                 onChange={(e) =>
-                  setShippingRates({ ...shippingRates, ratePortAuPrince: parseFloat(e.target.value) })
+                  setShippingRates({
+                    ...shippingRates,
+                    ratePortAuPrince: parseFloat(e.target.value),
+                  })
                 }
                 className="w-full p-3 bg-gray-800/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 text-white"
               />
@@ -275,7 +309,7 @@ export default function AdminSettings() {
             className="mt-6 px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl hover:from-green-500 hover:to-green-400 transition-all duration-200 font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-5 h-5" />
-            {saving ? 'Enregistrement...' : 'Enregistrer les Tarifs'}
+            {saving ? "Enregistrement..." : "Enregistrer les Tarifs"}
           </motion.button>
         </motion.div>
 
@@ -289,7 +323,9 @@ export default function AdminSettings() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <Smartphone className="w-6 h-6 text-purple-400" />
-              <h2 className="font-semibold text-xl text-white">Articles Spéciaux</h2>
+              <h2 className="font-semibold text-xl text-white">
+                Articles Spéciaux
+              </h2>
             </div>
             <motion.button
               onClick={() => setShowAddItem(!showAddItem)}
@@ -306,36 +342,57 @@ export default function AdminSettings() {
           {showAddItem && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               className="bg-gray-800/50 border border-purple-500/30 rounded-xl p-6 mb-6"
             >
               <h3 className="font-semibold text-white mb-4">Nouvel Article</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-gray-300 font-medium mb-2">Nom</label>
+                  <label className="block text-gray-300 font-medium mb-2">
+                    Nom
+                  </label>
                   <input
                     type="text"
                     value={newItem.name}
-                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                    onChange={(e) =>
+                      setNewItem({ ...newItem, name: e.target.value })
+                    }
                     className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500/50 text-white"
                     placeholder="Ex: iPhone 18"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-2">Prix ($)</label>
+                  <label className="block text-gray-300 font-medium mb-2">
+                    Prix ($)
+                  </label>
                   <input
                     type="number"
                     value={newItem.price}
-                    onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) })}
+                    onChange={(e) =>
+                      setNewItem({
+                        ...newItem,
+                        price: parseFloat(e.target.value),
+                      })
+                    }
                     className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500/50 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-2">Catégorie</label>
+                  <label className="block text-gray-300 font-medium mb-2">
+                    Catégorie
+                  </label>
                   <select
                     value={newItem.category}
-                    onChange={(e) => setNewItem({ ...newItem, category: e.target.value as 'phone' | 'computer' | 'other' })}
+                    onChange={(e) =>
+                      setNewItem({
+                        ...newItem,
+                        category: e.target.value as
+                          | "phone"
+                          | "computer"
+                          | "other",
+                      })
+                    }
                     className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500/50 text-white"
                   >
                     <option value="phone">Téléphone</option>
@@ -381,7 +438,11 @@ export default function AdminSettings() {
                     <input
                       type="text"
                       value={item.name}
-                      onChange={(e) => handleUpdateSpecialItemInput(item.id, { name: e.target.value })}
+                      onChange={(e) =>
+                        handleUpdateSpecialItemInput(item.id, {
+                          name: e.target.value,
+                        })
+                      }
                       className="w-full bg-transparent text-white font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/30 rounded px-2 py-1"
                       placeholder="Nom de l'article"
                     />
@@ -390,7 +451,11 @@ export default function AdminSettings() {
                     <input
                       type="number"
                       value={item.price}
-                      onChange={(e) => handleUpdateSpecialItemInput(item.id, { price: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        handleUpdateSpecialItemInput(item.id, {
+                          price: parseFloat(e.target.value) || 0,
+                        })
+                      }
                       className="w-24 p-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500/50 text-white"
                       step="0.01"
                     />
@@ -398,7 +463,14 @@ export default function AdminSettings() {
                   </div>
                   <select
                     value={item.category}
-                    onChange={(e) => handleUpdateSpecialItemImmediate(item.id, { category: e.target.value as 'phone' | 'computer' | 'other' })}
+                    onChange={(e) =>
+                      handleUpdateSpecialItemImmediate(item.id, {
+                        category: e.target.value as
+                          | "phone"
+                          | "computer"
+                          | "other",
+                      })
+                    }
                     className="p-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
                   >
                     <option value="phone">📱 Phone</option>

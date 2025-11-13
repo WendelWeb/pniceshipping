@@ -9,8 +9,20 @@
  *   const { shippingRates, specialItems, isLoading } = useSettings();
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { getShippingRates, getSpecialItems, type ShippingRates, type SpecialItemsConfig } from '@/utils/settingsQueries';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
+import {
+  getShippingRates,
+  getSpecialItems,
+  type ShippingRates,
+  type SpecialItemsConfig,
+} from "@/utils/settingsQueries";
 
 // Default values (fallback when DB is unavailable)
 const DEFAULT_SHIPPING_RATES: ShippingRates = {
@@ -21,13 +33,38 @@ const DEFAULT_SHIPPING_RATES: ShippingRates = {
 
 const DEFAULT_SPECIAL_ITEMS: SpecialItemsConfig = {
   items: [
-    { id: 'iphone-xr-11pro', name: 'iPhone XR à 11 Pro Max', price: 35, category: 'phone' },
-    { id: 'iphone-12-13pro', name: 'iPhone 12 à 13 Pro Max', price: 50, category: 'phone' },
-    { id: 'iphone-14-15pro', name: 'iPhone 14 à 15 Pro Max', price: 70, category: 'phone' },
-    { id: 'iphone-16-16pro', name: 'iPhone 16 à 16 Pro Max', price: 100, category: 'phone' },
-    { id: 'iphone-17', name: 'iPhone 17', price: 130, category: 'phone' },
-    { id: 'laptop', name: 'Ordinateurs Portables', price: 90, category: 'computer' },
-    { id: 'starlink', name: 'Starlink', price: 120, category: 'other' },
+    {
+      id: "iphone-xr-11pro",
+      name: "iPhone XR à 11 Pro Max",
+      price: 35,
+      category: "phone",
+    },
+    {
+      id: "iphone-12-13pro",
+      name: "iPhone 12 à 13 Pro Max",
+      price: 50,
+      category: "phone",
+    },
+    {
+      id: "iphone-14-15pro",
+      name: "iPhone 14 à 15 Pro Max",
+      price: 70,
+      category: "phone",
+    },
+    {
+      id: "iphone-16-16pro",
+      name: "iPhone 16 à 16 Pro Max",
+      price: 100,
+      category: "phone",
+    },
+    { id: "iphone-17", name: "iPhone 17", price: 130, category: "phone" },
+    {
+      id: "laptop",
+      name: "Ordinateurs Portables",
+      price: 90,
+      category: "computer",
+    },
+    { id: "starlink", name: "Starlink", price: 120, category: "other" },
   ],
 };
 
@@ -51,16 +88,25 @@ interface SettingsContextType {
   calculateTotalCost: (shippingCost: number) => number;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextType | undefined>(
+  undefined
+);
 
 interface SettingsProviderProps {
   children: ReactNode;
   autoRefreshInterval?: number; // Optional: auto-refresh every X ms (default: disabled)
 }
 
-export function SettingsProvider({ children, autoRefreshInterval }: SettingsProviderProps) {
-  const [shippingRates, setShippingRates] = useState<ShippingRates>(DEFAULT_SHIPPING_RATES);
-  const [specialItems, setSpecialItems] = useState<SpecialItemsConfig>(DEFAULT_SPECIAL_ITEMS);
+export function SettingsProvider({
+  children,
+  autoRefreshInterval,
+}: SettingsProviderProps) {
+  const [shippingRates, setShippingRates] = useState<ShippingRates>(
+    DEFAULT_SHIPPING_RATES
+  );
+  const [specialItems, setSpecialItems] = useState<SpecialItemsConfig>(
+    DEFAULT_SPECIAL_ITEMS
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -75,8 +121,8 @@ export function SettingsProvider({ children, autoRefreshInterval }: SettingsProv
       setShippingRates(rates);
       setSpecialItems(items);
     } catch (err) {
-      console.error('Error fetching settings:', err);
-      setError(err instanceof Error ? err : new Error('Unknown error'));
+      console.error("Error fetching settings:", err);
+      setError(err instanceof Error ? err : new Error("Unknown error"));
       // Keep using default values on error
     } finally {
       setIsLoading(false);
@@ -97,58 +143,81 @@ export function SettingsProvider({ children, autoRefreshInterval }: SettingsProv
   }, [autoRefreshInterval, fetchSettings]);
 
   // Utility: Get rate for destination
-  const getRate = useCallback((destination: string): number => {
-    const normalizedDestination = destination.toLowerCase().replace(/[\s-]/g, '');
+  const getRate = useCallback(
+    (destination: string): number => {
+      const normalizedDestination = destination
+        .toLowerCase()
+        .replace(/[\s-]/g, "");
 
-    if (normalizedDestination.includes('portauprince') || normalizedDestination.includes('pap')) {
+      if (
+        normalizedDestination.includes("portauprince") ||
+        normalizedDestination.includes("pap")
+      ) {
+        return shippingRates.ratePortAuPrince;
+      }
+
+      if (
+        normalizedDestination.includes("caphaitien") ||
+        normalizedDestination.includes("cap")
+      ) {
+        return shippingRates.rateCapHaitien;
+      }
+
+      // Default to Port-au-Prince rate
       return shippingRates.ratePortAuPrince;
-    }
-
-    if (normalizedDestination.includes('caphaitien') || normalizedDestination.includes('cap')) {
-      return shippingRates.rateCapHaitien;
-    }
-
-    // Default to Port-au-Prince rate
-    return shippingRates.ratePortAuPrince;
-  }, [shippingRates]);
+    },
+    [shippingRates]
+  );
 
   // Utility: Get special item price
-  const getSpecialItemPrice = useCallback((categoryOrName: string): number | null => {
-    const normalized = categoryOrName.toLowerCase().replace(/[\s-]/g, '');
+  const getSpecialItemPrice = useCallback(
+    (categoryOrName: string): number | null => {
+      const normalized = categoryOrName.toLowerCase().replace(/[\s-]/g, "");
 
-    const item = specialItems.items.find(item => {
-      const itemId = item.id.toLowerCase().replace(/[\s-]/g, '');
-      const itemName = item.name.toLowerCase().replace(/[\s-]/g, '');
-      const itemCategory = item.category.toLowerCase();
+      const item = specialItems.items.find((item) => {
+        const itemId = item.id.toLowerCase().replace(/[\s-]/g, "");
+        const itemName = item.name.toLowerCase().replace(/[\s-]/g, "");
+        const itemCategory = item.category.toLowerCase();
 
-      return (
-        itemId.includes(normalized) ||
-        normalized.includes(itemId) ||
-        itemName.includes(normalized) ||
-        normalized.includes(itemName) ||
-        itemCategory === normalized
-      );
-    });
+        return (
+          itemId.includes(normalized) ||
+          normalized.includes(itemId) ||
+          itemName.includes(normalized) ||
+          normalized.includes(itemName) ||
+          itemCategory === normalized
+        );
+      });
 
-    return item ? item.price : null;
-  }, [specialItems]);
+      return item ? item.price : null;
+    },
+    [specialItems]
+  );
 
   // Utility: Calculate shipping cost by weight
-  const calculateShippingCost = useCallback((weight: number, destination: string): number => {
-    const rate = getRate(destination);
-    return weight * rate;
-  }, [getRate]);
+  const calculateShippingCost = useCallback(
+    (weight: number, destination: string): number => {
+      const rate = getRate(destination);
+      return weight * rate;
+    },
+    [getRate]
+  );
 
   // Utility: Calculate special item cost
-  const calculateSpecialItemCost = useCallback((categoryOrName: string): number | null => {
-    const price = getSpecialItemPrice(categoryOrName);
-    return price !== null ? price : null;
-  }, [getSpecialItemPrice]);
+  const calculateSpecialItemCost = useCallback(
+    (categoryOrName: string): number | null => {
+      const price = getSpecialItemPrice(categoryOrName);
+      return price !== null ? price : null;
+    },
+    [getSpecialItemPrice]
+  );
 
   // Utility: Calculate total cost (shipping + service fee)
-  const calculateTotalCost = useCallback((shippingCost: number): number => {
-    return shippingCost + shippingRates.serviceFee;
-  }, [shippingRates.serviceFee]);
+  const calculateTotalCost = useCallback(
+    (shippingCost: number): number => {
+      return shippingCost + shippingRates.serviceFee;
+    },
+    [shippingRates.serviceFee]
+  );
 
   const value: SettingsContextType = {
     shippingRates,
@@ -182,7 +251,7 @@ export function useSettings(): SettingsContextType {
   const context = useContext(SettingsContext);
 
   if (context === undefined) {
-    throw new Error('useSettings must be used within a SettingsProvider');
+    throw new Error("useSettings must be used within a SettingsProvider");
   }
 
   return context;

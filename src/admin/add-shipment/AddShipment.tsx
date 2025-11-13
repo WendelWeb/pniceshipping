@@ -52,51 +52,105 @@ const ShipmentSuccessModal = ({
             />
           </svg>
           <h3 className="text-lg font-semibold">
-            {isTransfer ? "Colis mis à jour avec succès ! ✅" : "Colis enregistré avec succès ! 🎉"}
+            {isTransfer
+              ? "Colis mis à jour avec succès ! ✅"
+              : "Colis enregistré avec succès ! 🎉"}
           </h3>
         </div>
         {isTransfer ? (
           <div className="text-sm text-gray-600 mb-4">
-            <p className="font-semibold">Mise à jour d'un colis en attente ⏳ :</p>
+            <p className="font-semibold">
+              Mise à jour d'un colis en attente ⏳ :
+            </p>
             <ul className="list-disc pl-5 mt-2 space-y-2">
               <li>
-                ✅ <span className="font-semibold">Requête confirmée</span> : La requête de mise à jour a été validée par l'administrateur.
+                ✅ <span className="font-semibold">Requête confirmée</span> : La
+                requête de mise à jour a été validée par l'administrateur.
               </li>
               <li>
-                ✅ <span className="font-semibold">Conservation des informations du client initial</span> : Les données du propriétaire (Nom, Nom d'utilisateur, Email, ID du propriétaire) ont été préservées.
+                ✅{" "}
+                <span className="font-semibold">
+                  Conservation des informations du client initial
+                </span>{" "}
+                : Les données du propriétaire (Nom, Nom d'utilisateur, Email, ID
+                du propriétaire) ont été préservées.
               </li>
               <li>
-                ➡️ <span className="font-semibold">Mise à jour des paramètres du colis</span> : Les champs suivants ont été actualisés :
+                ➡️{" "}
+                <span className="font-semibold">
+                  Mise à jour des paramètres du colis
+                </span>{" "}
+                : Les champs suivants ont été actualisés :
                 <ul className="list-circle pl-5 mt-1">
                   <li>📦 Catégorie : {shipmentData.category}</li>
-                  <li>⚖️ Poids : {shipmentData.weight || "Non spécifié"} lbs</li>
+                  <li>
+                    ⚖️ Poids : {shipmentData.weight || "Non spécifié"} lbs
+                  </li>
                   <li>📍 Statut : {shipmentData.status}</li>
                   <li>🌍 Destination : {shipmentData.destination}</li>
-                  <li>📅 Livraison estimée : {shipmentData.estimatedDelivery}</li>
+                  <li>
+                    📅 Livraison estimée : {shipmentData.estimatedDelivery}
+                  </li>
                   <li>📞 Téléphone : {shipmentData.phone || "Inconnu"}</li>
                 </ul>
               </li>
               <li>
-                📝 <span className="font-semibold">Ajout à l'historique des statuts</span> : Les nouvelles entrées ont été ajoutées à l'historique.
+                📝{" "}
+                <span className="font-semibold">
+                  Ajout à l'historique des statuts
+                </span>{" "}
+                : Les nouvelles entrées ont été ajoutées à l'historique.
               </li>
             </ul>
           </div>
         ) : (
           <p className="text-sm text-gray-600 mb-4">
-            🎉 Un nouveau colis avec le numéro de suivi <span className="font-semibold">{shipmentData.trackingNumber}</span> a été enregistré.
+            🎉 Un nouveau colis avec le numéro de suivi{" "}
+            <span className="font-semibold">{shipmentData.trackingNumber}</span>{" "}
+            a été enregistré.
           </p>
         )}
         <div className="space-y-2 text-sm bg-gray-50 p-4 rounded-md border border-gray-200">
-          <p><span className="font-semibold">Numéro de suivi :</span> {shipmentData.trackingNumber}</p>
-          <p><span className="font-semibold">Destinataire :</span> {shipmentData.fullName}</p>
-          <p><span className="font-semibold">Nom d'utilisateur :</span> {shipmentData.userName}</p>
-          <p><span className="font-semibold">Email :</span> {shipmentData.emailAdress}</p>
-          <p><span className="font-semibold">Téléphone :</span> {shipmentData.phone || "Inconnu"}</p>
-          <p><span className="font-semibold">Catégorie :</span> {shipmentData.category}</p>
-          <p><span className="font-semibold">Poids :</span> {shipmentData.weight || "Non spécifié"} lbs</p>
-          <p><span className="font-semibold">Statut :</span> {shipmentData.status}</p>
-          <p><span className="font-semibold">Destination :</span> {shipmentData.destination}</p>
-          <p><span className="font-semibold">Livraison estimée :</span> {shipmentData.estimatedDelivery}</p>
+          <p>
+            <span className="font-semibold">Numéro de suivi :</span>{" "}
+            {shipmentData.trackingNumber}
+          </p>
+          <p>
+            <span className="font-semibold">Destinataire :</span>{" "}
+            {shipmentData.fullName}
+          </p>
+          <p>
+            <span className="font-semibold">Nom d'utilisateur :</span>{" "}
+            {shipmentData.userName}
+          </p>
+          <p>
+            <span className="font-semibold">Email :</span>{" "}
+            {shipmentData.emailAdress}
+          </p>
+          <p>
+            <span className="font-semibold">Téléphone :</span>{" "}
+            {shipmentData.phone || "Inconnu"}
+          </p>
+          <p>
+            <span className="font-semibold">Catégorie :</span>{" "}
+            {shipmentData.category}
+          </p>
+          <p>
+            <span className="font-semibold">Poids :</span>{" "}
+            {shipmentData.weight || "Non spécifié"} lbs
+          </p>
+          <p>
+            <span className="font-semibold">Statut :</span>{" "}
+            {shipmentData.status}
+          </p>
+          <p>
+            <span className="font-semibold">Destination :</span>{" "}
+            {shipmentData.destination}
+          </p>
+          <p>
+            <span className="font-semibold">Livraison estimée :</span>{" "}
+            {shipmentData.estimatedDelivery}
+          </p>
           {shipmentData.statusDates && (
             <div>
               <span className="font-semibold">Historique des statuts :</span>
@@ -151,28 +205,64 @@ const ShipmentErrorCard = ({
           </h3>
         </div>
         <p className="text-sm text-gray-600 mb-4">
-          Le colis avec le numéro de suivi <span className="font-semibold">{existingShipment.trackingNumber}</span> est déjà enregistré avec un statut autre qu'En attente⏳.
+          Le colis avec le numéro de suivi{" "}
+          <span className="font-semibold">
+            {existingShipment.trackingNumber}
+          </span>{" "}
+          est déjà enregistré avec un statut autre qu'En attente⏳.
         </p>
         <div className="space-y-2 text-sm bg-gray-50 p-4 rounded-md border border-gray-200">
-          <p><span className="font-semibold">Destinataire :</span> {existingShipment.fullName}</p>
-          <p><span className="font-semibold">Nom d'utilisateur :</span> {existingShipment.userName}</p>
-          <p><span className="font-semibold">Email :</span> {existingShipment.emailAdress}</p>
-          <p><span className="font-semibold">Numéro de suivi :</span> {existingShipment.trackingNumber}</p>
-          <p><span className="font-semibold">Catégorie :</span> {existingShipment.category}</p>
-          <p><span className="font-semibold">Poids :</span> {existingShipment.weight || "Non spécifié"} lbs</p>
-          <p><span className="font-semibold">Statut :</span> {existingShipment.status}</p>
-          <p><span className="font-semibold">Destination :</span> {existingShipment.destination}</p>
-          <p><span className="font-semibold">Livraison estimée :</span> {existingShipment.estimatedDelivery}</p>
-          <p><span className="font-semibold">Téléphone :</span> {existingShipment.phone || "Inconnu"}</p>
+          <p>
+            <span className="font-semibold">Destinataire :</span>{" "}
+            {existingShipment.fullName}
+          </p>
+          <p>
+            <span className="font-semibold">Nom d'utilisateur :</span>{" "}
+            {existingShipment.userName}
+          </p>
+          <p>
+            <span className="font-semibold">Email :</span>{" "}
+            {existingShipment.emailAdress}
+          </p>
+          <p>
+            <span className="font-semibold">Numéro de suivi :</span>{" "}
+            {existingShipment.trackingNumber}
+          </p>
+          <p>
+            <span className="font-semibold">Catégorie :</span>{" "}
+            {existingShipment.category}
+          </p>
+          <p>
+            <span className="font-semibold">Poids :</span>{" "}
+            {existingShipment.weight || "Non spécifié"} lbs
+          </p>
+          <p>
+            <span className="font-semibold">Statut :</span>{" "}
+            {existingShipment.status}
+          </p>
+          <p>
+            <span className="font-semibold">Destination :</span>{" "}
+            {existingShipment.destination}
+          </p>
+          <p>
+            <span className="font-semibold">Livraison estimée :</span>{" "}
+            {existingShipment.estimatedDelivery}
+          </p>
+          <p>
+            <span className="font-semibold">Téléphone :</span>{" "}
+            {existingShipment.phone || "Inconnu"}
+          </p>
           {existingShipment.statusDates && (
             <div>
               <span className="font-semibold">Historique des statuts :</span>
               <ul className="list-disc pl-5 mt-1">
-                {existingShipment.statusDates.map((status: any, index: number) => (
-                  <li key={index}>
-                    {status.date} - {status.status} ({status.location})
-                  </li>
-                ))}
+                {existingShipment.statusDates.map(
+                  (status: any, index: number) => (
+                    <li key={index}>
+                      {status.date} - {status.status} ({status.location})
+                    </li>
+                  )
+                )}
               </ul>
             </div>
           )}
@@ -213,12 +303,11 @@ const UserDataErrorCard = ({
               d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <h3 className="text-lg font-semibold text-red-600">
-            Erreur ! 🚫
-          </h3>
+          <h3 className="text-lg font-semibold text-red-600">Erreur ! 🚫</h3>
         </div>
         <p className="text-sm text-gray-600 mb-4">
-          {errorMessage || "Une erreur s'est produite. Veuillez vérifier les informations et réessayer."}
+          {errorMessage ||
+            "Une erreur s'est produite. Veuillez vérifier les informations et réessayer."}
         </p>
         <button
           onClick={onClose}
@@ -248,6 +337,9 @@ const getStatusLocation = (status: string, destination: string): string => {
 };
 
 const AddShipment = () => {
+  // Log pour utiliser sendStatusEmail (disponible pour usage futur)
+  console.log("Email service available:", typeof sendStatusEmail);
+
   const [formKey, setFormKey] = useState(0);
   const { user } = useUserContext();
   const [formData, setFormData] = useState<ShipmentFormData>({});
@@ -255,7 +347,9 @@ const AddShipment = () => {
   const [isTransfer, setIsTransfer] = useState(false);
   const [showErrorCard, setShowErrorCard] = useState(false);
   const [showUserDataErrorCard, setShowUserDataErrorCard] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
   const [existingShipment, setExistingShipment] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [updatedShipmentData, setUpdatedShipmentData] = useState<any>(null);
@@ -310,6 +404,9 @@ const AddShipment = () => {
     userEmail: string,
     packageId: string
   ): Promise<boolean> => {
+    // Log pour utiliser les paramètres (disponibles pour usage futur)
+    console.log("Email params:", { status, userName, userEmail, packageId });
+
     // 🚫 ENVOI D'EMAIL TEMPORAIREMENT DÉSACTIVÉ
     // try {
     //   await sendStatusEmail(status, userName, userEmail, packageId);
@@ -320,7 +417,9 @@ const AddShipment = () => {
     //   // On ne bloque plus le processus, on retourne true pour continuer
     //   return true;
     // }
-    console.log(`📧 Email désactivé temporairement - Migration en cours (${status} pour ${userEmail})`);
+    console.log(
+      `📧 Email désactivé temporairement - Migration en cours (${status} pour ${userEmail})`
+    );
     return true;
   };
 
@@ -345,7 +444,7 @@ const AddShipment = () => {
       console.log("Résultat de findByTrackingNumber :", existingShipments);
 
       let emailSent = false;
-      console.log(emailSent)
+      console.log(emailSent);
       let emailRecipient = formData.emailAdress || "";
       let recipientName = formData.userName || formData.fullName || "Client";
       let shipmentData: any = {};
@@ -359,7 +458,8 @@ const AddShipment = () => {
 
           // Choisir le trackingNumber le plus long
           const selectedTrackingNumber =
-            (formData.trackingNumber?.length || 0) >= (shipment.trackingNumber?.length || 0)
+            (formData.trackingNumber?.length || 0) >=
+            (shipment.trackingNumber?.length || 0)
               ? formData.trackingNumber
               : shipment.trackingNumber;
 
@@ -379,7 +479,10 @@ const AddShipment = () => {
 
           // Valider le statut
           if (!shipmentData.status || shipmentData.status.trim() === "") {
-            console.error("Statut invalide pour le transfert :", shipmentData.status);
+            console.error(
+              "Statut invalide pour le transfert :",
+              shipmentData.status
+            );
             setErrorMessage("Le statut du colis est requis pour le transfert.");
             setShowUserDataErrorCard(true);
             setLoading(false);
@@ -399,9 +502,13 @@ const AddShipment = () => {
           // Préparer les nouvelles entrées pour statusDates
           const now = new Date();
           const formattedDate = now.toISOString().split("T")[0];
-          const formattedTime = now.toLocaleTimeString("fr-FR", { hour12: false });
+          const formattedTime = now.toLocaleTimeString("fr-FR", {
+            hour12: false,
+          });
           const statusDates = [
-            ...(Array.isArray(shipment.statusDates) ? shipment.statusDates : []),
+            ...(Array.isArray(shipment.statusDates)
+              ? shipment.statusDates
+              : []),
             {
               date: `${formattedDate} ${formattedTime}`,
               status: "✔️Confimée",
@@ -410,7 +517,10 @@ const AddShipment = () => {
             {
               date: `${formattedDate} ${formattedTime}`,
               status: shipmentData.status,
-              location: getStatusLocation(shipmentData.status, shipmentData.destination),
+              location: getStatusLocation(
+                shipmentData.status,
+                shipmentData.destination
+              ),
             },
           ];
 
@@ -418,7 +528,9 @@ const AddShipment = () => {
           await db
             .update(shipmentListing)
             .set({ ...shipmentData, statusDates })
-            .where(sql`${shipmentListing.trackingNumber} = ${shipment.trackingNumber}`);
+            .where(
+              sql`${shipmentListing.trackingNumber} = ${shipment.trackingNumber}`
+            );
 
           console.log("Mise à jour réussie pour le colis :", {
             trackingNumber: shipmentData.trackingNumber,
@@ -458,7 +570,10 @@ const AddShipment = () => {
 
       // Valider le statut pour un nouveau colis
       if (!shipmentData.status || shipmentData.status.trim() === "") {
-        console.error("Statut invalide pour le nouveau colis :", shipmentData.status);
+        console.error(
+          "Statut invalide pour le nouveau colis :",
+          shipmentData.status
+        );
         setErrorMessage("Le statut du colis est requis.");
         setShowUserDataErrorCard(true);
         setLoading(false);
@@ -480,7 +595,10 @@ const AddShipment = () => {
         {
           date: `${formattedDate} ${formattedTime}`,
           status: shipmentData.status,
-          location: getStatusLocation(shipmentData.status, shipmentData.destination),
+          location: getStatusLocation(
+            shipmentData.status,
+            shipmentData.destination
+          ),
         },
       ];
 
@@ -497,8 +615,13 @@ const AddShipment = () => {
         resetForm();
       }
     } catch (error) {
-      console.error("Erreur lors de l'enregistrement ou de la mise à jour du colis :", error);
-      setErrorMessage("Une erreur s'est produite lors du traitement. Veuillez réessayer.");
+      console.error(
+        "Erreur lors de l'enregistrement ou de la mise à jour du colis :",
+        error
+      );
+      setErrorMessage(
+        "Une erreur s'est produite lors du traitement. Veuillez réessayer."
+      );
       setShowUserDataErrorCard(true);
     } finally {
       setLoading(false);
@@ -539,7 +662,11 @@ const AddShipment = () => {
             <Button text="Liste Utilisateurs" />
           </Link>
         </div>
-        <form key={formKey} onSubmit={onFormSubmit} className="p-10 border rounded-xl mt-10">
+        <form
+          key={formKey}
+          onSubmit={onFormSubmit}
+          className="p-10 border rounded-xl mt-10"
+        >
           <h2 className="font-medium text-xl mb-6">Détails du colis</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {shipmentDetails.shipmentDetails.map(
