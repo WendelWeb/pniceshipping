@@ -84,25 +84,33 @@ const AccountSuspended = () => {
               </div>
 
               {/* Action Required */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-yellow-900 mb-3">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 sm:p-5 md:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-yellow-900 mb-2 sm:mb-3">
                   Action Required
                 </h3>
-                <ul className="space-y-2 text-yellow-800">
+                <ul className="space-y-2 text-sm sm:text-base text-yellow-800">
                   <li className="flex items-start gap-2">
-                    <span className="text-yellow-600 font-bold mt-1">1.</span>
+                    <span className="text-yellow-600 font-bold mt-0.5 sm:mt-1 flex-shrink-0">
+                      1.
+                    </span>
                     <span>Log in to your n8n account dashboard</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-yellow-600 font-bold mt-1">2.</span>
+                    <span className="text-yellow-600 font-bold mt-0.5 sm:mt-1 flex-shrink-0">
+                      2.
+                    </span>
                     <span>Navigate to billing and payment settings</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-yellow-600 font-bold mt-1">3.</span>
+                    <span className="text-yellow-600 font-bold mt-0.5 sm:mt-1 flex-shrink-0">
+                      3.
+                    </span>
                     <span>Complete the outstanding payment</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-yellow-600 font-bold mt-1">4.</span>
+                    <span className="text-yellow-600 font-bold mt-0.5 sm:mt-1 flex-shrink-0">
+                      4.
+                    </span>
                     <span>
                       Wait for account reactivation (usually within 24 hours)
                     </span>
@@ -111,12 +119,12 @@ const AccountSuspended = () => {
               </div>
 
               {/* Footer Note */}
-              <div className="text-center pt-4">
-                <p className="text-sm text-gray-500">
+              <div className="text-center pt-3 sm:pt-4">
+                <p className="text-xs sm:text-sm text-gray-500 px-2">
                   If you believe this is an error, please contact n8n support
                   immediately.
                 </p>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-gray-400 mt-1 sm:mt-2">
                   Error Code: N8N-PAYMENT-SUSPENDED-001
                 </p>
               </div>
@@ -128,9 +136,9 @@ const AccountSuspended = () => {
         <motion.div
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="text-center mt-6"
+          className="text-center mt-4 sm:mt-6"
         >
-          <p className="text-red-600 font-semibold text-lg">
+          <p className="text-red-600 font-semibold text-base sm:text-lg px-4">
             ⚠️ Service Temporarily Unavailable ⚠️
           </p>
         </motion.div>
