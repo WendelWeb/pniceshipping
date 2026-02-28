@@ -5,7 +5,7 @@ import "./navbar.css";
 import {
   SignedOut,
   SignedIn,
-  SignInButton,
+  SignUpButton,
   UserButton,
 } from "@clerk/clerk-react";
 import AdminButton from "@/admin/components/AdminButton";
@@ -264,7 +264,7 @@ const Navbar = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <SignInButton>
+        <SignUpButton>
           <button className={`
             relative overflow-hidden group
             bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold
@@ -276,7 +276,7 @@ const Navbar = () => {
             flex items-center space-x-2
           `}>
             <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
-            <span>✨ Se connecter</span>
+            <span>✨ Créer un compte</span>
             <motion.div
               className="absolute inset-0 bg-white/20"
               initial={{ x: "-100%" }}
@@ -284,7 +284,7 @@ const Navbar = () => {
               transition={{ duration: 0.6 }}
             />
           </button>
-        </SignInButton>
+        </SignUpButton>
       </motion.div>
     </SignedOut>
   );
