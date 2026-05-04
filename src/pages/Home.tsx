@@ -243,7 +243,7 @@ const Home = () => {
         id="conditions"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.05 }}
       >
         {/* Background Effects */}
         <div className="absolute inset-0">
@@ -394,7 +394,7 @@ const Home = () => {
         className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-gradient-to-br from-slate-900 to-slate-800"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.05 }}
       >
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
           <motion.div variants={fadeInUp}>
@@ -525,7 +525,7 @@ const Home = () => {
         className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-slate-950"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.05 }}
       >
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
           <motion.div variants={fadeInUp}>
@@ -634,7 +634,7 @@ const Home = () => {
         className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-gradient-to-br from-slate-900 to-slate-800"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.05 }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.h2 
@@ -733,7 +733,7 @@ const Home = () => {
         className="bg-gradient-to-br from-slate-900 via-blue-900/20 to-purple-900/20 py-12 sm:py-16 md:py-20 px-4 sm:px-6 relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.05 }}
       >
         {/* Background Effects */}
         <div className="absolute inset-0">
