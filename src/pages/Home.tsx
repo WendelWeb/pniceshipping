@@ -239,7 +239,7 @@ const Home = () => {
       
       {/* Nouvelle section Conditions Générales d'Expédition */}
       <motion.section 
-        className="py-20 px-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden" 
+        className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden" 
         id="conditions"
         initial="hidden"
         whileInView="visible"
@@ -253,7 +253,7 @@ const Home = () => {
 
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-10 sm:mb-12 md:mb-16"
             variants={fadeInUp}
           >
             <motion.div 
@@ -264,13 +264,13 @@ const Home = () => {
               <span className="text-2xl">✈️</span>
             </motion.div>
             <motion.h2 
-              className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent mb-6"
+              className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent mb-6"
               variants={fadeInUp}
             >
               Conditions Générales d'Expédition 🚀
             </motion.h2>
             <motion.p 
-              className="text-xl text-slate-300 max-w-4xl mx-auto leading-relaxed"
+              className="text-base sm:text-lg md:text-xl text-slate-300 max-w-4xl mx-auto leading-relaxed"
               variants={fadeInUp}
             >
               Chez Pnice Shipping, nous nous engageons à vous offrir un service rapide, sécurisé et transparent pour l'expédition de vos colis vers Haïti. ✨
@@ -278,13 +278,13 @@ const Home = () => {
           </motion.div>
 
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-16"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-10 sm:mb-12 md:mb-16"
             variants={staggerContainer}
           >
             {shippingTerms.map((term, index) => (
               <motion.div 
                 key={index} 
-                className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300"
+                className="bg-slate-800/50 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-2xl border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300"
                 variants={fadeInUp}
                 whileHover={{ ...scaleOnHover.hover, ...glowEffect.hover }}
                 whileTap={scaleOnHover.tap}
@@ -323,24 +323,24 @@ const Home = () => {
 
           {/* Bonnes pratiques */}
           <motion.div 
-            className="bg-slate-800/30 backdrop-blur-2xl rounded-3xl p-10 shadow-2xl border border-slate-700/30"
+            className="bg-slate-800/30 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-10 shadow-2xl border border-slate-700/30"
             variants={fadeInUp}
             whileHover={glowEffect.hover}
           >
             <motion.h3 
-              className="text-3xl font-bold text-center mb-10 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent"
+              className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-10 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent"
               variants={fadeInUp}
             >
               ✅ Bonnes Pratiques à Respecter
             </motion.h3>
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10"
               variants={staggerContainer}
             >
               {bestPractices.map((practice, index) => (
                 <motion.div 
                   key={index} 
-                  className="flex items-center p-6 bg-slate-700/30 rounded-2xl border border-slate-600/30 hover:bg-slate-700/50 transition-all duration-300"
+                  className="flex items-center p-4 sm:p-5 md:p-6 bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30 hover:bg-slate-700/50 transition-all duration-300"
                   variants={fadeInUp}
                   whileHover={{ scale: 1.02, x: 5 }}
                 >
@@ -364,7 +364,7 @@ const Home = () => {
                 <strong>Nous sommes là pour vous accompagner et garantir une expérience fluide. 🤝</strong>
               </p>
               <motion.div 
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 text-emerald-300 rounded-2xl border border-emerald-500/30 backdrop-blur-sm"
+                className="inline-flex items-center px-4 sm:px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 text-emerald-300 rounded-2xl border border-emerald-500/30 backdrop-blur-sm"
                 whileHover={{ scale: 1.05 }}
                 animate={{ 
                   boxShadow: [
@@ -391,33 +391,33 @@ const Home = () => {
 
       {/* About Section */}
       <motion.section 
-        className="py-20 px-4 bg-gradient-to-br from-slate-900 to-slate-800"
+        className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-gradient-to-br from-slate-900 to-slate-800"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
       >
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
           <motion.div variants={fadeInUp}>
             <motion.h2 
-              className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight"
               variants={fadeInUp}
             >
               Optimiser l'Efficacité de la 
               <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Logistique Mondiale 🌍</span>
             </motion.h2>
             <motion.p 
-              className="text-slate-300 text-lg mb-8 leading-relaxed"
+              className="text-slate-300 text-sm sm:text-base md:text-lg mb-6 sm:mb-8 leading-relaxed"
               variants={fadeInUp}
             >
               Chez Pnice shipping, nous nous engageons à fournir des services de courrier et de colis rapides, fiables et sécurisés. Avec un accent sur la satisfaction client et l'efficacité, nous garantissons chaque livraison. ⚡
             </motion.p>
 
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-10"
               variants={staggerContainer}
             >
               <motion.div 
-                className="flex items-center space-x-4 p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50"
+                className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 md:p-6 bg-slate-800/50 rounded-xl sm:rounded-2xl border border-slate-700/50"
                 variants={fadeInUp}
                 whileHover={{ scale: 1.02, x: 5 }}
               >
@@ -436,7 +436,7 @@ const Home = () => {
                 </div>
               </motion.div>
               <motion.div 
-                className="flex items-center space-x-4 p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50"
+                className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 md:p-6 bg-slate-800/50 rounded-xl sm:rounded-2xl border border-slate-700/50"
                 variants={fadeInUp}
                 whileHover={{ scale: 1.02, x: 5 }}
               >
@@ -457,7 +457,7 @@ const Home = () => {
             </motion.div>
 
             <motion.button 
-              className="group bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-2xl flex items-center space-x-3 font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
+              className="group bg-gradient-to-r from-blue-500 to-purple-600 text-white px-5 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
               variants={fadeInUp}
@@ -486,16 +486,16 @@ const Home = () => {
             </motion.div>
             
             <motion.div 
-              className="absolute -bottom-8 -left-8 bg-gradient-to-br from-slate-800 to-slate-700 text-white p-8 rounded-3xl shadow-2xl border border-slate-600/50 backdrop-blur-sm"
+              className="absolute -bottom-4 sm:-bottom-6 md:-bottom-8 -left-2 sm:-left-4 md:-left-8 bg-gradient-to-br from-slate-800 to-slate-700 text-white p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-600/50 backdrop-blur-sm max-w-[calc(100%-1rem)]"
               initial={{ opacity: 0, y: 50, x: -50 }}
               whileInView={{ opacity: 1, y: 0, x: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
               whileHover={{ scale: 1.05 }}
             >
-              <div className="flex items-center space-x-8">
+              <div className="flex items-center gap-4 sm:gap-6 md:gap-8">
                 <div className="text-center">
-                  <motion.h3 
-                    className="text-3xl font-bold text-emerald-400"
+                  <motion.h3
+                    className="text-2xl sm:text-3xl font-bold text-emerald-400"
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
@@ -505,8 +505,8 @@ const Home = () => {
                 </div>
                 <div className="w-px h-12 bg-slate-600"></div>
                 <div className="text-center">
-                  <motion.h3 
-                    className="text-3xl font-bold text-blue-400"
+                  <motion.h3
+                    className="text-2xl sm:text-3xl font-bold text-blue-400"
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 2, repeat: Infinity, delay: 1 }}
                   >
@@ -522,12 +522,12 @@ const Home = () => {
 
       {/* Why Choose Us Section */}
       <motion.section 
-        className="py-20 px-6 bg-slate-950"
+        className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-slate-950"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
       >
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
           <motion.div variants={fadeInUp}>
             <motion.p 
               className="text-yellow-400 font-bold text-lg mb-4 flex items-center"
@@ -537,14 +537,14 @@ const Home = () => {
               Pourquoi Nous Choisir
             </motion.p>
             <motion.h2 
-              className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6"
               variants={fadeInUp}
             >
               Vivez la Meilleure Expérience de Service 
               <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent"> Avec Nous 🌟</span>
             </motion.h2>
             <motion.p 
-              className="text-slate-300 text-lg mb-8 leading-relaxed"
+              className="text-slate-300 text-sm sm:text-base md:text-lg mb-6 sm:mb-8 leading-relaxed"
               variants={fadeInUp}
             >
               Choisissez-nous pour notre fiabilité éprouvée, notre disponibilité 24/7 et notre engagement envers la satisfaction client. Nous priorisons les livraisons rapides et sécurisées et offrons un suivi en temps réel pour vous tenir informé à chaque étape. ⚡
@@ -564,7 +564,7 @@ const Home = () => {
             
             <motion.a href="#calculator" variants={fadeInUp}>
               <motion.button 
-                className="group bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-4 rounded-2xl flex items-center space-x-3 font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
+                className="group bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -588,15 +588,15 @@ const Home = () => {
             />
           </motion.div>
 
-          <motion.div 
-            className="lg:col-span-2 mt-16"
+          <motion.div
+            className="lg:col-span-2 mt-10 sm:mt-12 md:mt-16"
             variants={staggerContainer}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
               {features.map((feature, index) => (
                 <motion.div
                   key={index}
-                  className="flex flex-col items-start bg-slate-800/30 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300"
+                  className="flex flex-col items-start bg-slate-800/30 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300"
                   variants={fadeInUp}
                   whileHover={{ scale: 1.02, y: -5 }}
                 >
@@ -631,14 +631,14 @@ const Home = () => {
 
       {/* Testimonials Section */}
       <motion.section 
-        className="py-20 px-6 bg-gradient-to-br from-slate-900 to-slate-800"
+        className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-gradient-to-br from-slate-900 to-slate-800"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.h2 
-            className="text-white text-4xl md:text-5xl font-bold text-center mb-4"
+            className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4"
             variants={fadeInUp}
           >
             Ce Que Disent Nos Clients 
@@ -653,13 +653,13 @@ const Home = () => {
           </motion.p>
 
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
             variants={staggerContainer}
           >
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
-                className="bg-slate-800/50 backdrop-blur-xl shadow-2xl p-8 rounded-3xl border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300"
+                className="bg-slate-800/50 backdrop-blur-xl shadow-2xl p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300"
                 variants={fadeInUp}
                 whileHover={{ scale: 1.02, y: -5 }}
               >
@@ -730,7 +730,7 @@ const Home = () => {
 
       {/* CTA Section */}
       <motion.section 
-        className="bg-gradient-to-br from-slate-900 via-blue-900/20 to-purple-900/20 py-20 px-6 relative overflow-hidden"
+        className="bg-gradient-to-br from-slate-900 via-blue-900/20 to-purple-900/20 py-12 sm:py-16 md:py-20 px-4 sm:px-6 relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
@@ -741,10 +741,10 @@ const Home = () => {
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center relative z-10">
           <motion.div variants={fadeInUp}>
             <motion.h1 
-              className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold text-white mb-6 leading-tight"
               variants={fadeInUp}
             >
               Faites le Premier Pas Vers 
@@ -757,7 +757,7 @@ const Home = () => {
               Notre équipe expérimentée de professionnels est dédiée à transformer votre vision en réalité. Rejoignez des milliers de clients satisfaits ! ✨
             </motion.p>
             <motion.div 
-              className="flex flex-col sm:flex-row gap-6"
+              className="flex flex-col sm:flex-row gap-4 sm:gap-6"
               variants={staggerContainer}
             >
               <motion.a
@@ -767,7 +767,7 @@ const Home = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-4 rounded-2xl transition-all duration-300 flex items-center justify-center space-x-3 shadow-xl hover:shadow-2xl">
+                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl">
                   <Zap className="w-5 h-5" />
                   <span className="font-semibold text-lg">Obtenir un Devis</span>
                   <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
@@ -780,7 +780,7 @@ const Home = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="bg-slate-800/50 backdrop-blur-sm border-2 border-slate-600 text-white px-8 py-4 rounded-2xl transition-all duration-300 flex items-center justify-center space-x-3 hover:border-slate-500 shadow-xl">
+                <div className="bg-slate-800/50 backdrop-blur-sm border-2 border-slate-600 text-white px-5 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 hover:border-slate-500 shadow-xl">
                   <Package className="w-5 h-5" />
                   <span className="font-semibold text-lg">Nos services</span>
                   <span>📦</span>
@@ -816,8 +816,8 @@ const Home = () => {
         </div>
 
         {/* Stats Section */}
-        <motion.div 
-          className="max-w-7xl mx-auto mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10"
+        <motion.div
+          className="max-w-7xl mx-auto mt-12 sm:mt-16 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 relative z-10"
           variants={staggerContainer}
         >
           <motion.div 

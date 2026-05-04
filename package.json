@@ -33,7 +33,7 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.3",
     "express": "^4.21.2",
-    "framer-motion": "^12.4.7",
+    "framer-motion": "^11.18.2",
     "i18next": "^25.2.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.475.0",

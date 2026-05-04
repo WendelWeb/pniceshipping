@@ -7,3 +7,85 @@
     scroll-behavior: smooth;
 }
 
+/*
+  PNICE — Mobile responsive shim.
+
+  Many components use desktop-first Tailwind utilities (`py-20`, `text-4xl`,
+  `p-8`, `gap-8`) without responsive variants. On small viewports this
+  produces overflowing cards, oversized type, and excessive whitespace.
+
+  Rather than rewriting every component, this shim caps the worst
+  offenders inside a < 640px media query. Components that already declare
+  responsive variants (e.g. `text-4xl md:text-6xl`) win on specificity at
+  the breakpoint they target. We only touch the base utility class.
+
+  All overrides are scoped to the < 640px viewport so desktop is unaffected.
+*/
+
+@media (max-width: 639px) {
+  /* === TYPOGRAPHY — cap headline sizes === */
+  .text-7xl { font-size: 2.5rem !important; line-height: 1.05 !important; }
+  .text-6xl { font-size: 2.25rem !important; line-height: 1.05 !important; }
+  .text-5xl { font-size: 2rem !important; line-height: 1.1 !important; }
+  .text-4xl { font-size: 1.75rem !important; line-height: 1.15 !important; }
+  .text-3xl { font-size: 1.5rem !important; line-height: 1.2 !important; }
+  .text-2xl { font-size: 1.25rem !important; line-height: 1.3 !important; }
+
+  /* body text — gentle reduction so paragraphs fit */
+  .text-xl  { font-size: 1.0625rem !important; line-height: 1.55 !important; }
+
+  /* === VERTICAL RHYTHM — sections, margins === */
+  .py-24 { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+  .py-20 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+  .py-16 { padding-top: 2.25rem !important; padding-bottom: 2.25rem !important; }
+  .pt-20 { padding-top: 2.5rem !important; }
+  .pb-20 { padding-bottom: 2.5rem !important; }
+  .mt-20 { margin-top: 2.5rem !important; }
+  .mb-20 { margin-bottom: 2.5rem !important; }
+  .mt-16 { margin-top: 2rem !important; }
+  .mb-16 { margin-bottom: 2rem !important; }
+  .mb-10 { margin-bottom: 1.5rem !important; }
+
+  /* === CARD PADDING — too generous on tiny screens === */
+  .p-12 { padding: 1.25rem !important; }
+  .p-10 { padding: 1.125rem !important; }
+  .p-8  { padding: 1rem !important; }
+
+  /* === GAPS — grid/flex gaps too big on phones === */
+  .gap-16 { gap: 1.5rem !important; }
+  .gap-12 { gap: 1.25rem !important; }
+  .gap-10 { gap: 1rem !important; }
+  .gap-8  { gap: 1rem !important; }
+
+  /* === SPACE-X — horizontal flex gaps cause overflow === */
+  .space-x-12 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem !important; }
+  .space-x-10 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.875rem !important; }
+  .space-x-8  > :not([hidden]) ~ :not([hidden]) { margin-left: 0.75rem !important; }
+  .space-x-6  > :not([hidden]) ~ :not([hidden]) { margin-left: 0.625rem !important; }
+
+  /* === BUTTONS — px-8 py-4 too tall/wide === */
+  .px-10 { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
+  .px-8  { padding-left: 1.125rem !important; padding-right: 1.125rem !important; }
+
+  /* === ICON CONTAINERS — w-20 h-20 etc. eat the screen === */
+  .w-20 { width: 3.5rem !important; }
+  .h-20 { height: 3.5rem !important; }
+
+  /* === ROUNDED — softer corners on mobile === */
+  .rounded-3xl { border-radius: 1rem !important; }
+
+  /* === IMAGES — never overflow === */
+  img { max-width: 100% !important; height: auto !important; }
+
+  /* === FLOATING ABSOLUTE BADGES — keep them inside viewport === */
+  .absolute.-top-4, .absolute.-top-6, .absolute.-top-8 { top: -0.5rem !important; }
+  .absolute.-bottom-4, .absolute.-bottom-6, .absolute.-bottom-8 { bottom: -0.5rem !important; }
+  .absolute.-left-4, .absolute.-left-6, .absolute.-left-8 { left: 0.25rem !important; }
+  .absolute.-right-4, .absolute.-right-6, .absolute.-right-8 { right: 0.25rem !important; }
+}
+
+/* === GLOBAL — prevent any horizontal scroll on the document === */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
